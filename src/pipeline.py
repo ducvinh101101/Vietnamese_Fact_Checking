@@ -1,0 +1,20 @@
+from src.fact_checker import RuleBasedFactChecker
+from src.io_utils import load_evidence_jsonl
+from src.preprocessing import normalize_text
+from src.retriever import BM25Retriever
+from src.schemas import RetrievedEvidence, VerificationResult
+
+
+class FactCheckingPipeline:
+    def __init__(self, evidence_path: str, top_k: int = 3, support_threshold: float = 0.45,
+                 refute_markers: list[str] | None = None) -> None:
+        self.retriever = BM25Retriever(load_evidence_jsonl(evidence_path))
+        self.checker = RuleBasedFactChecker(support_threshold, refute_markers)
+        self.top_k = top_k
+
+    def run(self, claim: str) -> tuple[VerificationResult, list[RetrievedEvidence]]:
+        cleaned_claim = normalize_text(claim)
+        if not cleaned_claim:
+            raise ValueError("Phát biểu không được để trống")
+        retrieved = self.retriever.search(cleaned_claim, self.top_k)
+        return self.checker.verify(cleaned_claim, retrieved), retrieved

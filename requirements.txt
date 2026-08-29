@@ -1,0 +1,12 @@
+streamlit>=1.38,<2
+pandas>=2.2,<3
+PyYAML>=6.0,<7
+rank-bm25>=0.2.2,<1
+scikit-learn>=1.5,<2
+pytest>=8,<9
+# Cài ở giai đoạn mô hình nâng cao:
+# torch
+# transformers
+# datasets
+# sentence-transformers
+# faiss-cpu
