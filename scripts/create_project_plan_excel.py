@@ -102,9 +102,9 @@ def create_plan(workbook: Workbook) -> None:
     style_title(ws, "KẾ HOẠCH CÔNG VIỆC CHI TIẾT", len(headers))
     style_header(ws, 3, headers)
     tasks = [
-        ("W1-01", "Tuần 1", "Dữ liệu", "Tải ViFactCheck, kiểm tra schema, nhãn, bản ghi thiếu và trùng lặp", "Vinh", "Quang", 1.5, "", "data audit + dataset revision", "Cao", "Chưa bắt đầu", ""),
-        ("W1-02", "Tuần 1", "Dữ liệu", "Kiểm tra trùng URL/context; tạo split chống rò rỉ và ghi seed", "Vinh", "", 1.0, "W1-01", "train/dev/test + báo cáo split", "Cao", "Chưa bắt đầu", ""),
-        ("W1-03", "Tuần 1", "Mô hình", "Xây TF-IDF word+char n-gram và Linear SVM baseline", "Vinh", "", 1.5, "W1-02", "E1 metrics + confusion matrix", "Cao", "Chưa bắt đầu", ""),
+        ("W1-01", "Tuần 1", "Dữ liệu", "Tải ViFactCheck, kiểm tra schema, nhãn, bản ghi thiếu và trùng lặp", "Vinh", "Quang", 1.5, "", "data audit + dataset revision", "Cao", "Hoàn thành", "Audit: 7.232 mẫu, không thiếu trường bắt buộc"),
+        ("W1-02", "Tuần 1", "Dữ liệu", "Kiểm tra trùng URL/context; tạo split chống rò rỉ và ghi seed", "Vinh", "", 1.0, "W1-01", "train/dev/test + báo cáo split", "Cao", "Hoàn thành", "Split 70/15/15 theo URL; rò rỉ URL = 0"),
+        ("W1-03", "Tuần 1", "Mô hình", "Xây TF-IDF word+char n-gram và Linear SVM baseline", "Vinh", "", 1.5, "W1-02", "E1 metrics + confusion matrix", "Cao", "Hoàn thành", "E1 group split: Macro-F1 test 40,15%"),
         ("W1-04", "Tuần 1", "Retrieval", "Chuẩn hóa schema evidence JSONL và chia passage theo câu", "Quang", "Vinh", 1.5, "W1-01", "evidence corpus", "Cao", "Chưa bắt đầu", ""),
         ("W1-05", "Tuần 1", "Sản phẩm", "Thiết lập repository, config, test và Streamlit dữ liệu mẫu", "Quang", "", 1.0, "", "MVP chạy cục bộ", "Cao", "Hoàn thành", "Khung đã tạo"),
         ("W2-01", "Tuần 2", "Retrieval", "Xây BM25, đánh giá Recall@3, Recall@5, MRR và latency", "Quang", "Vinh", 1.5, "W1-04", "E3 retrieval metrics", "Cao", "Chưa bắt đầu", ""),
@@ -148,7 +148,7 @@ def create_experiments(workbook: Workbook) -> None:
     style_title(ws, "NHẬT KÝ THÍ NGHIỆM VÀ QUYẾT ĐỊNH", len(headers))
     style_header(ws, 3, headers)
     rows = [
-        ("E1", "Baseline verifier", "TF-IDF word+char + Linear SVM; claim–gold evidence", "Vinh", "Macro-F1", "", "", "Chưa bắt đầu", ""),
+        ("E1", "Baseline verifier", "TF-IDF word+char + Linear SVM; claim–gold evidence", "Vinh", "Macro-F1", "Test: 40,15%", "Giữ làm baseline chính", "Hoàn thành", "C=0,25; group split"),
         ("E2", "Verifier nâng cao", "PhoBERT hoặc XLM-R; claim–gold evidence", "Vinh", "Macro-F1 / F1 theo nhãn", "", "", "Chưa bắt đầu", ""),
         ("E3", "BM25 retrieval", "BM25 trên passage corpus", "Quang", "Recall@3, Recall@5, MRR, latency", "", "", "Chưa bắt đầu", ""),
         ("E4", "Dense retrieval", "Embedding + FAISS", "Quang", "Recall@5, latency", "", "Chỉ giữ nếu tốt hơn BM25", "Chưa bắt đầu", ""),

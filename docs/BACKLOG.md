@@ -2,8 +2,8 @@
 
 | ID | Việc cần làm | Người phụ trách | Trạng thái | Điều kiện hoàn thành |
 |---|---|---|---|---|
-| D1 | Tải và audit ViFactCheck | Vinh | To do | Có báo cáo schema, nhãn, thiếu/trùng và split |
-| M1 | TF-IDF + SVM baseline | Vinh | To do | Có metrics và confusion matrix |
+| D1 | Tải và audit ViFactCheck | Vinh | Hoàn thành | 7.232 mẫu; không thiếu trường bắt buộc; có audit và split theo URL |
+| M1 | TF-IDF + SVM baseline | Vinh | Hoàn thành | E1 group split: Macro-F1 test 40,15%; có confusion matrix và dự đoán |
 | R1 | Đổi dữ liệu mẫu sang passage ViFactCheck | Quang | To do | JSONL hợp lệ, có test loader |
 | R2 | Đánh giá BM25 Recall@3/5 | Quang | To do | Có metrics và 10 truy vấn kiểm tra |
 | P1 | Thay rule checker bằng verifier đã fine-tune | Vinh + Quang | To do | Pipeline dùng `VerificationResult` không đổi |

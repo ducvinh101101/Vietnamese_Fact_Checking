@@ -7,6 +7,6 @@ pytest>=8,<9
 # Cài ở giai đoạn mô hình nâng cao:
 # torch
 # transformers
-# datasets
+datasets>=3,<6
 # sentence-transformers
 # faiss-cpu
