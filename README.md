@@ -38,4 +38,4 @@ Không commit dữ liệu lớn. Sau khi tải, đặt dữ liệu gốc vào `d
 {"document_id":"...","passage_id":"...","content":"...","source":"...","url":"..."}
 ```
 
-Xem [kế hoạch triển khai](KE_HOACH_TRIEN_KHAI.md) để biết phạm vi, thí nghiệm và tiêu chí đánh giá.
+Kế hoạch triển khai hiện hành nằm trong [workbook phân công Vinh–Quang](KE_HOACH_TRIEN_KHAI_2_NGUOI.xlsx), kèm [quy trình nghiên cứu](docs/QUY_TRINH_NGHIEN_CUU.md) và [backlog](docs/BACKLOG.md).

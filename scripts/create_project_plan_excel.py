@@ -68,10 +68,10 @@ def create_overview(workbook: Workbook) -> None:
 
     rows = [
         ("Mốc", "Kết quả cần bàn giao", "Người chịu trách nhiệm", "Điều kiện hoàn thành"),
-        ("Cuối tuần 1", "Dữ liệu đã audit; baseline TF-IDF/SVM; BM25 chạy với dữ liệu mẫu", "A + B", "Có EDA, metrics baseline, kho evidence JSONL"),
-        ("Cuối tuần 2", "Retriever có Recall@3/5; verifier nâng cao bắt đầu", "A + B", "Có bảng so sánh BM25 và ít nhất một cấu hình nâng cao"),
-        ("Cuối tuần 3", "Pipeline end-to-end có citation và xử lý NEI", "A + B", "Chạy claim → evidence → label, có test"),
-        ("Cuối tuần 4", "Ứng dụng Streamlit, báo cáo, slide và demo offline", "A + B", "README, số liệu test, 3 kịch bản demo"),
+        ("Cuối tuần 1", "Dữ liệu đã audit; baseline TF-IDF/SVM; BM25 chạy với dữ liệu mẫu", "Vinh + Quang", "Có EDA, metrics baseline, kho evidence JSONL"),
+        ("Cuối tuần 2", "Retriever có Recall@3/5; verifier nâng cao bắt đầu", "Vinh + Quang", "Có bảng so sánh BM25 và ít nhất một cấu hình nâng cao"),
+        ("Cuối tuần 3", "Pipeline end-to-end có citation và xử lý NEI", "Vinh + Quang", "Chạy claim → evidence → label, có test"),
+        ("Cuối tuần 4", "Ứng dụng Streamlit, báo cáo, slide và demo offline", "Vinh + Quang", "README, số liệu test, 3 kịch bản demo"),
     ]
     for r_index, row in enumerate(rows, start=5):
         for c_index, value in enumerate(row, start=1):
@@ -84,8 +84,8 @@ def create_overview(workbook: Workbook) -> None:
     ws["A12"].font = HEADER_FONT
     ws.merge_cells("A12:F12")
     roles = [
-        ("Người A", "Dữ liệu & mô hình", "Audit ViFactCheck, split, TF-IDF/SVM, PhoBERT/XLM-R, metrics, phân tích lỗi"),
-        ("Người B", "Retrieval & sản phẩm", "Chunking, BM25/dense, index, pipeline, Streamlit, demo và tài liệu chạy"),
+        ("Vinh", "Dữ liệu & mô hình", "Audit ViFactCheck, split, TF-IDF/SVM, PhoBERT/XLM-R, metrics, phân tích lỗi"),
+        ("Quang", "Retrieval & sản phẩm", "Chunking, BM25/dense, index, pipeline, Streamlit, demo và tài liệu chạy"),
         ("Cả hai", "Tích hợp & báo cáo", "Quyết định thí nghiệm, review code, kiểm thử, báo cáo, slide và thuyết trình"),
     ]
     for r_index, row in enumerate(roles, start=13):
@@ -102,24 +102,24 @@ def create_plan(workbook: Workbook) -> None:
     style_title(ws, "KẾ HOẠCH CÔNG VIỆC CHI TIẾT", len(headers))
     style_header(ws, 3, headers)
     tasks = [
-        ("W1-01", "Tuần 1", "Dữ liệu", "Tải ViFactCheck, kiểm tra schema, nhãn, bản ghi thiếu và trùng lặp", "Người A", "Người B", 1.5, "", "data audit + dataset revision", "Cao", "Chưa bắt đầu", ""),
-        ("W1-02", "Tuần 1", "Dữ liệu", "Kiểm tra trùng URL/context; tạo split chống rò rỉ và ghi seed", "Người A", "", 1.0, "W1-01", "train/dev/test + báo cáo split", "Cao", "Chưa bắt đầu", ""),
-        ("W1-03", "Tuần 1", "Mô hình", "Xây TF-IDF word+char n-gram và Linear SVM baseline", "Người A", "", 1.5, "W1-02", "E1 metrics + confusion matrix", "Cao", "Chưa bắt đầu", ""),
-        ("W1-04", "Tuần 1", "Retrieval", "Chuẩn hóa schema evidence JSONL và chia passage theo câu", "Người B", "Người A", 1.5, "W1-01", "evidence corpus", "Cao", "Chưa bắt đầu", ""),
-        ("W1-05", "Tuần 1", "Sản phẩm", "Thiết lập repository, config, test và Streamlit dữ liệu mẫu", "Người B", "", 1.0, "", "MVP chạy cục bộ", "Cao", "Hoàn thành", "Khung đã tạo"),
-        ("W2-01", "Tuần 2", "Retrieval", "Xây BM25, đánh giá Recall@3, Recall@5, MRR và latency", "Người B", "Người A", 1.5, "W1-04", "E3 retrieval metrics", "Cao", "Chưa bắt đầu", ""),
-        ("W2-02", "Tuần 2", "Mô hình", "Fine-tune PhoBERT hoặc XLM-R với claim–evidence", "Người A", "", 2.0, "W1-02", "E2 verifier checkpoint + metrics", "Cao", "Chưa bắt đầu", ""),
-        ("W2-03", "Tuần 2", "Nghiên cứu", "So sánh baseline và transformer theo Macro-F1, F1 từng nhãn", "Người A", "Người B", 0.5, "W1-03; W2-02", "bảng so sánh model", "Cao", "Chưa bắt đầu", ""),
-        ("W2-04", "Tuần 2", "Retrieval", "Thử dense retrieval/FAISS và hybrid RRF nếu BM25 ổn định", "Người B", "", 1.5, "W2-01", "E4/E5 metrics hoặc quyết định bỏ", "Trung bình", "Chưa bắt đầu", ""),
-        ("W2-05", "Tuần 2", "Tích hợp", "Chốt interface Retriever và Verifier; review chung", "Người A", "Người B", 0.5, "W2-01; W2-02", "hợp đồng tích hợp", "Cao", "Chưa bắt đầu", ""),
-        ("W3-01", "Tuần 3", "Pipeline", "Tích hợp retrieval → verifier → SUPPORTED/REFUTED/NEI", "Người B", "Người A", 1.5, "W2-05", "pipeline end-to-end", "Cao", "Chưa bắt đầu", ""),
-        ("W3-02", "Tuần 3", "Mô hình", "Hiệu chỉnh confidence và chọn ngưỡng NEI trên dev", "Người A", "Người B", 1.0, "W2-02", "ngưỡng + calibration report", "Cao", "Chưa bắt đầu", ""),
-        ("W3-03", "Tuần 3", "Chất lượng", "Kiểm tra citation ID/URL, JSON output và trường hợp không có evidence", "Người B", "", 1.0, "W3-01", "test pipeline", "Cao", "Chưa bắt đầu", ""),
-        ("W3-04", "Tuần 3", "Nghiên cứu", "Phân tích 10 lỗi, phân loại lỗi retrieval/verifier/NEI", "Người A", "Người B", 1.0, "W3-01", "error analysis", "Trung bình", "Chưa bắt đầu", ""),
-        ("W4-01", "Tuần 4", "Giao diện", "Hoàn thiện Streamlit: kết quả từng nhánh, evidence, nguồn, cache", "Người B", "Người A", 1.5, "W3-01", "app demo", "Cao", "Chưa bắt đầu", ""),
-        ("W4-02", "Tuần 4", "Đánh giá", "Chạy test end-to-end, bảng metric và biểu đồ", "Người A", "Người B", 1.5, "W3-02", "final metrics", "Cao", "Chưa bắt đầu", ""),
-        ("W4-03", "Tuần 4", "Tài liệu", "Hoàn thiện README, báo cáo phương pháp/kết quả, giới hạn", "Người A", "Người B", 1.5, "W4-02", "README + báo cáo", "Cao", "Chưa bắt đầu", ""),
-        ("W4-04", "Tuần 4", "Demo", "Chuẩn bị 3 case demo, slide và phương án offline dự phòng", "Người B", "Người A", 1.0, "W4-01", "slide + demo script", "Cao", "Chưa bắt đầu", ""),
+        ("W1-01", "Tuần 1", "Dữ liệu", "Tải ViFactCheck, kiểm tra schema, nhãn, bản ghi thiếu và trùng lặp", "Vinh", "Quang", 1.5, "", "data audit + dataset revision", "Cao", "Chưa bắt đầu", ""),
+        ("W1-02", "Tuần 1", "Dữ liệu", "Kiểm tra trùng URL/context; tạo split chống rò rỉ và ghi seed", "Vinh", "", 1.0, "W1-01", "train/dev/test + báo cáo split", "Cao", "Chưa bắt đầu", ""),
+        ("W1-03", "Tuần 1", "Mô hình", "Xây TF-IDF word+char n-gram và Linear SVM baseline", "Vinh", "", 1.5, "W1-02", "E1 metrics + confusion matrix", "Cao", "Chưa bắt đầu", ""),
+        ("W1-04", "Tuần 1", "Retrieval", "Chuẩn hóa schema evidence JSONL và chia passage theo câu", "Quang", "Vinh", 1.5, "W1-01", "evidence corpus", "Cao", "Chưa bắt đầu", ""),
+        ("W1-05", "Tuần 1", "Sản phẩm", "Thiết lập repository, config, test và Streamlit dữ liệu mẫu", "Quang", "", 1.0, "", "MVP chạy cục bộ", "Cao", "Hoàn thành", "Khung đã tạo"),
+        ("W2-01", "Tuần 2", "Retrieval", "Xây BM25, đánh giá Recall@3, Recall@5, MRR và latency", "Quang", "Vinh", 1.5, "W1-04", "E3 retrieval metrics", "Cao", "Chưa bắt đầu", ""),
+        ("W2-02", "Tuần 2", "Mô hình", "Fine-tune PhoBERT hoặc XLM-R với claim–evidence", "Vinh", "", 2.0, "W1-02", "E2 verifier checkpoint + metrics", "Cao", "Chưa bắt đầu", ""),
+        ("W2-03", "Tuần 2", "Nghiên cứu", "So sánh baseline và transformer theo Macro-F1, F1 từng nhãn", "Vinh", "Quang", 0.5, "W1-03; W2-02", "bảng so sánh model", "Cao", "Chưa bắt đầu", ""),
+        ("W2-04", "Tuần 2", "Retrieval", "Thử dense retrieval/FAISS và hybrid RRF nếu BM25 ổn định", "Quang", "", 1.5, "W2-01", "E4/E5 metrics hoặc quyết định bỏ", "Trung bình", "Chưa bắt đầu", ""),
+        ("W2-05", "Tuần 2", "Tích hợp", "Chốt interface Retriever và Verifier; review chung", "Vinh", "Quang", 0.5, "W2-01; W2-02", "hợp đồng tích hợp", "Cao", "Chưa bắt đầu", ""),
+        ("W3-01", "Tuần 3", "Pipeline", "Tích hợp retrieval → verifier → SUPPORTED/REFUTED/NEI", "Quang", "Vinh", 1.5, "W2-05", "pipeline end-to-end", "Cao", "Chưa bắt đầu", ""),
+        ("W3-02", "Tuần 3", "Mô hình", "Hiệu chỉnh confidence và chọn ngưỡng NEI trên dev", "Vinh", "Quang", 1.0, "W2-02", "ngưỡng + calibration report", "Cao", "Chưa bắt đầu", ""),
+        ("W3-03", "Tuần 3", "Chất lượng", "Kiểm tra citation ID/URL, JSON output và trường hợp không có evidence", "Quang", "", 1.0, "W3-01", "test pipeline", "Cao", "Chưa bắt đầu", ""),
+        ("W3-04", "Tuần 3", "Nghiên cứu", "Phân tích 10 lỗi, phân loại lỗi retrieval/verifier/NEI", "Vinh", "Quang", 1.0, "W3-01", "error analysis", "Trung bình", "Chưa bắt đầu", ""),
+        ("W4-01", "Tuần 4", "Giao diện", "Hoàn thiện Streamlit: kết quả từng nhánh, evidence, nguồn, cache", "Quang", "Vinh", 1.5, "W3-01", "app demo", "Cao", "Chưa bắt đầu", ""),
+        ("W4-02", "Tuần 4", "Đánh giá", "Chạy test end-to-end, bảng metric và biểu đồ", "Vinh", "Quang", 1.5, "W3-02", "final metrics", "Cao", "Chưa bắt đầu", ""),
+        ("W4-03", "Tuần 4", "Tài liệu", "Hoàn thiện README, báo cáo phương pháp/kết quả, giới hạn", "Vinh", "Quang", 1.5, "W4-02", "README + báo cáo", "Cao", "Chưa bắt đầu", ""),
+        ("W4-04", "Tuần 4", "Demo", "Chuẩn bị 3 case demo, slide và phương án offline dự phòng", "Quang", "Vinh", 1.0, "W4-01", "slide + demo script", "Cao", "Chưa bắt đầu", ""),
     ]
     for row_index, row in enumerate(tasks, start=4):
         for column_index, value in enumerate(row, start=1):
@@ -148,12 +148,12 @@ def create_experiments(workbook: Workbook) -> None:
     style_title(ws, "NHẬT KÝ THÍ NGHIỆM VÀ QUYẾT ĐỊNH", len(headers))
     style_header(ws, 3, headers)
     rows = [
-        ("E1", "Baseline verifier", "TF-IDF word+char + Linear SVM; claim–gold evidence", "Người A", "Macro-F1", "", "", "Chưa bắt đầu", ""),
-        ("E2", "Verifier nâng cao", "PhoBERT hoặc XLM-R; claim–gold evidence", "Người A", "Macro-F1 / F1 theo nhãn", "", "", "Chưa bắt đầu", ""),
-        ("E3", "BM25 retrieval", "BM25 trên passage corpus", "Người B", "Recall@3, Recall@5, MRR, latency", "", "", "Chưa bắt đầu", ""),
-        ("E4", "Dense retrieval", "Embedding + FAISS", "Người B", "Recall@5, latency", "", "Chỉ giữ nếu tốt hơn BM25", "Chưa bắt đầu", ""),
-        ("E5", "Hybrid end-to-end", "BM25 + dense RRF → verifier", "Người A + B", "Macro-F1 end-to-end", "", "", "Chưa bắt đầu", ""),
-        ("E6", "NEI / abstention", "Ngưỡng retrieval + verifier confidence", "Người A", "F1 NEI", "", "", "Chưa bắt đầu", ""),
+        ("E1", "Baseline verifier", "TF-IDF word+char + Linear SVM; claim–gold evidence", "Vinh", "Macro-F1", "", "", "Chưa bắt đầu", ""),
+        ("E2", "Verifier nâng cao", "PhoBERT hoặc XLM-R; claim–gold evidence", "Vinh", "Macro-F1 / F1 theo nhãn", "", "", "Chưa bắt đầu", ""),
+        ("E3", "BM25 retrieval", "BM25 trên passage corpus", "Quang", "Recall@3, Recall@5, MRR, latency", "", "", "Chưa bắt đầu", ""),
+        ("E4", "Dense retrieval", "Embedding + FAISS", "Quang", "Recall@5, latency", "", "Chỉ giữ nếu tốt hơn BM25", "Chưa bắt đầu", ""),
+        ("E5", "Hybrid end-to-end", "BM25 + dense RRF → verifier", "Vinh + Quang", "Macro-F1 end-to-end", "", "", "Chưa bắt đầu", ""),
+        ("E6", "NEI / abstention", "Ngưỡng retrieval + verifier confidence", "Vinh", "F1 NEI", "", "", "Chưa bắt đầu", ""),
     ]
     for row_index, row in enumerate(rows, start=4):
         for column_index, value in enumerate(row, start=1):
@@ -170,13 +170,13 @@ def create_checklist(workbook: Workbook) -> None:
     style_title(ws, "CHECKLIST TRƯỚC KHI DEMO / NỘP BÀI", len(headers))
     style_header(ws, 3, headers)
     rows = [
-        ("Dữ liệu", "Có revision dataset, thống kê nhãn và kiểm tra rò rỉ", "Người A", "Chưa bắt đầu", ""),
-        ("Mô hình", "Có baseline, model tốt nhất và metric test", "Người A", "Chưa bắt đầu", ""),
-        ("Retrieval", "Hiển thị được top-k evidence có ID và URL", "Người B", "Chưa bắt đầu", ""),
-        ("Pipeline", "Có xử lý NOT_ENOUGH_INFO và lỗi input", "Người A + B", "Chưa bắt đầu", ""),
-        ("Giao diện", "App chạy trên máy thuyết trình, đã cache model/index", "Người B", "Chưa bắt đầu", ""),
-        ("Demo", "Có case SUPPORTED, REFUTED, NEI và ảnh/chụp dự phòng", "Người B", "Chưa bắt đầu", ""),
-        ("Báo cáo", "Có mô tả phương pháp, metric, lỗi và giới hạn", "Người A + B", "Chưa bắt đầu", ""),
+        ("Dữ liệu", "Có revision dataset, thống kê nhãn và kiểm tra rò rỉ", "Vinh", "Chưa bắt đầu", ""),
+        ("Mô hình", "Có baseline, model tốt nhất và metric test", "Vinh", "Chưa bắt đầu", ""),
+        ("Retrieval", "Hiển thị được top-k evidence có ID và URL", "Quang", "Chưa bắt đầu", ""),
+        ("Pipeline", "Có xử lý NOT_ENOUGH_INFO và lỗi input", "Vinh + Quang", "Chưa bắt đầu", ""),
+        ("Giao diện", "App chạy trên máy thuyết trình, đã cache model/index", "Quang", "Chưa bắt đầu", ""),
+        ("Demo", "Có case SUPPORTED, REFUTED, NEI và ảnh/chụp dự phòng", "Quang", "Chưa bắt đầu", ""),
+        ("Báo cáo", "Có mô tả phương pháp, metric, lỗi và giới hạn", "Vinh + Quang", "Chưa bắt đầu", ""),
     ]
     for row_index, row in enumerate(rows, start=4):
         for column_index, value in enumerate(row, start=1):
