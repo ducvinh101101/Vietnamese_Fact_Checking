@@ -108,8 +108,8 @@ def create_plan(workbook: Workbook) -> None:
         ("W1-04", "Tuần 1", "Retrieval", "Chuẩn hóa schema evidence JSONL và chia passage theo câu", "Quang", "Vinh", 1.5, "W1-01", "evidence corpus", "Cao", "Chưa bắt đầu", ""),
         ("W1-05", "Tuần 1", "Sản phẩm", "Thiết lập repository, config, test và Streamlit dữ liệu mẫu", "Vinh", "Quang", 1.0, "", "MVP chạy cục bộ", "Cao", "Hoàn thành", "Khung đã tạo"),
         ("W2-01", "Tuần 2", "Retrieval", "Xây BM25, đánh giá Recall@3, Recall@5, MRR và latency", "Quang", "Vinh", 1.5, "W1-04", "E3 retrieval metrics", "Cao", "Chưa bắt đầu", ""),
-        ("W2-02", "Tuần 2", "Mô hình", "Fine-tune PhoBERT hoặc XLM-R với claim–evidence", "Vinh", "", 2.0, "W1-02", "E2 verifier checkpoint + metrics", "Cao", "Chưa bắt đầu", ""),
-        ("W2-03", "Tuần 2", "Nghiên cứu", "So sánh baseline và transformer theo Macro-F1, F1 từng nhãn", "Vinh", "Quang", 0.5, "W1-03; W2-02", "bảng so sánh model", "Cao", "Chưa bắt đầu", ""),
+        ("W2-02", "Tuần 2", "Mô hình", "Fine-tune PhoBERT hoặc XLM-R với claim–evidence", "Vinh", "", 2.0, "W1-02", "E2 verifier checkpoint + metrics", "Cao", "Hoàn thành", "PhoBERT-base Kaggle: Macro-F1 test 81,07%"),
+        ("W2-03", "Tuần 2", "Nghiên cứu", "So sánh baseline và transformer theo Macro-F1, F1 từng nhãn", "Vinh", "Quang", 0.5, "W1-03; W2-02", "bảng so sánh model", "Cao", "Hoàn thành", "E2 hơn E1 40,92 điểm Macro-F1"),
         ("W2-04", "Tuần 2", "Retrieval", "Thử dense retrieval/FAISS và hybrid RRF nếu BM25 ổn định", "Quang", "", 1.5, "W2-01", "E4/E5 metrics hoặc quyết định bỏ", "Trung bình", "Chưa bắt đầu", ""),
         ("W2-05", "Tuần 2", "Tích hợp", "Chốt interface Retriever và Verifier; review chung", "Vinh", "Quang", 0.5, "W2-01; W2-02", "hợp đồng tích hợp", "Cao", "Chưa bắt đầu", ""),
         ("W3-01", "Tuần 3", "Pipeline", "Tích hợp retrieval → verifier → SUPPORTED/REFUTED/NEI", "Quang", "Vinh", 1.5, "W2-05", "pipeline end-to-end", "Cao", "Chưa bắt đầu", ""),
@@ -149,7 +149,7 @@ def create_experiments(workbook: Workbook) -> None:
     style_header(ws, 3, headers)
     rows = [
         ("E1", "Baseline verifier", "TF-IDF word+char + Linear SVM; claim–gold evidence", "Vinh", "Macro-F1", "Test: 40,15%", "Giữ làm baseline chính", "Hoàn thành", "C=0,25; group split"),
-        ("E2", "Verifier nâng cao", "PhoBERT hoặc XLM-R; claim–gold evidence", "Vinh", "Macro-F1 / F1 theo nhãn", "", "", "Chưa bắt đầu", ""),
+        ("E2", "Verifier nâng cao", "PhoBERT-base; claim–gold evidence", "Vinh", "Macro-F1 / F1 theo nhãn", "Test: 81,07%", "Model tốt nhất hiện tại", "Hoàn thành", "Kaggle GPU; early stop epoch 5"),
         ("E3", "BM25 retrieval", "BM25 trên passage corpus", "Quang", "Recall@3, Recall@5, MRR, latency", "", "", "Chưa bắt đầu", ""),
         ("E4", "Dense retrieval", "Embedding + FAISS", "Quang", "Recall@5, latency", "", "Chỉ giữ nếu tốt hơn BM25", "Chưa bắt đầu", ""),
         ("E5", "Hybrid end-to-end", "BM25 + dense RRF → verifier", "Vinh + Quang", "Macro-F1 end-to-end", "", "", "Chưa bắt đầu", ""),

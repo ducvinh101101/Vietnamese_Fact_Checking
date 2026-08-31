@@ -10,3 +10,9 @@ pytest>=8,<9
 datasets>=3,<6
 # sentence-transformers
 # faiss-cpu
+
+torch>=2.4
+
+transformers>=4.41,<4.47
+
+py_vncorenlp>=0.1.4

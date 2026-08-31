@@ -11,6 +11,10 @@ retrieval:
   top_k: 3
 
 verification:
+  engine: phobert
+  model_path: models/e2_phobert/best_model
+  vncorenlp_dir: models/vncorenlp
+  max_length: 256
   support_threshold: 0.45
   refute_markers:
     - "không"
