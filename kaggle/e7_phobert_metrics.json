@@ -1,0 +1,51 @@
+{
+  "experiment": "E7_long_context",
+  "model": "vinai/phobert-base",
+  "input": "word-segmented claim + gold evidence",
+  "split": "grouped by normalized URL; seed=42; 70/15/15",
+  "training": {
+    "max_length": 256,
+    "learning_rate": 2e-05,
+    "train_batch_size": 8,
+    "gradient_accumulation_steps": 2,
+    "epochs_max": 8,
+    "early_stopping_patience": 2
+  },
+  "dev_metrics": {
+    "dev_loss": 0.47856593132019043,
+    "dev_accuracy": 0.8425925925925926,
+    "dev_macro_f1": 0.8418197711858619,
+    "dev_runtime": 5.6226,
+    "dev_samples_per_second": 192.083,
+    "dev_steps_per_second": 3.024,
+    "epoch": 6.0
+  },
+  "test_metrics": {
+    "test_loss": 0.576472282409668,
+    "test_accuracy": 0.8029739776951673,
+    "test_macro_f1": 0.8025284118554658,
+    "test_runtime": 6.6459,
+    "test_samples_per_second": 161.904,
+    "test_steps_per_second": 2.558
+  },
+  "test_per_label": {
+    "SUPPORTED": {
+      "precision": 0.8333333333333334,
+      "recall": 0.8016304347826086,
+      "f1": 0.817174515235457,
+      "support": 368
+    },
+    "REFUTED": {
+      "precision": 0.7768115942028986,
+      "recall": 0.7528089887640449,
+      "f1": 0.7646219686162625,
+      "support": 356
+    },
+    "NOT_ENOUGH_INFO": {
+      "precision": 0.7984084880636605,
+      "recall": 0.8551136363636364,
+      "f1": 0.8257887517146777,
+      "support": 352
+    }
+  }
+}

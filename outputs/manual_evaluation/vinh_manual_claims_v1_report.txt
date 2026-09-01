@@ -1,0 +1,11 @@
+Accuracy: 44.44%
+
+                 precision    recall  f1-score   support
+
+      SUPPORTED       1.00      0.17      0.29         6
+        REFUTED       0.38      1.00      0.55         6
+NOT_ENOUGH_INFO       1.00      0.17      0.29         6
+
+       accuracy                           0.44        18
+      macro avg       0.79      0.44      0.37        18
+   weighted avg       0.79      0.44      0.37        18

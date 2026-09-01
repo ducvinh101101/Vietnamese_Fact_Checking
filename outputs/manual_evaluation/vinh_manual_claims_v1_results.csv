@@ -1,0 +1,19 @@
+case_id,claim,expected_label,expected_evidence_id,note,prediction,retrieved_evidence_ids,is_correct
+V01,Bộ Y tế khuyến cáo người dân chỉ dùng thông tin y tế từ nguồn chính thức,SUPPORTED,sample_001_p01,Diễn đạt gần nguyên văn,REFUTED,sample_002_p01,False
+V02,Người dân nên tham khảo ý kiến nhân viên y tế khi cần thiết,SUPPORTED,sample_001_p01,Diễn đạt gần nguyên văn,REFUTED,sample_001_p01,False
+V03,Dự báo thời tiết cần được cập nhật theo từng khu vực,SUPPORTED,sample_002_p01,Paraphrase,REFUTED,sample_003_p01,False
+V04,Dự báo thời tiết cần được cập nhật theo thời điểm phát hành,SUPPORTED,sample_002_p01,Paraphrase,REFUTED,sample_003_p01,False
+V05,Chưa có thông báo chính thức về việc thay đổi lịch học trên phạm vi toàn quốc,SUPPORTED,sample_003_p01,Diễn đạt gần nguyên văn,SUPPORTED,sample_003_p01,True
+V06,Cơ quan chức năng khẳng định hiện chưa thay đổi lịch học trên cả nước,SUPPORTED,sample_003_p01,Paraphrase có phủ định,REFUTED,sample_002_p01,False
+V07,Bộ Y tế khuyến cáo người dân sử dụng mọi thông tin y tế trên mạng,REFUTED,sample_001_p01,Mâu thuẫn với nguồn chính thức,REFUTED,sample_001_p01,True
+V08,Người dân không cần hỏi ý kiến nhân viên y tế khi cần thiết,REFUTED,sample_001_p01,Đảo phủ định,REFUTED,sample_001_p01,True
+V09,Dự báo thời tiết không cần thay đổi theo từng khu vực,REFUTED,sample_002_p01,Đảo phủ định,REFUTED,sample_002_p01,True
+V10,Dự báo thời tiết chỉ cần cập nhật một lần cho toàn quốc,REFUTED,sample_002_p01,Mâu thuẫn với theo khu vực và thời điểm,REFUTED,sample_003_p01,True
+V11,Đã có thông báo chính thức thay đổi lịch học trên phạm vi toàn quốc,REFUTED,sample_003_p01,Đảo phủ định,REFUTED,sample_003_p01,True
+V12,Cơ quan chức năng xác nhận lịch học cả nước đã được thay đổi,REFUTED,sample_003_p01,Mâu thuẫn trực tiếp,REFUTED,sample_003_p01,True
+V13,Bộ Y tế đã ban hành một loại thuốc mới điều trị cúm,NOT_ENOUGH_INFO,,Không có thông tin thuốc trong kho mẫu,REFUTED,sample_003_p01,False
+V14,Ngày mai Hà Nội sẽ có mưa lớn,NOT_ENOUGH_INFO,,Kho mẫu không có dự báo cụ thể,REFUTED,sample_003_p01,False
+V15,Lịch học tại Thành phố Hồ Chí Minh sẽ thay đổi vào thứ Hai,NOT_ENOUGH_INFO,,Không có thông tin địa phương hoặc thời gian,NOT_ENOUGH_INFO,sample_001_p01,True
+V16,Cơ quan khí tượng đã công bố nhiệt độ cao nhất ngày mai,NOT_ENOUGH_INFO,,Không có nhiệt độ cụ thể,REFUTED,sample_003_p01,False
+V17,Bộ Y tế cấm người dân đọc tin y tế trực tuyến,NOT_ENOUGH_INFO,,Nguồn chỉ đưa khuyến cáo và không có lệnh cấm,REFUTED,sample_002_p01,False
+V18,Các trường đại học sẽ nghỉ học hai tuần trong tháng tới,NOT_ENOUGH_INFO,,Không có thông tin thời gian hoặc đại học,REFUTED,sample_003_p01,False

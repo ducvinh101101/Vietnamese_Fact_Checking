@@ -112,6 +112,7 @@ def create_plan(workbook: Workbook) -> None:
         ("W2-03", "Tuần 2", "Nghiên cứu", "So sánh baseline và transformer theo Macro-F1, F1 từng nhãn", "Vinh", "Quang", 0.5, "W1-03; W2-02", "bảng so sánh model", "Cao", "Hoàn thành", "E2 hơn E1 40,92 điểm Macro-F1"),
         ("W2-04", "Tuần 2", "Retrieval", "Thử dense retrieval/FAISS và hybrid RRF nếu BM25 ổn định", "Quang", "", 1.5, "W2-01", "E4/E5 metrics hoặc quyết định bỏ", "Trung bình", "Chưa bắt đầu", ""),
         ("W2-05", "Tuần 2", "Tích hợp", "Chốt interface Retriever và Verifier; review chung", "Vinh", "Quang", 0.5, "W2-01; W2-02", "hợp đồng tích hợp", "Cao", "Chưa bắt đầu", ""),
+        ("W2-06", "Tuần 2", "Mô hình", "Chạy E7 PhoBERT biến thể batch ở giới hạn 256 token", "Vinh", "", 0.5, "W2-02", "E7 metrics + quyết định", "Trung bình", "Hoàn thành", "Test Macro-F1 80,25%; giữ E2 81,07%"),
         ("W3-01", "Tuần 3", "Pipeline", "Tích hợp retrieval → verifier → SUPPORTED/REFUTED/NEI", "Quang", "Vinh", 1.5, "W2-05", "pipeline end-to-end", "Cao", "Chưa bắt đầu", ""),
         ("W3-02", "Tuần 3", "Mô hình", "Hiệu chỉnh confidence và chọn ngưỡng NEI trên dev", "Vinh", "Quang", 1.0, "W2-02", "ngưỡng + calibration report", "Cao", "Chưa bắt đầu", ""),
         ("W3-03", "Tuần 3", "Chất lượng", "Kiểm tra citation ID/URL, JSON output và trường hợp không có evidence", "Quang", "", 1.0, "W3-01", "test pipeline", "Cao", "Chưa bắt đầu", ""),
@@ -154,12 +155,13 @@ def create_experiments(workbook: Workbook) -> None:
         ("E4", "Dense retrieval", "Embedding + FAISS", "Quang", "Recall@5, latency", "", "Chỉ giữ nếu tốt hơn BM25", "Chưa bắt đầu", ""),
         ("E5", "Hybrid end-to-end", "BM25 + dense RRF → verifier", "Vinh + Quang", "Macro-F1 end-to-end", "", "", "Chưa bắt đầu", ""),
         ("E6", "NEI / abstention", "Ngưỡng retrieval + verifier confidence", "Vinh", "F1 NEI", "", "", "Chưa bắt đầu", ""),
+        ("E7", "PhoBERT batch variant", "Claim–gold evidence; max_length=256; effective batch=16", "Vinh", "Dev Macro-F1", "Test: 80,25%", "Giữ E2", "Hoàn thành", "Dev 84,18% < E2 85,01%"),
     ]
     for row_index, row in enumerate(rows, start=4):
         for column_index, value in enumerate(row, start=1):
             ws.cell(row_index, column_index, value)
     style_table(ws, 4, 3 + len(rows), len(headers))
-    ws.auto_filter.ref = "A3:I9"
+    ws.auto_filter.ref = f"A3:I{3 + len(rows)}"
     ws.freeze_panes = "A4"
     set_widths(ws, {"A": 10, "B": 24, "C": 48, "D": 15, "E": 27, "F": 18, "G": 28, "H": 18, "I": 28})
 
