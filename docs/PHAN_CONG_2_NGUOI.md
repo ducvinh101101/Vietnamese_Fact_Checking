@@ -11,7 +11,7 @@
 | Hạng mục | Vinh — Dữ liệu & mô hình | Quang — Retrieval & sản phẩm | Điểm bàn giao |
 |---|---|---|---|
 | Tuần 1 | Tải/audit ViFactCheck, split chống rò rỉ, TF-IDF baseline | Chuẩn hóa JSONL, BM25, app dữ liệu mẫu | Schema evidence và baseline metrics |
-| Tuần 2 | PhoBERT/XLM-R thử nghiệm, calibration | Chunking, Recall@k, dense/hybrid nếu đủ thời gian | Interface `Retriever.search()` ổn định |
+| Tuần 2 | PhoBERT/XLM-R thử nghiệm, calibration | Chunking, Recall@k, web retrieval allowlist; dense/hybrid nếu đủ thời gian | Interface `Retriever.search()` ổn định |
 | Tuần 3 | Verifier cặp claim–evidence, phân tích lỗi | Nối verifier vào pipeline, citation, test | Pipeline end-to-end |
 | Tuần 4 | Bảng kết quả, báo cáo phương pháp | Streamlit, cache, demo, README | Bản release demo |
 

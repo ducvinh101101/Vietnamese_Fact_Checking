@@ -113,6 +113,9 @@ def create_plan(workbook: Workbook) -> None:
         ("W2-04", "Tuần 2", "Retrieval", "Thử dense retrieval/FAISS và hybrid RRF nếu BM25 ổn định", "Quang", "", 1.5, "W2-01", "E4/E5 metrics hoặc quyết định bỏ", "Trung bình", "Chưa bắt đầu", ""),
         ("W2-05", "Tuần 2", "Tích hợp", "Chốt interface Retriever và Verifier; review chung", "Vinh", "Quang", 0.5, "W2-01; W2-02", "hợp đồng tích hợp", "Cao", "Chưa bắt đầu", ""),
         ("W2-06", "Tuần 2", "Mô hình", "Chạy E7 PhoBERT biến thể batch ở giới hạn 256 token", "Vinh", "", 0.5, "W2-02", "E7 metrics + quyết định", "Trung bình", "Hoàn thành", "Test Macro-F1 80,25%; giữ E2 81,07%"),
+        ("W2-07", "Tuần 2", "Web retrieval", "Chốt search provider, allowlist nguồn uy tín và chính sách API key", "Quang", "Vinh", 0.5, "W2-01", "kế hoạch + config nguồn", "Cao", "Chưa bắt đầu", "Chỉ lập kế hoạch; API key ngoài Git"),
+        ("W3-05", "Tuần 3", "Web retrieval", "Tìm web, lọc allowlist, trích passage và lưu metadata nguồn", "Quang", "Vinh", 1.5, "W2-07", "web evidence retriever", "Cao", "Chưa bắt đầu", "URL, domain, title, fetched_at; timeout/cache"),
+        ("W4-05", "Tuần 4", "Đánh giá", "Đo web/local/hybrid retrieval và Macro-F1 end-to-end", "Vinh", "Quang", 1.0, "W3-05", "báo cáo web end-to-end", "Cao", "Chưa bắt đầu", "Tách oracle, retrieval và end-to-end"),
         ("W3-01", "Tuần 3", "Pipeline", "Tích hợp retrieval → verifier → SUPPORTED/REFUTED/NEI", "Quang", "Vinh", 1.5, "W2-05", "pipeline end-to-end", "Cao", "Chưa bắt đầu", ""),
         ("W3-02", "Tuần 3", "Mô hình", "Hiệu chỉnh confidence và chọn ngưỡng NEI trên dev", "Vinh", "Quang", 1.0, "W2-02", "ngưỡng + calibration report", "Cao", "Chưa bắt đầu", ""),
         ("W3-03", "Tuần 3", "Chất lượng", "Kiểm tra citation ID/URL, JSON output và trường hợp không có evidence", "Quang", "", 1.0, "W3-01", "test pipeline", "Cao", "Chưa bắt đầu", ""),
@@ -156,6 +159,7 @@ def create_experiments(workbook: Workbook) -> None:
         ("E5", "Hybrid end-to-end", "BM25 + dense RRF → verifier", "Vinh + Quang", "Macro-F1 end-to-end", "", "", "Chưa bắt đầu", ""),
         ("E6", "NEI / abstention", "Ngưỡng retrieval + verifier confidence", "Vinh", "F1 NEI", "", "", "Chưa bắt đầu", ""),
         ("E7", "PhoBERT batch variant", "Claim–gold evidence; max_length=256; effective batch=16", "Vinh", "Dev Macro-F1", "Test: 80,25%", "Giữ E2", "Hoàn thành", "Dev 84,18% < E2 85,01%"),
+        ("E8", "Web retrieval uy tín", "Allowlist + passage extraction + local/web fusion", "Quang + Vinh", "Recall@3/5, MRR, latency, Macro-F1 E2E", "", "Chỉ triển khai sau khi chốt provider/allowlist", "Chưa bắt đầu", "Không dùng API key trong Git"),
     ]
     for row_index, row in enumerate(rows, start=4):
         for column_index, value in enumerate(row, start=1):

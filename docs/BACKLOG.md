@@ -13,3 +13,7 @@
 | V3 | Bộ 18 claim kiểm thử thủ công + script tái lập | Vinh | Hoàn thành | Có nhãn kỳ vọng, kết quả và ghi rõ giới hạn retrieval mẫu |
 | V4 | Đọc thủ công 10 lỗi E2 và phân loại nguyên nhân | Vinh | Hoàn thành | Review tại `REVIEW_10_LOI_E2.md`; không bao gồm retrieval |
 | V5 | Chạy E7 biến thể batch ở giới hạn 256 token | Vinh | Hoàn thành | Macro-F1 test 80,25%; giữ E2 (81,07%) |
+
+| R3 | Chốt search provider, allowlist nguồn web và chính sách API key | Quang | Chưa bắt đầu | Có `WEB_RETRIEVAL_PLAN.md`, config allowlist và secret ngoài Git |
+| R4 | Web retrieval: lọc domain, trích passage, metadata URL/thời điểm | Quang | Chưa bắt đầu | 100% evidence qua allowlist; có timeout/cache và test |
+| R5 | Đánh giá retrieval web/cục bộ/hợp nhất và end-to-end | Vinh + Quang | Chưa bắt đầu | Recall@3/5, MRR, latency, Macro-F1 end-to-end tách riêng |

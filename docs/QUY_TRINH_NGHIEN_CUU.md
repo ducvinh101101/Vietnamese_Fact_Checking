@@ -25,3 +25,10 @@ Lưu metadata cạnh kết quả trong `outputs/metrics/<experiment>.json`; ch�
 - Chỉ giữ hybrid nếu Recall@5 tốt hơn BM25 và không làm demo quá chậm.
 - Chọn ngưỡng `NOT_ENOUGH_INFO` trên validation; không tinh chỉnh theo test.
 - Báo cáo tách ba tầng: oracle evidence, retrieval, end-to-end.
+
+## Quy tắc thí nghiệm web retrieval
+
+- Ghi phiên bản allowlist, nhà cung cấp search, thời điểm chạy, quota và cache policy.
+- Không lưu API key trong Git; lưu metadata URL/domain/title/fetched_at cạnh kết quả.
+- Đánh giá tách retrieval cục bộ, web retrieval và hợp nhất; báo cáo tỷ lệ evidence ngoài allowlist phải bằng 0.
+- Snapshot tập query trước khi đo để kết quả web có thể đối chiếu lại.

@@ -39,3 +39,7 @@ Không commit dữ liệu lớn. Sau khi tải, đặt dữ liệu gốc vào `d
 ```
 
 Kế hoạch triển khai hiện hành nằm trong [workbook phân công Vinh–Quang](KE_HOACH_TRIEN_KHAI_2_NGUOI.xlsx), kèm [quy trình nghiên cứu](docs/QUY_TRINH_NGHIEN_CUU.md) và [backlog](docs/BACKLOG.md).
+
+## Web retrieval (kế hoạch)
+
+Hệ thống hiện chỉ dùng kho evidence cục bộ. Web retrieval uy tín đang ở trạng thái **chưa triển khai**; xem [kế hoạch web retrieval](docs/WEB_RETRIEVAL_PLAN.md) để biết phạm vi, allowlist, metadata nguồn và tiêu chí đánh giá.

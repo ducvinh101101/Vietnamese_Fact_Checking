@@ -127,3 +127,7 @@ verify(claim: str, evidence_items: list[RetrievedEvidence]) -> VerificationResul
 ```
 
 Retriever chỉ cần trả về danh sách `RetrievedEvidence` có passage ID và URL. Khi kho evidence/retriever tốt hơn được bàn giao, pipeline và Streamlit sẽ dùng lại được ngay; sau đó cần chạy đánh giá end-to-end để xác nhận chất lượng thực tế.
+
+## 9. Web retrieval: trạng thái kế hoạch
+
+Pipeline hiện **chưa gọi Internet**. Bản mở rộng dự kiến lấy passage web chỉ từ allowlist uy tín, lưu URL/domain/title/thời điểm truy cập, rồi hợp nhất với evidence cục bộ trước khi gửi PhoBERT. Xem [kế hoạch chi tiết](WEB_RETRIEVAL_PLAN.md). Không được dùng metric E2 để khẳng định chất lượng web end-to-end trước khi đo Recall@k và Macro-F1 trên evidence thực truy hồi.
