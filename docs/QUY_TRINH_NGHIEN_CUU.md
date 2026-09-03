@@ -32,3 +32,22 @@ Lưu metadata cạnh kết quả trong `outputs/metrics/<experiment>.json`; ch�
 - Không lưu API key trong Git; lưu metadata URL/domain/title/fetched_at cạnh kết quả.
 - Đánh giá tách retrieval cục bộ, web retrieval và hợp nhất; báo cáo tỷ lệ evidence ngoài allowlist phải bằng 0.
 - Snapshot tập query trước khi đo để kết quả web có thể đối chiếu lại.
+
+## Mở rộng thí nghiệm cho đề tài đầy đủ
+
+6. `E9`: content-only TF-IDF/SVM trên title + body.
+7. `E10`: content-only PhoBERT/XLM-R risk score.
+8. `E11`: claim decomposition và article aggregation ablation.
+9. `E12`: query generation, temporal/source filtering và reranker.
+10. `E13`: temporal/source-held-out end-to-end và citation audit.
+
+Mỗi E9–E13 phải báo cáo protocol riêng; không so sánh trực tiếp metric content-only với metric verifier dùng gold evidence.
+
+## Thứ tự báo cáo cuối
+
+1. Content-only: E9/E10.
+2. Oracle verifier: E1/E2/E7.
+3. Retrieval: E3/E4/E5/E8/E12.
+4. End-to-end và external validity: E11/E13.
+
+Mỗi bảng kết quả phải nêu rõ loại input/evidence; không dùng một con số Macro-F1 để đại diện toàn hệ thống.
