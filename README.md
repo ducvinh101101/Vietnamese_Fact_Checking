@@ -38,7 +38,7 @@ Không commit dữ liệu lớn. Sau khi tải, đặt dữ liệu gốc vào `d
 {"document_id":"...","passage_id":"...","content":"...","source":"...","url":"..."}
 ```
 
-Sau khi tải ba split parquet chính thức vào `data/raw/vifactcheck/`, tạo corpus cục bộ bằng:
+Sau khi lưu ba split ViFactCheck vào `data/raw/vifactcheck/` (dạng Hugging Face Arrow hoặc Parquet), tạo corpus cục bộ bằng:
 
 ```powershell
 python scripts/build_vifactcheck_evidence.py
