@@ -4,11 +4,16 @@ __pycache__/
 .streamlit/secrets.toml
 .env
 *.py[cod]
+.cache/
+.install.log
+~$*.xlsx
 
 data/raw/*
 !data/raw/.gitkeep
 data/processed/*
 !data/processed/.gitkeep
+# Corpus passage ViFactCheck được sinh cục bộ từ dữ liệu gốc; không commit vào Git.
+data/evidence/vifactcheck_passages*.jsonl
 models/*
 !models/.gitkeep
 indexes/*
