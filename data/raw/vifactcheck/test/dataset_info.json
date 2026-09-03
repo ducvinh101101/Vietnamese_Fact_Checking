@@ -1,0 +1,80 @@
+{
+  "builder_name": "parquet",
+  "citation": "",
+  "config_name": "default",
+  "dataset_name": "vifactcheck",
+  "dataset_size": 34781175,
+  "description": "",
+  "download_size": 11781342,
+  "features": {
+    "Unnamed: 0": {
+      "dtype": "int64",
+      "_type": "Value"
+    },
+    "index": {
+      "dtype": "int64",
+      "_type": "Value"
+    },
+    "Statement": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "Context": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "annotation_id": {
+      "dtype": "int64",
+      "_type": "Value"
+    },
+    "Topic": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "Author": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "Url": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "labels": {
+      "dtype": "int64",
+      "_type": "Value"
+    },
+    "Evidence": {
+      "dtype": "string",
+      "_type": "Value"
+    }
+  },
+  "homepage": "",
+  "license": "",
+  "size_in_bytes": 46562517,
+  "splits": {
+    "train": {
+      "name": "train",
+      "num_bytes": 24436892,
+      "num_examples": 5062,
+      "dataset_name": "vifactcheck"
+    },
+    "test": {
+      "name": "test",
+      "num_bytes": 6954842,
+      "num_examples": 1447,
+      "dataset_name": "vifactcheck"
+    },
+    "dev": {
+      "name": "dev",
+      "num_bytes": 3389441,
+      "num_examples": 723,
+      "dataset_name": "vifactcheck"
+    }
+  },
+  "version": {
+    "version_str": "0.0.0",
+    "major": 0,
+    "minor": 0,
+    "patch": 0
+  }
+}
