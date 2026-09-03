@@ -10,10 +10,12 @@
 
 | Hạng mục | Vinh — Dữ liệu & mô hình | Quang — Retrieval & sản phẩm | Điểm bàn giao |
 |---|---|---|---|
-| Tuần 1 | Tải/audit ViFactCheck, split chống rò rỉ, TF-IDF baseline | Chuẩn hóa JSONL, BM25, app dữ liệu mẫu | Schema evidence và baseline metrics |
-| Tuần 2 | PhoBERT/XLM-R thử nghiệm, calibration | Chunking, Recall@k, web retrieval allowlist; dense/hybrid nếu đủ thời gian | Interface `Retriever.search()` ổn định |
-| Tuần 3 | Verifier cặp claim–evidence, phân tích lỗi | Nối verifier vào pipeline, citation, test | Pipeline end-to-end |
-| Tuần 4 | Bảng kết quả, báo cáo phương pháp | Streamlit, cache, demo, README | Bản release demo |
+| Tuần 1 | Audit, split, schema article/claim/evidence | Môi trường tái lập, metadata contract | Manifest dữ liệu và schema chung |
+| Tuần 2 | Verifier E2; content-only baseline/transformer | Protocol corpus/query, provider/allowlist web | Metric oracle và protocol retrieval |
+| Tuần 3 | Claim decomposition | Corpus passage, BM25/dense/reranker, web retriever | Top-k evidence có metadata |
+| Tuần 4 | Calibration, article aggregation/fusion policy | Nối retrieval→verifier, citation và UI | Demo claim và article-level |
+| Tuần 5 | Content/RAG evaluation, temporal/source test, citation audit | Retrieval benchmark và latency | Báo cáo oracle/retrieval/end-to-end |
+| Tuần 6 | Ablation, giới hạn và báo cáo | Reproducible release, demo/slide | Bản release tái lập được |
 
 ## Hợp đồng tích hợp
 
@@ -42,3 +44,9 @@ git checkout -b feature/retrieval-ui      # Quang
 - Commit nhỏ, một mục đích; ví dụ `feat: add BM25 retrieval evaluation`.
 - Trước khi merge, chạy `pytest -q`.
 - Không commit dữ liệu gốc, model checkpoint, index hoặc API key.
+
+## Mở rộng phạm vi đề tài
+
+- **Vinh:** content-risk baseline, claim decomposition, calibration, article aggregation policy, dataset/evaluation protocol, temporal/source test và báo cáo ablation.
+- **Quang:** corpus ingestion, metadata nguồn/thời gian, BM25/dense/rerank, web retrieval allowlist, cache, citation rendering và reproducible release.
+- **Cả hai:** chốt claim schema, source policy, fusion rule, end-to-end audit và demo.

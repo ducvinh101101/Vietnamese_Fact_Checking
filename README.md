@@ -1,4 +1,4 @@
-# Vietnamese Fact-Checking MVP
+# Vietnamese Fact-Checking — MVP hiện tại và roadmap 6 tuần
 
 Nền tảng cộng tác cho dự án đánh giá độ tin cậy và kiểm chứng thông tin tiếng Việt. Phiên bản này ưu tiên một luồng chạy được ngay:
 
@@ -43,3 +43,11 @@ Kế hoạch triển khai hiện hành nằm trong [workbook phân công Vinh–
 ## Web retrieval (kế hoạch)
 
 Hệ thống hiện chỉ dùng kho evidence cục bộ. Web retrieval uy tín đang ở trạng thái **chưa triển khai**; xem [kế hoạch web retrieval](docs/WEB_RETRIEVAL_PLAN.md) để biết phạm vi, allowlist, metadata nguồn và tiêu chí đánh giá.
+
+## Kế hoạch phạm vi đầy đủ
+
+Để bao phủ cả phân tích nội dung, claim decomposition, retrieval/RAG và tổng hợp cấp bài, xem [kế hoạch 6 tuần](docs/KE_HOACH_DAY_DU_DE_TAI.md).
+
+## Theo dõi phạm vi đề tài
+
+[Ma trận yêu cầu đề tài](docs/MA_TRAN_YEU_CAU_DE_TAI.md) liên kết từng yêu cầu với task và thí nghiệm. Các hạng mục ghi `Planned` chưa được xem là chức năng đã hoàn thành.

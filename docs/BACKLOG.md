@@ -7,7 +7,7 @@
 | M2 | Fine-tune PhoBERT-base | Vinh | Hoàn thành | E2 group split: Macro-F1 test 81,07%; cải thiện 40,92 điểm % so với E1 |
 | R1 | Đổi dữ liệu mẫu sang passage ViFactCheck | Quang | To do | JSONL hợp lệ, có test loader |
 | R2 | Đánh giá BM25 Recall@3/5 | Quang | To do | Có metrics và 10 truy vấn kiểm tra |
-| P1 | Thay rule checker bằng verifier đã fine-tune | Vinh + Quang | To do | Pipeline dùng `VerificationResult` không đổi |
+| P1 | Tích hợp kỹ thuật verifier PhoBERT | Vinh | Hoàn thành | Pipeline dùng `VerificationResult` không đổi; smoke test đạt |
 | U1 | Hoàn thiện Streamlit | Quang | To do | Hiển thị label, confidence, evidence và URL |
 | Q1 | Phân tích lỗi + báo cáo | Vinh + Quang | To do | Có ít nhất 10 mẫu lỗi phân loại |
 | V3 | Bộ 18 claim kiểm thử thủ công + script tái lập | Vinh | Hoàn thành | Có nhãn kỳ vọng, kết quả và ghi rõ giới hạn retrieval mẫu |
@@ -17,3 +17,13 @@
 | R3 | Chốt search provider, allowlist nguồn web và chính sách API key | Quang | Chưa bắt đầu | Có `WEB_RETRIEVAL_PLAN.md`, config allowlist và secret ngoài Git |
 | R4 | Web retrieval: lọc domain, trích passage, metadata URL/thời điểm | Quang | Chưa bắt đầu | 100% evidence qua allowlist; có timeout/cache và test |
 | R5 | Đánh giá retrieval web/cục bộ/hợp nhất và end-to-end | Vinh + Quang | Chưa bắt đầu | Recall@3/5, MRR, latency, Macro-F1 end-to-end tách riêng |
+## Mở rộng phạm vi đề tài — roadmap 6 tuần
+
+| P2 | Đánh giá pipeline PhoBERT trên retrieved evidence thật | Vinh + Quang | Chưa bắt đầu | Macro-F1 end-to-end, citation audit và NEI analysis |
+| C1 | Chuẩn hóa schema bài viết/claim/evidence và metadata nguồn-thời gian | Vinh + Quang | Chưa bắt đầu | Có title, body, claim_id, published_at, retrieved_at, source_type, authority_score |
+| C2 | Baseline content-only TF-IDF/SVM trên title + body | Vinh | Chưa bắt đầu | Macro-F1/AUC, split chống rò rỉ và risk score không dùng làm evidence |
+| C3 | Content-risk PhoBERT/XLM-R | Vinh | Chưa bắt đầu | So sánh C2, calibration và error analysis |
+| C4 | Claim decomposition và tổng hợp cấp bài | Vinh | Chưa bắt đầu | Claim nguyên tử liên kết article_id; rule aggregation minh bạch |
+| C5 | Corpus ingestion, query generation, time/source filter và reranker | Quang | Chưa bắt đầu | Passage corpus có metadata; Recall@k/MRR/nDCG/latency |
+| C6 | Temporal/source-held-out test, joint score và citation faithfulness audit | Vinh + Quang | Chưa bắt đầu | Báo cáo oracle/retrieval/E2E; 50 citation review; calibration |
+| C7 | Reproducible release | Quang | Chưa bắt đầu | Cài từ đầu, pytest chạy, manifest/hash và demo offline |

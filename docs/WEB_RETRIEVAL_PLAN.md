@@ -55,3 +55,7 @@ Claim
 | Chất lượng retrieval | Có Recall@3, Recall@5, MRR và latency trên tập query cố định |
 | Chất lượng end-to-end | Báo cáo tách oracle evidence, retrieval và end-to-end |
 | Tái lập | Có cấu hình provider/allowlist versioned; API key không nằm trong Git |
+
+## Liên kết roadmap 6 tuần
+
+Web retrieval là một nhánh của roadmap 6 tuần, không thay thế corpus cục bộ hay nhánh content-risk. Xem [ma trận yêu cầu](MA_TRAN_YEU_CAU_DE_TAI.md) để biết task, thí nghiệm và tiêu chí đánh giá liên quan.
