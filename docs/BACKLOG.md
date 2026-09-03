@@ -20,7 +20,7 @@
 ## Mở rộng phạm vi đề tài — roadmap 6 tuần
 
 | P2 | Đánh giá pipeline PhoBERT trên retrieved evidence thật | Vinh + Quang | Chưa bắt đầu | Macro-F1 end-to-end, citation audit và NEI analysis |
-| C1 | Chuẩn hóa schema bài viết/claim/evidence và metadata nguồn-thời gian | Vinh + Quang | Chưa bắt đầu | Có title, body, claim_id, published_at, retrieved_at, source_type, authority_score |
+| C1 | Chuẩn hóa schema bài viết/claim/evidence và metadata nguồn-thời gian | Vinh + Quang | Hoàn thành | Data contract v1.0, manifest và loader tương thích ngược |
 | C2 | Baseline content-only TF-IDF/SVM trên title + body | Vinh | Chưa bắt đầu | Macro-F1/AUC, split chống rò rỉ và risk score không dùng làm evidence |
 | C3 | Content-risk PhoBERT/XLM-R | Vinh | Chưa bắt đầu | So sánh C2, calibration và error analysis |
 | C4 | Claim decomposition và tổng hợp cấp bài | Vinh | Chưa bắt đầu | Claim nguyên tử liên kết article_id; rule aggregation minh bạch |

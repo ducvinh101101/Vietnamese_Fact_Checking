@@ -7,7 +7,7 @@ Tài liệu này là điểm tham chiếu cho phạm vi đầy đủ của đề
 | Phân tích nội dung title + body | C2, C3; E9, E10 | Vinh | Planned |
 | Tách claim nguyên tử | C4; W3-06; E11 | Vinh | Planned |
 | Tổng hợp verdict cấp bài | W4-06; E11 | Vinh + Quang | Planned |
-| Schema article/evidence có metadata nguồn-thời gian | C1; W1-06 | Vinh + Quang | Planned |
+| Schema article/evidence có metadata nguồn-thời gian | C1; W1-06 | Vinh + Quang | Hoàn thành |
 | Corpus passage và khử trùng | C5; W3-07 | Quang | Planned |
 | BM25, dense, hybrid, reranker | W2-01, W2-04, W3-08, W5-01; E3, E4, E5, E12 | Quang | Planned |
 | Web retrieval allowlist | R3, R4; W2-07, W3-05; E8 | Quang | Planned |

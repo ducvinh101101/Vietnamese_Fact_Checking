@@ -17,6 +17,8 @@ def test_generated_corpus_loads_and_respects_max_chars(tmp_path):
     assert (documents_count, passages_count) == (1, len(evidence))
     assert all(len(item.content) <= 100 for item in evidence)
     assert evidence[0].url == "https://example.com/article"
+    assert evidence[0].article_id == evidence[0].document_id
+    assert evidence[0].source_type == "unknown"
 
 
 def test_split_passages_breaks_a_single_oversized_sentence():
