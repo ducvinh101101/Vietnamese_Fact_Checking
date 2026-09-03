@@ -38,6 +38,14 @@ Không commit dữ liệu lớn. Sau khi tải, đặt dữ liệu gốc vào `d
 {"document_id":"...","passage_id":"...","content":"...","source":"...","url":"..."}
 ```
 
+Sau khi tải ba split parquet chính thức vào `data/raw/vifactcheck/`, tạo corpus cục bộ bằng:
+
+```powershell
+python scripts/build_vifactcheck_evidence.py
+```
+
+Tệp `data/evidence/vifactcheck_passages.jsonl` và dữ liệu đầu vào đều bị `.gitignore`; script chỉ đọc `Context`, `Author` và `Url`, khử trùng theo URL rồi chia bài báo thành các passage tối đa 700 ký tự.
+
 Kế hoạch triển khai hiện hành nằm trong [workbook phân công Vinh–Quang](KE_HOACH_TRIEN_KHAI_2_NGUOI.xlsx), kèm [quy trình nghiên cứu](docs/QUY_TRINH_NGHIEN_CUU.md) và [backlog](docs/BACKLOG.md).
 
 ## Web retrieval (kế hoạch)
