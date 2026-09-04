@@ -1,0 +1,412 @@
+[
+  {
+    "statement": "Trong khi TikTok cần 6 tháng để đạt 100 triệu người dùng thì ChatGPT chỉ mất 2 tháng để thực hiện điều đó, theo Similar Web.",
+    "evidence": "Chỉ mất hai tháng để ứng dụng này đạt 100 triệu người dùng, trong khi TikTok cần 9 tháng, theo Similar Web.",
+    "query_id": "1039",
+    "gold_url": "https://vnexpress.net/chatgpt-tac-dong-den-bat-dong-san-the-nao-4582793.html",
+    "exact_evidence_to_passage_match": true,
+    "first_relevant_rank_at_5": 1,
+    "latency_ms": 29.8228,
+    "results": [
+      {
+        "rank": 1,
+        "passage_id": "vifactcheck_00979_p001",
+        "url": "https://vnexpress.net/chatgpt-tac-dong-den-bat-dong-san-the-nao-4582793.html",
+        "score": 55.66004374
+      },
+      {
+        "rank": 2,
+        "passage_id": "vifactcheck_00411_p007",
+        "url": "https://nld.com.vn/cong-nghe/don-dau-kinh-doanh-theo-xu-huong-shoppertainment-voi-tiktok-shop-mcv-20230211153530355.htm",
+        "score": 27.07764385
+      },
+      {
+        "rank": 3,
+        "passage_id": "vifactcheck_00411_p004",
+        "url": "https://nld.com.vn/cong-nghe/don-dau-kinh-doanh-theo-xu-huong-shoppertainment-voi-tiktok-shop-mcv-20230211153530355.htm",
+        "score": 26.88023704
+      },
+      {
+        "rank": 4,
+        "passage_id": "vifactcheck_00213_p002",
+        "url": "https://baotintuc.vn/khoa-hoc-cong-nghe/italy-chan-hoat-dong-cua-chatgpt-tren-lanh-tho-20230331200740088.htm",
+        "score": 25.5151242
+      },
+      {
+        "rank": 5,
+        "passage_id": "vifactcheck_00893_p001",
+        "url": "https://tuoitre.vn/hiem-nguy-tu-nhung-video-khoe-minh-tren-tiktok-20230319165504762.htm",
+        "score": 25.07529779
+      }
+    ]
+  },
+  {
+    "statement": "Ông Nguyễn Hồng Sơn, Đại biện lâm thời Đại sứ quán Việt Nam tại Nhật Bản đánh giá việc ra đời Liên hiệp Hội có ý nghĩa hết sức to lớn góp phần giữ vai trò kết nối các hội, tổ chức của người Việt Nam tại Nhật Bản; đoàn kết, tập hợp, tổ chức cộng đồng tham gia các hoạt động chung trên tất cả các lĩnh vực cuộc sống xã hội.",
+    "evidence": "Ông Nguyễn Đức Minh, Đại biện lâm thời Đại sứ quán Việt Nam tại Nhật Bản Đại biện Nguyễn Đức Minh đánh giá việc ra đời Liên hiệp Hội có ý nghĩa hết sức to lớn Liên hiệp Hội người Việt Nam tại Nhật Bản sẽ giữ vai trò kết nối các hội, tổ chức của người Việt Nam tại Nhật Bản; đoàn kết, tập hợp, tổ chức cộng đồng tham gia các hoạt động chung trên tất cả các lĩnh vực cuộc sống xã hội.",
+    "query_id": "1064",
+    "gold_url": "https://baochinhphu.vn/thanh-lap-lien-hiep-hoi-nguoi-viet-nam-tai-nhat-ban-102230406180841359.htm",
+    "exact_evidence_to_passage_match": false,
+    "first_relevant_rank_at_5": 1,
+    "latency_ms": 77.785,
+    "results": [
+      {
+        "rank": 1,
+        "passage_id": "vifactcheck_00127_p004",
+        "url": "https://baochinhphu.vn/thanh-lap-lien-hiep-hoi-nguoi-viet-nam-tai-nhat-ban-102230406180841359.htm",
+        "score": 141.25769974
+      },
+      {
+        "rank": 2,
+        "passage_id": "vifactcheck_00127_p002",
+        "url": "https://baochinhphu.vn/thanh-lap-lien-hiep-hoi-nguoi-viet-nam-tai-nhat-ban-102230406180841359.htm",
+        "score": 116.6952043
+      },
+      {
+        "rank": 3,
+        "passage_id": "vifactcheck_00127_p003",
+        "url": "https://baochinhphu.vn/thanh-lap-lien-hiep-hoi-nguoi-viet-nam-tai-nhat-ban-102230406180841359.htm",
+        "score": 112.06971075
+      },
+      {
+        "rank": 4,
+        "passage_id": "vifactcheck_00127_p001",
+        "url": "https://baochinhphu.vn/thanh-lap-lien-hiep-hoi-nguoi-viet-nam-tai-nhat-ban-102230406180841359.htm",
+        "score": 98.26574745
+      },
+      {
+        "rank": 5,
+        "passage_id": "vifactcheck_00127_p005",
+        "url": "https://baochinhphu.vn/thanh-lap-lien-hiep-hoi-nguoi-viet-nam-tai-nhat-ban-102230406180841359.htm",
+        "score": 87.09791492
+      }
+    ]
+  },
+  {
+    "statement": "Quần thể di tích quốc gia này bao gồm: thư viện tại Viện Pasteur Nha Trang lưu giữ nhiều kỷ vật liên quan đến việc nghiên cứu và cuộc đời ông tại căn nhà.",
+    "evidence": "Quần thể di tích quốc gia này bao gồm: thư viện tại Viện Pasteur Nha Trang; ngôi mộ chôn cất theo di nguyện của Alexandre Yersin tại đồn điền Suối Dầu; chùa Linh Sơn",
+    "query_id": "178",
+    "gold_url": "https://tuoitre.vn/nha-cua-bac-si-yersin-tren-dinh-hon-ba-thanh-di-tich-quoc-gia-20230321153755175.htm",
+    "exact_evidence_to_passage_match": true,
+    "first_relevant_rank_at_5": 1,
+    "latency_ms": 36.5311,
+    "results": [
+      {
+        "rank": 1,
+        "passage_id": "vifactcheck_00917_p004",
+        "url": "https://tuoitre.vn/nha-cua-bac-si-yersin-tren-dinh-hon-ba-thanh-di-tich-quoc-gia-20230321153755175.htm",
+        "score": 62.54183092
+      },
+      {
+        "rank": 2,
+        "passage_id": "vifactcheck_00349_p003",
+        "url": "https://dantri.com.vn/suc-khoe/ha-noi-o-cung-nha-co-nguoi-hut-thuoc-benh-nhan-36-tuoi-da-bi-ung-thu-phoi-20230309165854917.htm",
+        "score": 30.82082876
+      },
+      {
+        "rank": 3,
+        "passage_id": "vifactcheck_00856_p001",
+        "url": "https://tuoitre.vn/ai-giup-cac-nha-khoa-hoc-noi-chuyen-voi-dong-vat-20230318220424159.htm",
+        "score": 30.16446587
+      },
+      {
+        "rank": 4,
+        "passage_id": "vifactcheck_00806_p001",
+        "url": "https://tienphong.vn/ky-tich-11-lan-phau-thuat-cuu-song-benh-nhan-bi-xe-dau-keo-can-ngang-nguoi-post1517484.tpo",
+        "score": 29.77486802
+      },
+      {
+        "rank": 5,
+        "passage_id": "vifactcheck_00598_p003",
+        "url": "https://plo.vn/kham-pha-moi-tu-nha-tho-duc-ba-o-paris-sau-vu-hoa-hoan-2019-post724469.html",
+        "score": 29.00522556
+      }
+    ]
+  },
+  {
+    "statement": "Quyết định công nhận Bảo vật Quốc gia đối với 7 hiện vật của  Bắc Ninh vừa được trao bởi Phó Thủ tướng Trần Hồng Hà.",
+    "evidence": "Phó Thủ tướng Trần Hồng Hà trao Quyết định công nhận Bảo vật Quốc gia đối với 3 hiện vật của tỉnh Bắc Ninh",
+    "query_id": "245",
+    "gold_url": "https://baochinhphu.vn/bac-ninh-toa-sang-mien-van-hien-102230225223406758.htm",
+    "exact_evidence_to_passage_match": true,
+    "first_relevant_rank_at_5": 1,
+    "latency_ms": 31.1497,
+    "results": [
+      {
+        "rank": 1,
+        "passage_id": "vifactcheck_00007_p001",
+        "url": "https://baochinhphu.vn/bac-ninh-toa-sang-mien-van-hien-102230225223406758.htm",
+        "score": 58.64558107
+      },
+      {
+        "rank": 2,
+        "passage_id": "vifactcheck_00007_p004",
+        "url": "https://baochinhphu.vn/bac-ninh-toa-sang-mien-van-hien-102230225223406758.htm",
+        "score": 55.73007841
+      },
+      {
+        "rank": 3,
+        "passage_id": "vifactcheck_00060_p001",
+        "url": "https://baochinhphu.vn/he-thong-xang-dau-khi-dot-phai-van-hanh-dong-bo-thong-suot-dam-bao-cho-nen-kinh-te-102230330163626936.htm",
+        "score": 36.70405888
+      },
+      {
+        "rank": 4,
+        "passage_id": "vifactcheck_00262_p001",
+        "url": "https://baotintuc.vn/thoi-su/kien-toan-nhan-su-ban-chi-dao-quoc-gia-ve-hoi-nhap-quoc-te-20230330194235937.htm",
+        "score": 36.1709798
+      },
+      {
+        "rank": 5,
+        "passage_id": "vifactcheck_00103_p001",
+        "url": "https://baochinhphu.vn/phat-trien-nganh-duoc-dua-tren-tiem-nang-the-manh-khong-duy-y-chi-102230329214503614.htm",
+        "score": 35.96946538
+      }
+    ]
+  },
+  {
+    "statement": "Cuộc họp dưới sự chủ trì của ông Niwat Limsuknirun diễn ra hôm 22/3 với nội dung về các yêu cầu chung, thời gian và vai trò của mỗi quốc gia thành viên.",
+    "evidence": "Hôm 22/3, dưới sự chủ trì của ông Niwat Limsuknirun, đã có cuộc họp Cuộc họp xoay quanh các yêu cầu chung, thời gian và vai trò của mỗi quốc gia thành viên.",
+    "query_id": "286",
+    "gold_url": "https://tienphong.vn/asean-xuc-tien-ho-so-xin-dang-cai-world-cup-2034-post1520440.tpo",
+    "exact_evidence_to_passage_match": false,
+    "first_relevant_rank_at_5": 1,
+    "latency_ms": 57.2397,
+    "results": [
+      {
+        "rank": 1,
+        "passage_id": "vifactcheck_00764_p001",
+        "url": "https://tienphong.vn/asean-xuc-tien-ho-so-xin-dang-cai-world-cup-2034-post1520440.tpo",
+        "score": 74.74447798
+      },
+      {
+        "rank": 2,
+        "passage_id": "vifactcheck_00906_p006",
+        "url": "https://tuoitre.vn/meta-muon-hoat-dong-lau-dai-o-viet-nam-20230323081130791.htm",
+        "score": 35.03007333
+      },
+      {
+        "rank": 3,
+        "passage_id": "vifactcheck_00025_p003",
+        "url": "https://baochinhphu.vn/chu-trong-chat-luong-bao-cao-ket-qua-lay-y-kien-nhan-dan-doi-voi-du-an-luat-dat-dai-sua-doi-102230316183554521.htm",
+        "score": 34.42717044
+      },
+      {
+        "rank": 4,
+        "passage_id": "vifactcheck_00649_p001",
+        "url": "https://thanhnien.vn/anh-duoc-chap-nhan-gia-nhap-cptpp-185230331085115673.htm",
+        "score": 33.72470916
+      },
+      {
+        "rank": 5,
+        "passage_id": "vifactcheck_00242_p002",
+        "url": "https://baotintuc.vn/the-gioi/cptpp-dong-y-ket-nap-anh-vao-khoi-20230331152630850.htm",
+        "score": 33.651573
+      }
+    ]
+  },
+  {
+    "statement": "Dự kiến lễ công bố tân HLV trưởng Đội tuyển Việt Nam và  U23 sẽ được VFF tổ chức vào giữa tháng 2 năm 2023.",
+    "evidence": "Dự kiến lễ công bố tân HLV trưởng Đội tuyển Việt Nam và Đội tuyển U23 sẽ được VFF tổ chức trước khi kết thúc tháng 2/2023.",
+    "query_id": "342",
+    "gold_url": "https://baochinhphu.vn/vff-da-chon-duoc-nguoi-ke-nhiem-hlv-park-hang-seo-102230216162644434.htm",
+    "exact_evidence_to_passage_match": true,
+    "first_relevant_rank_at_5": 1,
+    "latency_ms": 51.7869,
+    "results": [
+      {
+        "rank": 1,
+        "passage_id": "vifactcheck_00149_p001",
+        "url": "https://baochinhphu.vn/vff-da-chon-duoc-nguoi-ke-nhiem-hlv-park-hang-seo-102230216162644434.htm",
+        "score": 61.62640131
+      },
+      {
+        "rank": 2,
+        "passage_id": "vifactcheck_00149_p002",
+        "url": "https://baochinhphu.vn/vff-da-chon-duoc-nguoi-ke-nhiem-hlv-park-hang-seo-102230216162644434.htm",
+        "score": 58.38436458
+      },
+      {
+        "rank": 3,
+        "passage_id": "vifactcheck_00061_p001",
+        "url": "https://baochinhphu.vn/hlv-philippe-troussier-chinh-thuc-nhan-nhiem-vu-voi-bong-da-viet-nam-102230227143914537.htm",
+        "score": 43.36752101
+      },
+      {
+        "rank": 4,
+        "passage_id": "vifactcheck_00061_p002",
+        "url": "https://baochinhphu.vn/hlv-philippe-troussier-chinh-thuc-nhan-nhiem-vu-voi-bong-da-viet-nam-102230227143914537.htm",
+        "score": 35.98399464
+      },
+      {
+        "rank": 5,
+        "passage_id": "vifactcheck_00149_p003",
+        "url": "https://baochinhphu.vn/vff-da-chon-duoc-nguoi-ke-nhiem-hlv-park-hang-seo-102230216162644434.htm",
+        "score": 35.72917413
+      }
+    ]
+  },
+  {
+    "statement": "Tường Anh vinh dự là học sinh Việt Nam giành được học bổng danh giá trong ngôi trường chỉ có 5% sinh viên quốc tế được nhận vào học và cũng chỉ có học bổng duy nhất là Freeman Asian Scholarship dành cho 11 học sinh đến từ 11 nước châu Á.",
+    "evidence": "Trường chỉ có 5% sinh viên quốc tế được nhận vào học và cũng chỉ có học bổng duy nhất là Freeman Asian Scholarship dành cho 11 học sinh đến từ 11 nước châu Á. Tường Anh vinh dự là học sinh Việt Nam giành được học bổng danh giá này.",
+    "query_id": "374",
+    "gold_url": "https://thanhnien.vn/nu-sinh-viet-dat-hoc-bong-9-truong-dai-hoc-my-18523033021510177.htm",
+    "exact_evidence_to_passage_match": false,
+    "first_relevant_rank_at_5": 1,
+    "latency_ms": 81.7718,
+    "results": [
+      {
+        "rank": 1,
+        "passage_id": "vifactcheck_00726_p001",
+        "url": "https://thanhnien.vn/nu-sinh-viet-dat-hoc-bong-9-truong-dai-hoc-my-18523033021510177.htm",
+        "score": 134.72798765
+      },
+      {
+        "rank": 2,
+        "passage_id": "vifactcheck_00726_p002",
+        "url": "https://thanhnien.vn/nu-sinh-viet-dat-hoc-bong-9-truong-dai-hoc-my-18523033021510177.htm",
+        "score": 78.00994855
+      },
+      {
+        "rank": 3,
+        "passage_id": "vifactcheck_01011_p001",
+        "url": "https://vnexpress.net/nam-sinh-dat-diem-toan-cap-tieu-hoc-cao-nhat-the-gioi-4585208.html",
+        "score": 63.97598207
+      },
+      {
+        "rank": 4,
+        "passage_id": "vifactcheck_00965_p002",
+        "url": "https://vnexpress.net/ba-kinh-nghiem-chinh-phuc-hoc-bong-asean-4581771.html",
+        "score": 60.66582395
+      },
+      {
+        "rank": 5,
+        "passage_id": "vifactcheck_00081_p012",
+        "url": "https://baochinhphu.vn/mot-loat-truong-dai-hoc-su-dung-ielts-de-xet-tuyen-nam-2023-119230203122042758.htm",
+        "score": 59.76732301
+      }
+    ]
+  },
+  {
+    "statement": "Bạn trai tôi là hồ ly 2 là một trong những dự án truyền hình Hàn Quốc được kỳ vọng nhất nửa đầu năm nay có Lee Dong Wook đóng chính.",
+    "evidence": "Lee Dong Wook đóng là một trong những dự án truyền hình Hàn Quốc được kỳ vọng nhất nửa đầu năm nay. (Bạn trai tôi là hồ ly 2",
+    "query_id": "610",
+    "gold_url": "https://thanhnien.vn/ban-trai-toi-la-ho-ly-2-co-lee-dong-wook-moi-tung-poster-da-gay-sot-185230329141834085.htm",
+    "exact_evidence_to_passage_match": false,
+    "first_relevant_rank_at_5": 1,
+    "latency_ms": 34.5668,
+    "results": [
+      {
+        "rank": 1,
+        "passage_id": "vifactcheck_00651_p001",
+        "url": "https://thanhnien.vn/ban-trai-toi-la-ho-ly-2-co-lee-dong-wook-moi-tung-poster-da-gay-sot-185230329141834085.htm",
+        "score": 104.33952797
+      },
+      {
+        "rank": 2,
+        "passage_id": "vifactcheck_00651_p003",
+        "url": "https://thanhnien.vn/ban-trai-toi-la-ho-ly-2-co-lee-dong-wook-moi-tung-poster-da-gay-sot-185230329141834085.htm",
+        "score": 74.267449
+      },
+      {
+        "rank": 3,
+        "passage_id": "vifactcheck_00651_p004",
+        "url": "https://thanhnien.vn/ban-trai-toi-la-ho-ly-2-co-lee-dong-wook-moi-tung-poster-da-gay-sot-185230329141834085.htm",
+        "score": 43.91266094
+      },
+      {
+        "rank": 4,
+        "passage_id": "vifactcheck_00651_p002",
+        "url": "https://thanhnien.vn/ban-trai-toi-la-ho-ly-2-co-lee-dong-wook-moi-tung-poster-da-gay-sot-185230329141834085.htm",
+        "score": 38.90604809
+      },
+      {
+        "rank": 5,
+        "passage_id": "vifactcheck_00826_p002",
+        "url": "https://tienphong.vn/nhan-dinh-han-quoc-vs-colombia-18h00-ngay-243-bay-ho-xuat-kich-post1520228.tpo#1520228|zone-timeline-11|1",
+        "score": 29.53080379
+      }
+    ]
+  },
+  {
+    "statement": "Cách đây 33 năm trước, \"di tích lịch sử lưu niệm nhà bác học Alexandre Yersin\" được Bộ Văn hóa, Thông tin, Thể thao và Du lịch công bố là di tích quốc gia, sau đó đến tháng 2/2023, sau nhiều cuộc thảo luận và tranh cãi, UBND tỉnh Khánh Hòa đã có tờ trình đề nghị bổ sung nhà làm việc của vị bác sĩ này là di tích quốc gia.",
+    "evidence": "Cách đây gần 33 năm, Bộ Văn hóa, Thông tin, Thể thao và Du lịch đã có quyết định xếp hạng quần thể \"di tích lịch sử lưu niệm nhà bác học Alexandre Yersin\" tại Khánh Hòa là di tích quốc gia. Đến tháng 2-2023, UBND tỉnh Khánh Hòa có tờ trình đề nghị Bộ Văn hóa, Thể thao và Du lịch bổ sung nhà làm việc của bác sĩ A.Yersin trên núi Hòn Bà là di tích quốc gia.",
+    "query_id": "671",
+    "gold_url": "https://tuoitre.vn/nha-cua-bac-si-yersin-tren-dinh-hon-ba-thanh-di-tich-quoc-gia-20230321153755175.htm",
+    "exact_evidence_to_passage_match": true,
+    "first_relevant_rank_at_5": 1,
+    "latency_ms": 87.8447,
+    "results": [
+      {
+        "rank": 1,
+        "passage_id": "vifactcheck_00917_p005",
+        "url": "https://tuoitre.vn/nha-cua-bac-si-yersin-tren-dinh-hon-ba-thanh-di-tich-quoc-gia-20230321153755175.htm",
+        "score": 143.36035638
+      },
+      {
+        "rank": 2,
+        "passage_id": "vifactcheck_00917_p004",
+        "url": "https://tuoitre.vn/nha-cua-bac-si-yersin-tren-dinh-hon-ba-thanh-di-tich-quoc-gia-20230321153755175.htm",
+        "score": 134.62853245
+      },
+      {
+        "rank": 3,
+        "passage_id": "vifactcheck_00917_p001",
+        "url": "https://tuoitre.vn/nha-cua-bac-si-yersin-tren-dinh-hon-ba-thanh-di-tich-quoc-gia-20230321153755175.htm",
+        "score": 120.44964779
+      },
+      {
+        "rank": 4,
+        "passage_id": "vifactcheck_00389_p002",
+        "url": "https://dantri.com.vn/van-hoa/vu-di-tich-quoc-gia-bi-xam-hai-xu-phat-su-tru-tri-20-trieu-dong-20230323155336192.htm",
+        "score": 71.90065429
+      },
+      {
+        "rank": 5,
+        "passage_id": "vifactcheck_00191_p003",
+        "url": "https://baotintuc.vn/du-lich/he-thong-gieng-co-hang-nghin-nam-tuoi-doc-dao-o-xa-gio-an-quang-tri-20230325050434696.htm",
+        "score": 69.31600501
+      }
+    ]
+  },
+  {
+    "statement": "Nhằm thu hút khách du lịch ở lại qua đêm tỉnh Chiết Giang đã chi tiền cho các công ty du lịch nhằm tăng doanh thu du lịch địa phương.",
+    "evidence": "Để thu hút du khách nước ngoài ở lại qua đêm, một trong những tỉnh giàu có nhất Trung Quốc đang chi tiền cho các công ty du lịch nhằm tăng doanh thu du lịch địa phương. Chiết Giang, cho biết thành phố sẽ trợ cấp cho các công ty du lịch tới 40 nhân dân tệ (5,8 USD) một ngày cho một người nếu khách nước ngoài của công ty ở lại trong thành phố qua đêm.",
+    "query_id": "886",
+    "gold_url": "https://thanhnien.vn/tinh-nha-giau-trung-quoc-tang-tien-cho-cong-ty-du-lich-hut-khach-quoc-te-185230329170135594.htm",
+    "exact_evidence_to_passage_match": false,
+    "first_relevant_rank_at_5": 1,
+    "latency_ms": 33.4371,
+    "results": [
+      {
+        "rank": 1,
+        "passage_id": "vifactcheck_00740_p001",
+        "url": "https://thanhnien.vn/tinh-nha-giau-trung-quoc-tang-tien-cho-cong-ty-du-lich-hut-khach-quoc-te-185230329170135594.htm",
+        "score": 90.10117985
+      },
+      {
+        "rank": 2,
+        "passage_id": "vifactcheck_00654_p004",
+        "url": "https://thanhnien.vn/binh-dinh-va-saigontourist-group-ky-ket-hop-tac-du-lich-185230329173611898.htm",
+        "score": 63.42474767
+      },
+      {
+        "rank": 3,
+        "passage_id": "vifactcheck_00190_p010",
+        "url": "https://baotintuc.vn/du-lich/dua-lang-trau-vi-thuy-tro-thanh-diem-du-lich-an-tuong-20230322070936279.htm",
+        "score": 59.40562252
+      },
+      {
+        "rank": 4,
+        "passage_id": "vifactcheck_00654_p006",
+        "url": "https://thanhnien.vn/binh-dinh-va-saigontourist-group-ky-ket-hop-tac-du-lich-185230329173611898.htm",
+        "score": 58.9089251
+      },
+      {
+        "rank": 5,
+        "passage_id": "vifactcheck_00192_p007",
+        "url": "https://baotintuc.vn/du-lich/phat-trien-nhieu-san-pham-dich-vu-moi-thu-hut-du-khach-den-xu-dua-20230328080718407.htm",
+        "score": 56.95543588
+      }
+    ]
+  }
+]
