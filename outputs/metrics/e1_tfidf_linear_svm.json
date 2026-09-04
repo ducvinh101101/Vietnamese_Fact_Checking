@@ -1,0 +1,141 @@
+{
+  "experiment": "E1",
+  "input": "[CLAIM] Statement [EVIDENCE] gold Evidence",
+  "split": "grouped by normalized URL; seed=42; 70/15/15",
+  "model": "TF-IDF word (1,2) + char_wb (3,5) + LinearSVC(class_weight=balanced)",
+  "selection_metric": "dev macro_f1",
+  "candidates": [
+    0.25,
+    0.5,
+    1.0,
+    2.0
+  ],
+  "selected_c": 0.25,
+  "dev_results": {
+    "0.25": {
+      "accuracy": 0.4361,
+      "macro_f1": 0.4348,
+      "per_label": {
+        "SUPPORTED": {
+          "precision": 0.4848,
+          "recall": 0.4679,
+          "f1": 0.4762,
+          "support": 374
+        },
+        "REFUTED": {
+          "precision": 0.3798,
+          "recall": 0.3626,
+          "f1": 0.371,
+          "support": 353
+        },
+        "NOT_ENOUGH_INFO": {
+          "precision": 0.4398,
+          "recall": 0.4759,
+          "f1": 0.4571,
+          "support": 353
+        }
+      }
+    },
+    "0.5": {
+      "accuracy": 0.4333,
+      "macro_f1": 0.4326,
+      "per_label": {
+        "SUPPORTED": {
+          "precision": 0.4788,
+          "recall": 0.4519,
+          "f1": 0.4649,
+          "support": 374
+        },
+        "REFUTED": {
+          "precision": 0.3793,
+          "recall": 0.3739,
+          "f1": 0.3766,
+          "support": 353
+        },
+        "NOT_ENOUGH_INFO": {
+          "precision": 0.4406,
+          "recall": 0.4731,
+          "f1": 0.4563,
+          "support": 353
+        }
+      }
+    },
+    "1.0": {
+      "accuracy": 0.4213,
+      "macro_f1": 0.4213,
+      "per_label": {
+        "SUPPORTED": {
+          "precision": 0.4678,
+          "recall": 0.4278,
+          "f1": 0.4469,
+          "support": 374
+        },
+        "REFUTED": {
+          "precision": 0.3791,
+          "recall": 0.3909,
+          "f1": 0.3849,
+          "support": 353
+        },
+        "NOT_ENOUGH_INFO": {
+          "precision": 0.4198,
+          "recall": 0.4448,
+          "f1": 0.4319,
+          "support": 353
+        }
+      }
+    },
+    "2.0": {
+      "accuracy": 0.425,
+      "macro_f1": 0.4249,
+      "per_label": {
+        "SUPPORTED": {
+          "precision": 0.4586,
+          "recall": 0.4144,
+          "f1": 0.4354,
+          "support": 374
+        },
+        "REFUTED": {
+          "precision": 0.3863,
+          "recall": 0.3994,
+          "f1": 0.3928,
+          "support": 353
+        },
+        "NOT_ENOUGH_INFO": {
+          "precision": 0.4324,
+          "recall": 0.4618,
+          "f1": 0.4466,
+          "support": 353
+        }
+      }
+    }
+  },
+  "test_metrics": {
+    "accuracy": 0.4015,
+    "macro_f1": 0.4015,
+    "per_label": {
+      "SUPPORTED": {
+        "precision": 0.4116,
+        "recall": 0.3859,
+        "f1": 0.3983,
+        "support": 368
+      },
+      "REFUTED": {
+        "precision": 0.3883,
+        "recall": 0.4101,
+        "f1": 0.3989,
+        "support": 356
+      },
+      "NOT_ENOUGH_INFO": {
+        "precision": 0.4056,
+        "recall": 0.4091,
+        "f1": 0.4074,
+        "support": 352
+      }
+    }
+  },
+  "artifacts": {
+    "model": "models\\e1_tfidf_linear_svm.joblib",
+    "predictions": "outputs\\predictions\\e1_test_predictions.csv",
+    "confusion_matrix": "outputs\\metrics\\e1_confusion_matrix.csv"
+  }
+}

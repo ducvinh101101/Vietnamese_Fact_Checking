@@ -1,0 +1,43 @@
+{
+  "seed": 42,
+  "method": "StratifiedGroupKFold(n_splits=20); folds 14/3/3 for train/dev/test",
+  "total_rows": 7232,
+  "total_unique_urls": 1041,
+  "splits": {
+    "train": {
+      "rows": 5076,
+      "share": 0.7019,
+      "unique_urls": 744,
+      "label_distribution": {
+        "0": 1773,
+        "1": 1661,
+        "2": 1642
+      }
+    },
+    "dev": {
+      "rows": 1080,
+      "share": 0.1493,
+      "unique_urls": 147,
+      "label_distribution": {
+        "0": 374,
+        "1": 353,
+        "2": 353
+      }
+    },
+    "test": {
+      "rows": 1076,
+      "share": 0.1488,
+      "unique_urls": 150,
+      "label_distribution": {
+        "0": 368,
+        "1": 356,
+        "2": 352
+      }
+    }
+  },
+  "cross_split_url_overlap": {
+    "train__dev": 0,
+    "train__test": 0,
+    "dev__test": 0
+  }
+}
