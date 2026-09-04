@@ -1,0 +1,42 @@
+{
+  "benchmark": "W2-01 BM25 retrieval baseline",
+  "relevance_definition": "URL-level: a retrieved passage is relevant when its URL equals the annotated ViFactCheck evidence URL.",
+  "scope_note": "This is not a passage-level gold metric. Exact annotated-evidence-to-passage coverage is reported separately.",
+  "corpus": {
+    "path": "data\\evidence\\vifactcheck_passages.jsonl",
+    "passages": 5845,
+    "urls": 1041
+  },
+  "evaluation_split": {
+    "path": "data\\processed\\vifactcheck_group_split\\test.parquet",
+    "queries": 1076,
+    "unique_gold_urls": 150
+  },
+  "metrics": {
+    "recall_at_3": 0.981413,
+    "recall_at_5": 0.989777,
+    "mrr_at_5": 0.967147,
+    "latency_ms": {
+      "mean": 45.7853,
+      "p50": 42.0616,
+      "p95": 81.2028
+    }
+  },
+  "gold_coverage": {
+    "urls_present_in_corpus": 150,
+    "unique_gold_urls": 150,
+    "exact_evidence_to_passage_matches": 614,
+    "exact_evidence_to_passage_coverage": 0.570632
+  },
+  "index_build_seconds": 0.7861,
+  "retriever": "src.retriever.BM25Retriever (rank-bm25)",
+  "audit": {
+    "path": "data\\evaluation\\bm25_retrieval_audit_queries.jsonl",
+    "queries": 10,
+    "selection": "ten lowest SHA-256(query_id) values; deterministic"
+  },
+  "predictions": {
+    "path": "outputs\\retrieval\\bm25_retrieval_test_top5.jsonl",
+    "top_k": 5
+  }
+}
