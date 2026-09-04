@@ -1,0 +1,68 @@
+{
+  "dataset_id": "tranthaihoa/vifactcheck",
+  "splits": {
+    "train": {
+      "rows": 5062,
+      "label_distribution": {
+        "0": 1751,
+        "1": 1658,
+        "2": 1653
+      },
+      "missing_statement": 0,
+      "missing_context": 0,
+      "missing_evidence": 0,
+      "duplicate_statement_within_split": 2,
+      "duplicate_url_within_split": 4027
+    },
+    "test": {
+      "rows": 1447,
+      "label_distribution": {
+        "0": 508,
+        "1": 468,
+        "2": 471
+      },
+      "missing_statement": 0,
+      "missing_context": 0,
+      "missing_evidence": 0,
+      "duplicate_statement_within_split": 0,
+      "duplicate_url_within_split": 689
+    },
+    "dev": {
+      "rows": 723,
+      "label_distribution": {
+        "0": 256,
+        "1": 244,
+        "2": 223
+      },
+      "missing_statement": 0,
+      "missing_context": 0,
+      "missing_evidence": 0,
+      "duplicate_statement_within_split": 0,
+      "duplicate_url_within_split": 227
+    }
+  },
+  "missing_required_columns": {
+    "train": [],
+    "test": [],
+    "dev": []
+  },
+  "label_mapping": {
+    "0": "SUPPORTED",
+    "1": "REFUTED",
+    "2": "NOT_ENOUGH_INFO"
+  },
+  "cross_split_overlap": {
+    "train__test": {
+      "shared_normalized_url": 753,
+      "shared_normalized_context": 753
+    },
+    "train__dev": {
+      "shared_normalized_url": 495,
+      "shared_normalized_context": 495
+    },
+    "test__dev": {
+      "shared_normalized_url": 360,
+      "shared_normalized_context": 360
+    }
+  }
+}

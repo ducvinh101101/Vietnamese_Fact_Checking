@@ -1,0 +1,25 @@
+{
+  "e2": {
+    "macro_f1": 0.8106919073405326,
+    "accuracy": 0.8113382899628253,
+    "refuted_to_supported": 57
+  },
+  "e7": {
+    "macro_f1": 0.8025284118554658,
+    "accuracy": 0.8029739776951673,
+    "refuted_to_supported": 38
+  },
+  "delta": {
+    "macro_f1": -0.008163495485066896,
+    "accuracy": -0.008364312267657992
+  },
+  "e7_training": {
+    "max_length": 256,
+    "learning_rate": 2e-05,
+    "train_batch_size": 8,
+    "gradient_accumulation_steps": 2,
+    "epochs_max": 8,
+    "early_stopping_patience": 2
+  },
+  "decision": "keep_e2"
+}
