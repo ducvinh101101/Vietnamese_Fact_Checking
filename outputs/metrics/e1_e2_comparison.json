@@ -1,0 +1,35 @@
+{
+  "protocol": "grouped by normalized URL; seed=42; 70/15/15; claim + gold evidence",
+  "E1": {
+    "model": "TF-IDF word (1,2) + char_wb (3,5) + LinearSVC(class_weight=balanced)",
+    "test_macro_f1": 0.4015,
+    "test_accuracy": 0.4015
+  },
+  "E2": {
+    "model": "vinai/phobert-base",
+    "test_macro_f1": 0.8106919073405326,
+    "test_accuracy": 0.8113382899628253
+  },
+  "delta": {
+    "macro_f1_points": 40.92,
+    "accuracy_points": 40.98
+  },
+  "E2_recomputed_macro_f1": 0.810692,
+  "E2_confusion_matrix": [
+    [
+      316,
+      27,
+      25
+    ],
+    [
+      57,
+      266,
+      33
+    ],
+    [
+      27,
+      34,
+      291
+    ]
+  ]
+}
