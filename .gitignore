@@ -8,8 +8,6 @@ __pycache__/
 .install.log
 ~$*.xlsx
 
-models/*
-!models/.gitkeep
 indexes/*
 !indexes/.gitkeep
 outputs/metrics/*
