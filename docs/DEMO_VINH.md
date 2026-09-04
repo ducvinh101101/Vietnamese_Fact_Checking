@@ -24,3 +24,7 @@ streamlit run app.py
 1. Nhập claim, đọc nhãn, confidence và evidence được chọn.
 2. Mở evidence để người xem kiểm tra lập luận, không chỉ nhìn nhãn.
 3. Nêu rõ Macro-F1 E2 81,07% đo trên **gold evidence** trong group split; kết quả app với kho evidence thật sẽ được đánh giá sau khi Quang hoàn tất retrieval.
+
+## Demo cuối theo roadmap 6 tuần
+
+Demo cuối không chỉ nhập một claim: người dùng nhập một bài viết, hệ thống hiển thị content-risk (chỉ là tín hiệu), các claim nguyên tử, evidence có URL/thời gian, verdict từng claim và tổng hợp cấp bài. Chỉ dùng sau khi W6-03 hoàn thành; hiện chưa phải chức năng sẵn có.

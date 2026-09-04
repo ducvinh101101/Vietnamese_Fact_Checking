@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "dataset": {
+    "id": "tranthaihoa/vifactcheck",
+    "storage_format": "huggingface-arrow",
+    "splits": {
+      "train": 5062,
+      "dev": 723,
+      "test": 1447,
+      "total": 7232
+    }
+  },
+  "evidence_corpus": {
+    "path": "data/evidence/vifactcheck_passages.jsonl",
+    "documents": 1041,
+    "passages": 5845,
+    "max_chars": 700,
+    "schema_version": "1.0"
+  },
+  "contract": "docs/DATA_CONTRACT.md"
+}

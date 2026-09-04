@@ -131,3 +131,7 @@ Retriever chỉ cần trả về danh sách `RetrievedEvidence` có passage ID v
 ## 9. Web retrieval: trạng thái kế hoạch
 
 Pipeline hiện **chưa gọi Internet**. Bản mở rộng dự kiến lấy passage web chỉ từ allowlist uy tín, lưu URL/domain/title/thời điểm truy cập, rồi hợp nhất với evidence cục bộ trước khi gửi PhoBERT. Xem [kế hoạch chi tiết](WEB_RETRIEVAL_PLAN.md). Không được dùng metric E2 để khẳng định chất lượng web end-to-end trước khi đo Recall@k và Macro-F1 trên evidence thực truy hồi.
+
+## 10. Mở rộng thành đề tài đầy đủ
+
+Pipeline hiện là MVP claim-level. Các nhánh content-risk, claim decomposition, article aggregation, corpus metadata chuẩn, reranker và đánh giá temporal/source split được theo dõi trong [kế hoạch đầy đủ](KE_HOACH_DAY_DU_DE_TAI.md); chúng chưa được triển khai.

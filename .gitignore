@@ -4,13 +4,10 @@ __pycache__/
 .streamlit/secrets.toml
 .env
 *.py[cod]
+.cache/
+.install.log
+~$*.xlsx
 
-data/raw/*
-!data/raw/.gitkeep
-data/processed/*
-!data/processed/.gitkeep
-models/*
-!models/.gitkeep
 indexes/*
 !indexes/.gitkeep
 outputs/metrics/*
