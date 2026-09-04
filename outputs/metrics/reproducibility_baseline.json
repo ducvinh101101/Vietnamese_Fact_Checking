@@ -1,0 +1,61 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-09-04T10:01:18.709079+00:00",
+  "git_commit": "66bca98475b5799056f233b5e5308b0d9032b7a1",
+  "python": "3.11.9 (tags/v3.11.9:de54cf5, Apr  2 2024, 10:12:12) [MSC v.1938 64 bit (AMD64)]",
+  "platform": "Windows-10-10.0.22631-SP0",
+  "dependency_lockfile": "requirements.lock",
+  "dependency_count": 79,
+  "artifacts": {
+    "requirements.txt": {
+      "sha256": "baa3d0f3e34a189ae56122ec95c5d6ca04dd06e59caf9e8a529860080d703a4c",
+      "bytes": 299
+    },
+    "requirements.lock": {
+      "sha256": "b0d19b1b0ac14f56fb28828246434127affa344c765dee75a46129c100af02d7",
+      "bytes": 1347
+    },
+    "configs/config.yaml": {
+      "sha256": "dd197ec19e7ff61908e56ebff770e7e6b587b426e6ee0a22745b22ce1c3e0ef2",
+      "bytes": 457
+    },
+    "data/manifest.json": {
+      "sha256": "ae8b6b3d863bcd13d1c6eb00fc23adbcbcc6013ee463d53e3691006c17e52591",
+      "bytes": 470
+    },
+    "data/evidence/sample_evidence.jsonl": {
+      "sha256": "9f0d6214c628c0e1ee8e786ddfd5cba08108e58cce546a45b202b55faefe7267",
+      "bytes": 878
+    },
+    "data/evidence/vifactcheck_passages.jsonl": {
+      "sha256": "dc7e96cfb1b28e2e4a4a7c7ae521e44cbee0f35a4f3bae6091db917d84039312",
+      "bytes": 6648404
+    },
+    "models/e2_phobert/best_model/config.json": {
+      "sha256": "78e3885007e9694179a9f19fd8b36f6e8fd052fcbcd47c1cb9d717df31613eac",
+      "bytes": 1029
+    },
+    "models/e2_phobert/best_model/model.safetensors": {
+      "sha256": "a9d8858e368dea42ec6e12e1bafa2b53a4328f91a910a130d680524a534b3b56",
+      "bytes": 540026460
+    },
+    "models/e2_phobert/best_model/tokenizer_config.json": {
+      "sha256": "1831a4ad4d2026800aad7814fcf48e65c74f71a2ebaac7dadda330e66d8a4d40",
+      "bytes": 1227
+    },
+    "models/e2_phobert/best_model/vocab.txt": {
+      "sha256": "88f702cb8597e9510c6e414014242762368263be2cf8ea094619d969f64a99b9",
+      "bytes": 959317
+    },
+    "models/vncorenlp/VnCoreNLP-1.2.jar": {
+      "sha256": "9e2811cdbc2ddfc71d04be5dc36e185c88dcd1ad4d5d69e4ff2e1369dccf7793",
+      "bytes": 27412703
+    }
+  },
+  "pytest": {
+    "command": "D:\\Vietnamese_Fact_Checking\\.venv\\Scripts\\python.exe -m pytest -q",
+    "exit_code": 0,
+    "stdout": "..........                                                               [100%]\n10 passed in 0.79s",
+    "stderr": ""
+  }
+}
