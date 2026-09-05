@@ -1,0 +1,104 @@
+{
+  "experiment": "E9",
+  "task": "binary content-risk classification; not claim verification and not evidence",
+  "dataset": "VFND article-only, revision v1.1.1",
+  "input": "[TITLE] title [BODY] body",
+  "protocol": "nested StratifiedGroupKFold by source_domain; 5 outer folds, 3 inner folds, seed=42",
+  "domain_confounding_note": "Each VFND source_domain has one label in this release; source-held-out OOF evaluation is intentionally strict.",
+  "model": "TF-IDF word (1,2) + char_wb (3,5) + calibrated LinearSVC(class_weight=balanced)",
+  "metrics": {
+    "macro_f1": 0.7727,
+    "roc_auc": 0.8821,
+    "per_label": {
+      "REAL": {
+        "precision": 0.7516,
+        "recall": 0.9274,
+        "f1-score": 0.8303,
+        "support": 124.0
+      },
+      "FAKE": {
+        "precision": 0.8676,
+        "recall": 0.6082,
+        "f1-score": 0.7152,
+        "support": 97.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        115,
+        9
+      ],
+      [
+        38,
+        59
+      ]
+    ]
+  },
+  "folds": [
+    {
+      "fold": 0,
+      "selected_c": 0.25,
+      "train_records": 141,
+      "test_records": 80,
+      "test_domains": 5,
+      "test_label_distribution": {
+        "0": 73,
+        "1": 7
+      }
+    },
+    {
+      "fold": 1,
+      "selected_c": 0.25,
+      "train_records": 142,
+      "test_records": 79,
+      "test_domains": 5,
+      "test_label_distribution": {
+        "0": 12,
+        "1": 67
+      }
+    },
+    {
+      "fold": 2,
+      "selected_c": 0.25,
+      "train_records": 200,
+      "test_records": 21,
+      "test_domains": 5,
+      "test_label_distribution": {
+        "0": 14,
+        "1": 7
+      }
+    },
+    {
+      "fold": 3,
+      "selected_c": 0.25,
+      "train_records": 200,
+      "test_records": 21,
+      "test_domains": 8,
+      "test_label_distribution": {
+        "0": 13,
+        "1": 8
+      }
+    },
+    {
+      "fold": 4,
+      "selected_c": 0.25,
+      "train_records": 201,
+      "test_records": 20,
+      "test_domains": 6,
+      "test_label_distribution": {
+        "0": 12,
+        "1": 8
+      }
+    }
+  ],
+  "selected_c_per_outer_fold": [
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.25
+  ],
+  "artifacts": {
+    "predictions": "outputs\\predictions\\e9_vfnd_content_oof_predictions.csv"
+  }
+}

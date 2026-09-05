@@ -82,7 +82,7 @@ VerificationResult(
 | E2 PhoBERT-base claim + gold evidence | Hoàn thành, model tốt nhất | Macro-F1 test 81,07%; accuracy 81,13% |
 | E7 biến thể batch, vẫn 256 token | Hoàn thành, không thay E2 | Macro-F1 test 80,25% |
 | Pipeline kỹ thuật claim → evidence → label | Hoàn thành | Smoke test cục bộ thành công |
-| Đánh giá retrieval/evidence corpus thật | Chưa hoàn thành | Chờ corpus passage và Recall@k |
+| Đánh giá retrieval/evidence corpus thật | Hoàn thành baseline URL-level | BM25: Recall@3 98,14%; Recall@5 98,98%; MRR@5 0,9671; p95 81,20 ms |
 | Đánh giá end-to-end chuẩn trên ViFactCheck | Chưa hoàn thành | Chỉ thực hiện sau khi retrieval ổn định |
 
 ## 5. Cách chạy cục bộ
@@ -113,7 +113,7 @@ Kết quả 44,44% thấp vì kho mẫu cực nhỏ và BM25 có thể đưa evi
 
 ## 7. Giới hạn hiện tại và hướng giải quyết
 
-1. **Retriever chưa được đánh giá trên corpus thật.** Giải pháp: tạo passage từ ViFactCheck, đo Recall@3/5, MRR và latency trước khi dùng metric end-to-end.
+1. **Retriever mới được đánh giá theo URL-level.** BM25 đạt Recall@3/5, MRR và latency tốt, nhưng coverage exact evidence-to-passage mới 57,06%; cần benchmark passage-level trước khi coi retrieval đã giải quyết hoàn toàn.
 2. **Verifier được train với gold evidence.** Giải pháp: sau khi retrieval ổn định, đánh giá verifier trên retrieved evidence và bổ sung hard negatives nếu cần.
 3. **Chọn nhãn quyết đoán có thể thiên về REFUTED/SUPPORTED khi evidence không liên quan.** Giải pháp: calibration và ngưỡng NEI trên dev set; không chỉnh từ các case demo đơn lẻ.
 4. **Giới hạn 256 token trên Kaggle.** E7 cho thấy chỉ đổi batch không tốt hơn E2. Giải pháp ưu tiên tiếp theo là hard negatives cho phủ định, thời gian và đảo thực thể thay vì lặp lại E7.
@@ -127,6 +127,8 @@ verify(claim: str, evidence_items: list[RetrievedEvidence]) -> VerificationResul
 ```
 
 Retriever chỉ cần trả về danh sách `RetrievedEvidence` có passage ID và URL. Khi kho evidence/retriever tốt hơn được bàn giao, pipeline và Streamlit sẽ dùng lại được ngay; sau đó cần chạy đánh giá end-to-end để xác nhận chất lượng thực tế.
+
+Hợp đồng đầy đủ, gồm invariants, ownership và test bàn giao, nằm tại [INTEGRATION_CONTRACT.md](INTEGRATION_CONTRACT.md).
 
 ## 9. Web retrieval: trạng thái kế hoạch
 

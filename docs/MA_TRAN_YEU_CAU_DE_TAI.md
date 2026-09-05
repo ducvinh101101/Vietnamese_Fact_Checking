@@ -4,7 +4,7 @@ Tài liệu này là điểm tham chiếu cho phạm vi đầy đủ của đề
 
 | Yêu cầu đề tài | Task / thí nghiệm | Chủ trì | Trạng thái |
 |---|---|---|---|
-| Phân tích nội dung title + body | C2, C3; E9, E10 | Vinh | Planned |
+| Phân tích nội dung title + body | C2, C3; E9, E10 | Vinh | E9/E10 hoàn thành; giữ E9 vì E10 Macro-F1 thấp hơn |
 | Tách claim nguyên tử | C4; W3-06; E11 | Vinh | Planned |
 | Tổng hợp verdict cấp bài | W4-06; E11 | Vinh + Quang | Planned |
 | Schema article/evidence có metadata nguồn-thời gian | C1; W1-06 | Vinh + Quang | Hoàn thành |
