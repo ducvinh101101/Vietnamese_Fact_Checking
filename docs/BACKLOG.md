@@ -9,6 +9,7 @@
 | W1-07 | Khóa môi trường, chạy pytest và ghi manifest/hash artefact | Quang | Hoàn thành | `requirements.lock` (79 dependency), manifest SHA-256 11 artefact và pytest 10/10 pass |
 | R2 | Đánh giá BM25 Recall@3/5 | Quang | Hoàn thành | URL-level test: Recall@3 98,14%; Recall@5 98,98%; MRR@5 0,9671; p95 81,20 ms; 10 truy vấn audit |
 | P1 | Tích hợp kỹ thuật verifier PhoBERT | Vinh | Hoàn thành | Pipeline dùng `VerificationResult` không đổi; smoke test đạt |
+| W2-05 | Chốt interface Retriever và Verifier; review chung | Vinh + Quang | Hoàn thành | `src/contracts.py`, dependency injection trong pipeline, integration contract và test bàn giao |
 | U1 | Hoàn thiện Streamlit | Quang | To do | Hiển thị label, confidence, evidence và URL |
 | Q1 | Phân tích lỗi + báo cáo | Vinh + Quang | To do | Có ít nhất 10 mẫu lỗi phân loại |
 | V3 | Bộ 18 claim kiểm thử thủ công + script tái lập | Vinh | Hoàn thành | Có nhãn kỳ vọng, kết quả và ghi rõ giới hạn retrieval mẫu |
@@ -22,8 +23,8 @@
 
 | P2 | Đánh giá pipeline PhoBERT trên retrieved evidence thật | Vinh + Quang | Chưa bắt đầu | Macro-F1 end-to-end, citation audit và NEI analysis |
 | C1 | Chuẩn hóa schema bài viết/claim/evidence và metadata nguồn-thời gian | Vinh + Quang | Hoàn thành | Data contract v1.0, manifest và loader tương thích ngược |
-| C2 | Baseline content-only TF-IDF/SVM trên title + body | Vinh | Chưa bắt đầu | Macro-F1/AUC, split chống rò rỉ và risk score không dùng làm evidence |
-| C3 | Content-risk PhoBERT/XLM-R | Vinh | Chưa bắt đầu | So sánh C2, calibration và error analysis |
+| C2 | Baseline content-only TF-IDF/SVM trên title + body | Vinh | Hoàn thành | E9 VFND article-only, nested source-domain OOF: Macro-F1 77,27%; ROC-AUC 88,21%; risk score không dùng làm evidence |
+| C3 | Content-risk PhoBERT/XLM-R | Vinh | Hoàn thành | E10 PhoBERT nested source-domain OOF: Macro-F1 48,59%; ROC-AUC 70,20%; xác minh không rò rỉ domain. Kém E9 nên giữ E9 làm baseline triển khai |
 | C4 | Claim decomposition và tổng hợp cấp bài | Vinh | Chưa bắt đầu | Claim nguyên tử liên kết article_id; rule aggregation minh bạch |
 | C5 | Corpus ingestion, query generation, time/source filter và reranker | Quang | Chưa bắt đầu | Passage corpus có metadata; Recall@k/MRR/nDCG/latency |
 | C6 | Temporal/source-held-out test, joint score và citation faithfulness audit | Vinh + Quang | Chưa bắt đầu | Báo cáo oracle/retrieval/E2E; 50 citation review; calibration |
