@@ -136,4 +136,4 @@ Pipeline hiện **chưa gọi Internet**. Bản mở rộng dự kiến lấy pa
 
 ## 10. Mở rộng thành đề tài đầy đủ
 
-Pipeline hiện là MVP claim-level. Các nhánh content-risk, claim decomposition, article aggregation, corpus metadata chuẩn, reranker và đánh giá temporal/source split được theo dõi trong [kế hoạch đầy đủ](KE_HOACH_DAY_DU_DE_TAI.md); chúng chưa được triển khai.
+Pipeline hiện là MVP claim-level. `ClaimDecomposer` đã tách candidate claim bảo toàn nguyên văn và liên kết `article_id`; xem [CLAIM_DECOMPOSITION.md](CLAIM_DECOMPOSITION.md). Chính sách tổng hợp verdict cấp bài cũng đã sẵn sàng nhưng chưa nối vào luồng retrieval→verifier; xem [ARTICLE_AGGREGATION.md](ARTICLE_AGGREGATION.md). Content-risk, corpus metadata chuẩn, reranker và đánh giá temporal/source split tiếp tục được theo dõi trong [kế hoạch đầy đủ](KE_HOACH_DAY_DU_DE_TAI.md).
