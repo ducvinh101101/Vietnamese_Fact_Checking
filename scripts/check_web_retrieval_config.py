@@ -1,0 +1,57 @@
+"""Offline validation of the W2-07 contract; no network or key access."""
+from pathlib import Path
+from urllib.parse import urlsplit
+
+import yaml
+
+
+def allowed_url(url, hosts):
+    try:
+        parsed = urlsplit(url)
+        return (parsed.scheme == 'https' and parsed.hostname in hosts
+                and parsed.username is None and parsed.password is None
+                and parsed.port in (None, 443)
+                and not any(c.isspace() or ord(c) < 32 for c in url)
+                and '\\' not in url)
+    except ValueError:
+        return False
+
+
+def validate(config):
+    assert config['version'] == 1 and config['enabled'] is False
+    provider = config['provider']
+    assert provider['name'] == 'tavily'
+    assert provider['endpoint'] == 'https://api.tavily.com/search'
+    assert provider['method'] == 'POST'
+    assert provider['api_key_env'] == 'TAVILY_API_KEY'
+    assert provider['search_depth'] == 'basic'
+    assert all(provider[k] is False for k in ['auto_parameters', 'include_answer', 'include_raw_content'])
+    assert 1 <= provider['max_results'] <= 20
+    policy = config['source_policy']
+    assert policy['match'] == 'exact_hostname'
+    assert all(policy[k] is True for k in ['https_only', 'revalidate_every_redirect', 'reject_private_ips', 'require_original_page_passage'])
+    hosts = [s['host'] for s in policy['allowlist']]
+    assert hosts and len(hosts) == len(set(hosts))
+    for source in policy['allowlist']:
+        host = source['host']
+        assert host == host.lower() and '*' not in host and '/' not in host
+        assert source['category'] in ['government', 'international', 'press']
+        assert source['name'] and source['scope']
+        assert allowed_url(source['reference'], hosts)
+    limits = config['limits']
+    assert limits['requests_per_claim'] == 1
+    assert 0 < limits['monthly_credit_budget'] <= 900
+    assert 0 < limits['requests_per_minute'] <= 10
+    assert 0 < limits['timeout_seconds'] <= 30
+    assert limits['max_retries'] <= 1 and limits['fail_to'] == 'local_only'
+    cache = config['cache']
+    assert cache['directory'] == '.cache/web_retrieval'
+    assert all(cache[k] is False for k in ['persist_provider_responses', 'persist_page_content', 'commit_to_git'])
+    assert all(value is False for value in config['secrets'].values())
+    return hosts
+
+
+if __name__ == '__main__':
+    path = Path(__file__).resolve().parents[1] / 'configs/web_retrieval.yaml'
+    hosts = validate(yaml.safe_load(path.read_text(encoding='utf-8')))
+    print(f'W2-07 config valid: Tavily, {len(hosts)} exact hosts, web disabled. No API call made.')

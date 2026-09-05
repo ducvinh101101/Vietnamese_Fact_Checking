@@ -1,0 +1,3 @@
+# Optional W2-04 experiment; preserves the W1-07 baseline lock.
+-r requirements.lock
+faiss-cpu==1.12.0
