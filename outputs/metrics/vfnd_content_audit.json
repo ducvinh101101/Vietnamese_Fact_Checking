@@ -1,0 +1,21 @@
+{
+  "dataset": "VFND article-only",
+  "source_revision": "v1.1.1 / a52319a56236d810c8b03418c6721a26c004a117",
+  "source_url": "https://github.com/VFND/VFND-vietnamese-fake-news-datasets/tree/v1.1.1",
+  "license": "GPL-3.0",
+  "task": "binary content-risk classification; separate from claim verification",
+  "records_before_deduplication": 222,
+  "records": 221,
+  "label_distribution": {
+    "FAKE": 97,
+    "REAL": 124
+  },
+  "domains": 29,
+  "domains_per_label": {
+    "FAKE": 16,
+    "REAL": 13
+  },
+  "duplicate_urls": 1,
+  "duplicate_title_body": 1,
+  "note": "Domain is fully label-confounded in this release; E9 uses nested group CV by source_domain."
+}

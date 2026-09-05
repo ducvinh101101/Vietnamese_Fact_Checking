@@ -1,0 +1,76 @@
+{
+  "experiment": "E10",
+  "task": "content-risk only; not claim verification/evidence",
+  "dataset": "VFND article-only v1.1.1",
+  "protocol": "5-fold outer + 3-fold inner StratifiedGroupKFold by source_domain; temperature scaling on inner dev; seed=42",
+  "metrics": {
+    "macro_f1": 0.4859468889319636,
+    "roc_auc": 0.7020285999334885,
+    "confusion_matrix": [
+      [
+        106,
+        18
+      ],
+      [
+        78,
+        19
+      ]
+    ],
+    "per_label": {
+      "REAL": {
+        "precision": 0.5760869565217391,
+        "recall": 0.8548387096774194,
+        "f1-score": 0.6883116883116883,
+        "support": 124.0
+      },
+      "FAKE": {
+        "precision": 0.5135135135135135,
+        "recall": 0.1958762886597938,
+        "f1-score": 0.2835820895522388,
+        "support": 97.0
+      }
+    }
+  },
+  "folds": [
+    {
+      "fold": 0,
+      "temperature": 0.5475,
+      "train_records": 174,
+      "dev_records": 31,
+      "test_records": 16,
+      "test_article_ids_sha256": "ea0f3644d9027fdda0233952d31c36851fb2acb4ad16f3a8922fb45b28211fde"
+    },
+    {
+      "fold": 1,
+      "temperature": 8.0421,
+      "train_records": 98,
+      "dev_records": 104,
+      "test_records": 19,
+      "test_article_ids_sha256": "c777a9fc3fe9247b3fe7a8237324b51c891750337e93e335c619f61308fa3899"
+    },
+    {
+      "fold": 2,
+      "temperature": 8.6262,
+      "train_records": 62,
+      "dev_records": 14,
+      "test_records": 145,
+      "test_article_ids_sha256": "fe10e270c757d9359b21f22524b085852ed621ac7c3a886af2fcb2a555af95e8"
+    },
+    {
+      "fold": 3,
+      "temperature": 8.2176,
+      "train_records": 109,
+      "dev_records": 87,
+      "test_records": 25,
+      "test_article_ids_sha256": "b3f16a0a42b7c3a5abdd7d83ddf65f3a776e75833b9b5c8b4899abd2961f30a3"
+    },
+    {
+      "fold": 4,
+      "temperature": 0.05,
+      "train_records": 120,
+      "dev_records": 85,
+      "test_records": 16,
+      "test_article_ids_sha256": "55276487caa2e16016a2907fae918013de8aaaee2aa8db23f344255eab8325f9"
+    }
+  ]
+}

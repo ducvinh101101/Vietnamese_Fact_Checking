@@ -3,10 +3,17 @@ __pycache__/
 .pytest_cache/
 .streamlit/secrets.toml
 .env
+.env.*
+!.env.example
 *.py[cod]
 .cache/
 .install.log
 ~$*.xlsx
+
+# Third-party corpora are downloaded by their preparation scripts and are not redistributed.
+data/external/
+data/processed/vfnd_content/
+kaggle/vfnd_content.zip
 
 indexes/*
 !indexes/.gitkeep

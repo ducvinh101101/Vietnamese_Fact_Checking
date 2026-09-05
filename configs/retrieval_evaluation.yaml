@@ -1,0 +1,53 @@
+# W2-10 evaluation contract. Metrics must identify this version in every report.
+version: 1
+corpus:
+  path: data/evidence/vifactcheck_passages.jsonl
+  schema_version: "1.0"
+  document_key: article_id
+  passage_key: passage_id
+  required_metadata:
+    - url
+    - source
+    - published_at
+    - retrieved_at
+    - source_type
+    - authority_score
+  ingestion:
+    canonicalize_url: true
+    deduplicate_by: normalized_url_and_normalized_content
+    reject_if_missing: [passage_id, article_id, content, url]
+    preserve_original: true
+query_set:
+  version: v1
+  builder: scripts/build_retrieval_query_set.py
+  records: data/evaluation/vifactcheck_retrieval_query_set_v1.jsonl
+  manifest: data/evaluation/vifactcheck_retrieval_query_set_v1_manifest.json
+  development_split: dev
+  held_out_split: test
+  frozen_inputs:
+    - data/processed/vifactcheck_group_split/dev.parquet
+    - data/processed/vifactcheck_group_split/test.parquet
+  query_text_field: Statement
+  stable_query_id: "vifactcheck:{split}:{source_row_id}"
+  gold_document_key: Url
+  allow_ad_hoc_query_benchmark: false
+metrics:
+  cutoff: [3, 5]
+  url_level_baseline:
+    relevant_if: retrieved passage URL equals query gold URL
+    report: [Recall@3, Recall@5, MRR@5, latency]
+    caveat: "URL-level metric; it is not passage-level evidence correctness."
+  passage_qrels:
+    required_for: [nDCG@5, passage_Recall@3, passage_Recall@5, passage_MRR@5]
+    grades:
+      2: directly supports_or_refutes_claim
+      1: relevant_context_but_not_sufficient_alone
+      0: nonrelevant
+    judging: two independent annotators blind to retrieval rank; adjudicate disagreements
+    include_unjudged_as: 0
+    ndcg_formula: "DCG@k=sum((2^grade-1)/log2(rank+1)); nDCG@k=DCG@k/IDCG@k"
+selection:
+  tune_or_choose_on: dev
+  report_once_on: test
+  no_test_tuning: true
+  record: [git_commit, config_hash, corpus_hash, query_manifest_hash, runtime, latency_scope]

@@ -1,0 +1,54 @@
+# W2-07 design contract. W3-05 must implement these limits before enabling web.
+version: 1
+enabled: false
+provider:
+  name: tavily
+  endpoint: https://api.tavily.com/search
+  method: POST
+  api_key_env: TAVILY_API_KEY
+  search_depth: basic
+  topic: general
+  auto_parameters: false
+  include_answer: false
+  include_raw_content: false
+  max_results: 10
+limits:
+  requests_per_claim: 1
+  requests_per_minute: 10
+  monthly_credit_budget: 900
+  timeout_seconds: 15
+  max_retries: 1
+  retry_statuses: [429, 500, 502, 503, 504]
+  fail_to: local_only
+source_policy:
+  match: exact_hostname
+  https_only: true
+  revalidate_every_redirect: true
+  reject_private_ips: true
+  require_original_page_passage: true
+  allowlist:
+    - host: baochinhphu.vn
+      name: Báo Điện tử Chính phủ
+      category: government
+      scope: Thông tin, chính sách và thông báo của Chính phủ
+      reference: https://baochinhphu.vn/
+    - host: www.who.int
+      name: World Health Organization
+      category: international
+      scope: Y tế và sức khỏe cộng đồng
+      reference: https://www.who.int/vietnam
+    - host: vnexpress.net
+      name: VnExpress
+      category: press
+      scope: Tin tức tổng hợp; cần kiểm tra tác giả, thời gian và nguồn gốc
+      reference: https://vnexpress.net/
+cache:
+  directory: .cache/web_retrieval
+  persist_provider_responses: false
+  persist_page_content: false
+  metadata_ttl_hours: 24
+  commit_to_git: false
+secrets:
+  log_key: false
+  send_in_query_string: false
+  shared_key_in_repo: false
