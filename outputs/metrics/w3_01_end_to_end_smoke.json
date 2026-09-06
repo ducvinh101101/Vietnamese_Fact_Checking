@@ -1,0 +1,89 @@
+{
+  "purpose": "Technical W3-01 smoke test; not accuracy/Macro-F1/retrieval benchmark.",
+  "config_sha256": "775211d0a4c297ff9b9451380279466c41e834b4dcb824fadb3f98614eb9787d",
+  "corpus_sha256": "dc7e96cfb1b28e2e4a4a7c7ae521e44cbee0f35a4f3bae6091db917d84039312",
+  "test_split_sha256": "b624326d72ef714169a42317e9473396c9281d1457f0af45d58a0df0d8da30ed",
+  "corpus_passages": 5845,
+  "top_k": 3,
+  "engine": "phobert",
+  "runs": [
+    {
+      "source_row_id": "9",
+      "expected_dataset_label": "SUPPORTED",
+      "observed_pipeline_label": "SUPPORTED",
+      "confidence": 0.9146,
+      "citation_ids": [
+        "vifactcheck_00651_p004"
+      ],
+      "retrieved": [
+        {
+          "passage_id": "vifactcheck_00651_p004",
+          "url": "https://thanhnien.vn/ban-trai-toi-la-ho-ly-2-co-lee-dong-wook-moi-tung-poster-da-gay-sot-185230329141834085.htm",
+          "score": 70.0510013
+        },
+        {
+          "passage_id": "vifactcheck_00651_p003",
+          "url": "https://thanhnien.vn/ban-trai-toi-la-ho-ly-2-co-lee-dong-wook-moi-tung-poster-da-gay-sot-185230329141834085.htm",
+          "score": 52.0759707
+        },
+        {
+          "passage_id": "vifactcheck_00651_p002",
+          "url": "https://thanhnien.vn/ban-trai-toi-la-ho-ly-2-co-lee-dong-wook-moi-tung-poster-da-gay-sot-185230329141834085.htm",
+          "score": 50.85285028
+        }
+      ]
+    },
+    {
+      "source_row_id": "28",
+      "expected_dataset_label": "REFUTED",
+      "observed_pipeline_label": "REFUTED",
+      "confidence": 0.6613,
+      "citation_ids": [
+        "vifactcheck_00458_p001"
+      ],
+      "retrieved": [
+        {
+          "passage_id": "vifactcheck_00458_p002",
+          "url": "https://nld.com.vn/kinh-te/khai-mac-le-hoi-du-lich-golf-tp-hcm-nam-2023-20230329193841411.htm",
+          "score": 52.3319847
+        },
+        {
+          "passage_id": "vifactcheck_00458_p001",
+          "url": "https://nld.com.vn/kinh-te/khai-mac-le-hoi-du-lich-golf-tp-hcm-nam-2023-20230329193841411.htm",
+          "score": 50.33999129
+        },
+        {
+          "passage_id": "vifactcheck_00944_p001",
+          "url": "https://tuoitre.vn/tp-hcm-to-chuc-le-hoi-du-lich-golf-lan-dau-tien-20230329204402207.htm",
+          "score": 48.55288564
+        }
+      ]
+    },
+    {
+      "source_row_id": "25",
+      "expected_dataset_label": "NOT_ENOUGH_INFO",
+      "observed_pipeline_label": "REFUTED",
+      "confidence": 0.6782,
+      "citation_ids": [
+        "vifactcheck_00672_p004"
+      ],
+      "retrieved": [
+        {
+          "passage_id": "vifactcheck_00672_p001",
+          "url": "https://thanhnien.vn/dh-quoc-gia-tphcm-co-9-nhom-nganh-duoc-xep-hang-cao-tren-the-gioi-185230326122356896.htm",
+          "score": 54.59934932
+        },
+        {
+          "passage_id": "vifactcheck_00672_p004",
+          "url": "https://thanhnien.vn/dh-quoc-gia-tphcm-co-9-nhom-nganh-duoc-xep-hang-cao-tren-the-gioi-185230326122356896.htm",
+          "score": 43.95129712
+        },
+        {
+          "passage_id": "vifactcheck_00672_p002",
+          "url": "https://thanhnien.vn/dh-quoc-gia-tphcm-co-9-nhom-nganh-duoc-xep-hang-cao-tren-the-gioi-185230326122356896.htm",
+          "score": 43.4860809
+        }
+      ]
+    }
+  ]
+}

@@ -3,7 +3,7 @@ project:
   seed: 42
 
 paths:
-  evidence_path: data/evidence/sample_evidence.jsonl
+  evidence_path: data/evidence/vifactcheck_passages.jsonl
   outputs_dir: outputs
 
 retrieval:
