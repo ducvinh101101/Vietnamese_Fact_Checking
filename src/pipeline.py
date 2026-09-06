@@ -7,11 +7,16 @@ from src.retriever import BM25Retriever
 from src.schemas import RetrievedEvidence, VerificationResult
 
 
+VALID_LABELS = {"SUPPORTED", "REFUTED", "NOT_ENOUGH_INFO"}
+
+
 class FactCheckingPipeline:
     def __init__(self, evidence_path: str | None = None, top_k: int = 3, support_threshold: float = 0.45,
                  refute_markers: list[str] | None = None, engine: str = "rule_based",
                  model_path: str | None = None, vncorenlp_dir: str | None = None, max_length: int = 256,
                  retriever: Retriever | None = None, checker: Verifier | None = None) -> None:
+        if top_k < 1:
+            raise ValueError("top_k phải lớn hơn 0")
         if retriever is not None:
             self.retriever = retriever
         else:
@@ -36,5 +41,19 @@ class FactCheckingPipeline:
         if not cleaned_claim:
             raise ValueError("Phát biểu không được để trống")
         retrieved = self.retriever.search(cleaned_claim, self.top_k)
+        if len(retrieved) > self.top_k:
+            raise RuntimeError("Retriever trả về nhiều evidence hơn top_k")
+        if any(
+            retrieved[index].score < retrieved[index + 1].score
+            for index in range(len(retrieved) - 1)
+        ):
+            raise RuntimeError("Retriever phải sắp evidence theo score giảm dần")
         result = self.checker.verify(cleaned_claim, retrieved)
+        if result.label not in VALID_LABELS:
+            raise RuntimeError(f"Verifier trả nhãn không hợp lệ: {result.label}")
+        if not 0 <= result.confidence <= 1:
+            raise RuntimeError("Verifier trả confidence ngoài khoảng 0–1")
+        retrieved_ids = {item.evidence.passage_id for item in retrieved}
+        if not set(result.evidence_ids).issubset(retrieved_ids):
+            raise RuntimeError("Verifier trả evidence_id không thuộc evidence đã truy xuất")
         return result, retrieved

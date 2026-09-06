@@ -1,0 +1,38 @@
+{
+  "cross_split_gold_url_overlap": 0,
+  "inputs_sha256": {
+    "data\\evidence\\vifactcheck_passages.jsonl": "dc7e96cfb1b28e2e4a4a7c7ae521e44cbee0f35a4f3bae6091db917d84039312",
+    "data\\processed\\vifactcheck_group_split\\dev.parquet": "6a53e330b59aa7ae76933e3d57c25625185334e39e76275613572af6b40b8527",
+    "data\\processed\\vifactcheck_group_split\\test.parquet": "b624326d72ef714169a42317e9473396c9281d1457f0af45d58a0df0d8da30ed"
+  },
+  "query_id_format": "vifactcheck:{split}:{source_row_id}",
+  "query_set_version": "v1",
+  "records_sha256": "fdec71da2321306f1f4b219216644098f888bdd7edaf240180014b50d65d2554",
+  "relevance": {
+    "passage_qrels": "Pending independent human review before passage metrics/nDCG.",
+    "silver_exact_passage": "Exact normalized evidence-to-passage matches; candidate only, not human qrels.",
+    "url_level": "Gold URL/article ID is complete for every query."
+  },
+  "schema_version": "1.0",
+  "source_row_id_distribution": {
+    "dev": 1080,
+    "test": 1076
+  },
+  "split_roles": {
+    "dev": "model/configuration selection",
+    "test": "one held-out final report"
+  },
+  "splits": {
+    "dev": {
+      "queries": 1080,
+      "silver_exact_passage_queries": 638,
+      "unique_gold_urls": 147
+    },
+    "test": {
+      "queries": 1076,
+      "silver_exact_passage_queries": 614,
+      "unique_gold_urls": 150
+    }
+  },
+  "total_queries": 2156
+}
