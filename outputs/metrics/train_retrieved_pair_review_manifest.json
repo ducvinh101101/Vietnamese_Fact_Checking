@@ -1,0 +1,9 @@
+{
+  "claims": 180,
+  "pairs": 540,
+  "train_corpus_passages": 4204,
+  "heldout_urls_excluded": true,
+  "ready_for_training": false,
+  "reason": "Retrieved pairs require human relation labels; URL mismatch is not an NEI label.",
+  "sha256": "1e5f0f229d3edda5aa601ca63f5746e4bc1a4093c978bc56cdc4ae4db9697942"
+}

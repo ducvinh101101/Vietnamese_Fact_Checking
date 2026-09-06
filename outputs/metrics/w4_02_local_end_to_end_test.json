@@ -1,0 +1,83 @@
+{
+  "benchmark": "W4-02 frozen local end-to-end BM25 -> PhoBERT",
+  "purpose": "Held-out test evaluation after E6 decision parameters were fixed on dev. No test labels/evidence are passed to the pipeline.",
+  "scope": {
+    "pipeline": "normalized claim -> local BM25 top-k -> PhoBERT per retrieved passage -> calibrated three-way decision -> cited passage",
+    "retrieval_relevance": "URL-level only: a retrieved passage is relevant when its URL equals the annotated ViFactCheck evidence URL.",
+    "not_measured": "Web retrieval, hybrid retrieval, passage-level relevance, human factual correctness beyond dataset labels."
+  },
+  "artifacts": {
+    "config_sha256": "7908d18e3d78aa6990aeb291c8f7228f88d8d495126025fbb611163eeee4bfb3",
+    "corpus_sha256": "dc7e96cfb1b28e2e4a4a7c7ae521e44cbee0f35a4f3bae6091db917d84039312",
+    "test_split_sha256": "b624326d72ef714169a42317e9473396c9281d1457f0af45d58a0df0d8da30ed",
+    "predictions": "outputs\\predictions\\w4_02_local_end_to_end_test.csv"
+  },
+  "configuration": {
+    "retriever": "bm25",
+    "top_k": 3,
+    "engine": "phobert",
+    "temperature": 1.140542,
+    "decisive_min_confidence": 0.0
+  },
+  "evaluation_split": {
+    "path": "data\\processed\\vifactcheck_group_split\\test.parquet",
+    "queries": 1076
+  },
+  "classification": {
+    "accuracy": 0.614312,
+    "macro_f1": 0.594921,
+    "per_label": {
+      "SUPPORTED": {
+        "precision": 0.560892,
+        "recall": 0.888587,
+        "f1-score": 0.687697,
+        "support": 368.0
+      },
+      "REFUTED": {
+        "precision": 0.723164,
+        "recall": 0.359551,
+        "f1-score": 0.4803,
+        "support": 356.0
+      },
+      "NOT_ENOUGH_INFO": {
+        "precision": 0.651899,
+        "recall": 0.585227,
+        "f1-score": 0.616766,
+        "support": 352.0
+      }
+    },
+    "confusion_matrix_rows_gold_columns_predicted": [
+      [
+        327,
+        13,
+        28
+      ],
+      [
+        146,
+        128,
+        82
+      ],
+      [
+        110,
+        36,
+        206
+      ]
+    ],
+    "label_order": [
+      "SUPPORTED",
+      "REFUTED",
+      "NOT_ENOUGH_INFO"
+    ]
+  },
+  "retrieval_and_citation": {
+    "gold_url_recall_at_top_k": 0.981413,
+    "citation_url_matches_gold_rate": 0.811338,
+    "note": "These are URL-level proxy metrics, not proof that the cited passage entails the claim."
+  },
+  "latency_ms": {
+    "mean": 713.6468,
+    "p50": 691.004,
+    "p95": 975.4571,
+    "total_wall_seconds": 768.0691
+  }
+}

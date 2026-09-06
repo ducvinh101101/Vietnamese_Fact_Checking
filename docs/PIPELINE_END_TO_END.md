@@ -1,5 +1,7 @@
 # Pipeline end-to-end: kiểm chứng thông tin tiếng Việt
 
+> Cập nhật 2026-09-07: khi config có `aggregation_model_path`, verifier tổng hợp xác suất top-3 bằng AGG-V1. Số liệu E11 bên dưới là lịch sử policy rank, không phải kết quả thực tế của AGG-V1. Xem [phạm vi và đánh giá mới](REAL_WORLD_ACCURACY_PLAN.md).
+
 ## 1. Bài toán cần giải quyết
 
 Hệ thống nhận một phát biểu tiếng Việt (*claim*) và trả về:
@@ -62,7 +64,7 @@ Mỗi cặp `(claim, evidence)` được VnCoreNLP tách từ, sau đó tokenize
 
 ### Bước 4 — Tổng hợp kết quả
 
-Pipeline chấm tất cả evidence top-3. Nếu có dự đoán `SUPPORTED` hoặc `REFUTED`, nó chọn cặp có confidence cao nhất trong hai nhãn này; nếu không, chọn kết quả `NOT_ENOUGH_INFO` confidence cao nhất. Kết quả có dạng:
+Pipeline chấm tất cả evidence top-3 và chọn nhãn có confidence đã hiệu chỉnh cao nhất, gồm cả `NOT_ENOUGH_INFO`; vì vậy một NEI confidence cao không bị một verdict quyết đoán confidence thấp ghi đè. E6 fit temperature `1,140542` trên dev gold-evidence. Ngưỡng decisive tối ưu hiện là `0,0`, nên chưa có evidence để ép NEI chỉ theo confidence; retrieval-gating sẽ chỉ được chọn sau đánh giá end-to-end.
 
 ```python
 VerificationResult(
@@ -83,7 +85,7 @@ VerificationResult(
 | E7 biến thể batch, vẫn 256 token | Hoàn thành, không thay E2 | Macro-F1 test 80,25% |
 | Pipeline kỹ thuật claim → evidence → label | Hoàn thành | Smoke test cục bộ thành công |
 | Đánh giá retrieval/evidence corpus thật | Hoàn thành baseline URL-level | BM25: Recall@3 98,14%; Recall@5 98,98%; MRR@5 0,9671; p95 81,20 ms |
-| Đánh giá end-to-end chuẩn trên ViFactCheck | Chưa hoàn thành | Chỉ thực hiện sau khi retrieval ổn định |
+| Đánh giá end-to-end local trên ViFactCheck | Hoàn thành | E11: 1.076 test, Macro-F1 62,94%; URL Recall@3 98,14%; citation URL-match 92,19%; không bao gồm web/hybrid |
 
 ## 5. Cách chạy cục bộ
 
@@ -107,9 +109,10 @@ Không được gộp hai loại metric sau thành một:
 | Loại đánh giá | Kết quả hiện có | Ý nghĩa |
 |---|---:|---|
 | Verifier với **gold evidence** | E2 Macro-F1 81,07% | Đo chất lượng PhoBERT khi evidence đúng đã được cung cấp |
-| Smoke test với BM25 + 3 passage mẫu | 8/18 đúng (44,44%) | Xác nhận luồng kỹ thuật; **không** là benchmark model hay end-to-end chính thức |
+| BM25 top-3 + PhoBERT trên **test giữ lại** | E11 Macro-F1 62,94% | Benchmark cục bộ end-to-end; policy chọn trên dev; URL Recall@3 98,14%, nhưng không có web/hybrid hay passage-qrels |
+| Smoke test với BM25 + 3 passage mẫu | Chỉ kiểm tra contract/citation provenance | Không là benchmark model hay end-to-end |
 
-Kết quả 44,44% thấp vì kho mẫu cực nhỏ và BM25 có thể đưa evidence không liên quan. Nó không mâu thuẫn với 81,07%; hai phép đo có đầu vào khác nhau.
+Kết quả oracle và end-to-end không mâu thuẫn: E11 vẫn thấp hơn E2 18,13 điểm Macro-F1 vì verifier nhận evidence thực truy hồi thay vì gold evidence. E11 tăng 3,45 điểm so với W4-02 baseline nhờ policy chọn trên dev. Xem [báo cáo local](W4_03_LOCAL_PIPELINE_REPORT.md), [E11](E11_RANK_AWARE_POLICY.md) và [audit lỗi](W3_04_PIPELINE_ERROR_ANALYSIS.md).
 
 ## 7. Giới hạn hiện tại và hướng giải quyết
 
@@ -136,4 +139,4 @@ Pipeline hiện **chưa gọi Internet**. Bản mở rộng dự kiến lấy pa
 
 ## 10. Mở rộng thành đề tài đầy đủ
 
-Pipeline hiện là MVP claim-level. `ClaimDecomposer` đã tách candidate claim bảo toàn nguyên văn và liên kết `article_id`; xem [CLAIM_DECOMPOSITION.md](CLAIM_DECOMPOSITION.md). Chính sách tổng hợp verdict cấp bài cũng đã sẵn sàng nhưng chưa nối vào luồng retrieval→verifier; xem [ARTICLE_AGGREGATION.md](ARTICLE_AGGREGATION.md). Content-risk, corpus metadata chuẩn, reranker và đánh giá temporal/source split tiếp tục được theo dõi trong [kế hoạch đầy đủ](KE_HOACH_DAY_DU_DE_TAI.md).
+Pipeline claim-level là nền của luồng cấp bài `ArticleFactCheckingPipeline`: `Article → ClaimDecomposer → ClaimRunner → ArticleAggregator`; xem [ARTICLE_PIPELINE.md](ARTICLE_PIPELINE.md). Component này giữ verdict/citation từng claim và không gọi toàn bài là giả khi chỉ một claim bị bác bỏ. Content-risk, UI cấp bài, corpus metadata chuẩn, reranker và đánh giá temporal/source split tiếp tục được theo dõi trong [kế hoạch đầy đủ](KE_HOACH_DAY_DU_DE_TAI.md).

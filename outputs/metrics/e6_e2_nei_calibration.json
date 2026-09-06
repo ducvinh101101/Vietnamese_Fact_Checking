@@ -1,0 +1,93 @@
+{
+  "experiment": "E6",
+  "task": "PhoBERT verifier calibration and NEI abstention; oracle gold-evidence only",
+  "data": "data\\processed\\vifactcheck_group_split\\dev.parquet",
+  "records": 1080,
+  "protocol": "3-fold StratifiedGroupKFold by Url on dev; temperature fit on fold-train; threshold chosen on calibrated dev OOF; test untouched",
+  "labels": [
+    "SUPPORTED",
+    "REFUTED",
+    "NOT_ENOUGH_INFO"
+  ],
+  "calibration": {
+    "raw": {
+      "macro_f1": 0.8501398677001254,
+      "ece_10": 0.03735994073292478,
+      "multiclass_brier": 0.23977980889812128
+    },
+    "oof_temperature": {
+      "macro_f1": 0.8501398677001254,
+      "ece_10": 0.029115495277431007,
+      "multiclass_brier": 0.23759713986625203
+    },
+    "folds": [
+      {
+        "fold": 0,
+        "fit_records": 722,
+        "dev_records": 358,
+        "temperature": 1.121313
+      },
+      {
+        "fold": 1,
+        "fit_records": 722,
+        "dev_records": 358,
+        "temperature": 1.167515
+      },
+      {
+        "fold": 2,
+        "fit_records": 716,
+        "dev_records": 364,
+        "temperature": 1.132802
+      }
+    ],
+    "final_temperature_fit_on_all_dev": 1.140542
+  },
+  "nei_policy": {
+    "decisive_min_confidence": 0.0,
+    "oof_macro_f1": 0.8501398677001254,
+    "confusion_matrix": [
+      [
+        338,
+        25,
+        11
+      ],
+      [
+        59,
+        264,
+        30
+      ],
+      [
+        10,
+        25,
+        318
+      ]
+    ],
+    "per_label": {
+      "SUPPORTED": {
+        "precision": 0.8304668304668305,
+        "recall": 0.9037433155080213,
+        "f1-score": 0.8655569782330346,
+        "support": 374.0
+      },
+      "REFUTED": {
+        "precision": 0.8407643312101911,
+        "recall": 0.7478753541076487,
+        "f1-score": 0.7916041979010495,
+        "support": 353.0
+      },
+      "NOT_ENOUGH_INFO": {
+        "precision": 0.8857938718662952,
+        "recall": 0.9008498583569405,
+        "f1-score": 0.8932584269662921,
+        "support": 353.0
+      }
+    }
+  },
+  "artifacts": {
+    "predictions": "outputs\\predictions\\e6_e2_dev_calibration.csv"
+  },
+  "limitations": [
+    "Calibration and threshold selection use dev, which was also used for E2 early stopping; they are selection results, not final generalization estimates.",
+    "This is oracle gold-evidence calibration. It does not establish retrieval relevance gating or end-to-end quality."
+  ]
+}

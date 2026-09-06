@@ -23,6 +23,10 @@ def get_pipeline() -> FactCheckingPipeline:
         model_path=str(ROOT / verification["model_path"]),
         vncorenlp_dir=str(ROOT / verification["vncorenlp_dir"]),
         max_length=verification["max_length"],
+        temperature=verification.get("temperature", 1.0),
+        decisive_min_confidence=verification.get("decisive_min_confidence", 0.0),
+        retrieval_rank_bias=verification.get("retrieval_rank_bias", 0.0),
+        aggregation_model_path=str(ROOT / verification["aggregation_model_path"]) if verification.get("aggregation_model_path") else None,
     )
 
 
