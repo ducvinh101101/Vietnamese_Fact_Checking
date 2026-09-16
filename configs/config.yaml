@@ -15,6 +15,10 @@ verification:
   model_path: models/e2_phobert/best_model
   vncorenlp_dir: models/vncorenlp
   max_length: 256
+  temperature: 1.140542
+  decisive_min_confidence: 0.6
+  retrieval_rank_bias: 1.0
+  aggregation_model_path: models/aggregation/dev_logistic_v1.json
   support_threshold: 0.45
   refute_markers:
     - "không"

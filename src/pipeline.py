@@ -14,7 +14,10 @@ class FactCheckingPipeline:
     def __init__(self, evidence_path: str | None = None, top_k: int = 3, support_threshold: float = 0.45,
                  refute_markers: list[str] | None = None, engine: str = "rule_based",
                  model_path: str | None = None, vncorenlp_dir: str | None = None, max_length: int = 256,
-                 retriever: Retriever | None = None, checker: Verifier | None = None) -> None:
+                 temperature: float = 1.0, decisive_min_confidence: float = 0.0,
+                 retrieval_rank_bias: float = 0.0,
+                 retriever: Retriever | None = None, checker: Verifier | None = None,
+                 aggregation_model_path: str | None = None) -> None:
         if top_k < 1:
             raise ValueError("top_k phải lớn hơn 0")
         if retriever is not None:
@@ -29,7 +32,10 @@ class FactCheckingPipeline:
         elif engine == "phobert":
             if not model_path or not vncorenlp_dir:
                 raise ValueError("model_path và vncorenlp_dir là bắt buộc khi dùng PhoBERT")
-            self.checker = PhoBERTFactChecker(model_path, vncorenlp_dir, max_length)
+            self.checker = PhoBERTFactChecker(
+                model_path, vncorenlp_dir, max_length, temperature, decisive_min_confidence, retrieval_rank_bias,
+                aggregation_model_path=aggregation_model_path,
+            )
         elif engine == "rule_based":
             self.checker = RuleBasedFactChecker(support_threshold, refute_markers)
         else:

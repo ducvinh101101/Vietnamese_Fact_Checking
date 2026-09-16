@@ -1,0 +1,33 @@
+{
+  "experiment": "RT-V2 class-balanced AI-silver augmentation",
+  "source_train_sha256": "fb850bb7f910fdb44c2fa77407339b27e940bc74f4a8e2204a57b42dc371e3b5",
+  "silver_sha256": "bc93096f6362adbcc3793ea1eafa46bbbea5a7dff405463ff68c10026b214821",
+  "original_rows": 5076,
+  "rt_v1_clean_silver_rows": 487,
+  "balanced_silver_rows": 126,
+  "ai_silver_label_counts_before": {
+    "0": 44,
+    "1": 42,
+    "2": 401
+  },
+  "ai_silver_per_label_cap": 42,
+  "combined_rows": 5201,
+  "combined_label_counts": {
+    "0": 1815,
+    "1": 1703,
+    "2": 1683
+  },
+  "sample_weight": {
+    "original_gold_train": 1.0,
+    "ai_silver": 0.5
+  },
+  "selection": "Deterministic under-sampling of reviewed AI-silver by label; all original gold retained.",
+  "heldout_url_check": "passed for claim and passage URLs; dev/test URLs excluded from train",
+  "test_in_bundle": false,
+  "files": {
+    "gold_train.parquet": "24b40113a8e0d8c684883923e0348fe3cd471a48a9b1ed94139ad2ac98240c83",
+    "train.parquet": "99920953dd0c1d5e0e55dcc20adcd926e256648607756b2f5c33c4498545344c",
+    "dev.parquet": "6a53e330b59aa7ae76933e3d57c25625185334e39e76275613572af6b40b8527",
+    "excluded_silver_conflicts.csv": "dd14e340cb3b394d650e13478dbe99b61e625fc2f4c5423929faed0cfc38ee60"
+  }
+}
