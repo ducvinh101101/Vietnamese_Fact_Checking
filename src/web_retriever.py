@@ -23,6 +23,7 @@ from typing import Callable
 from urllib.error import HTTPError, URLError
 from urllib.parse import urljoin, urlsplit, urlunsplit
 from urllib.request import HTTPRedirectHandler, Request, build_opener
+from urllib.robotparser import RobotFileParser
 import zlib
 
 from src.schemas import Evidence, RetrievedEvidence
@@ -224,7 +225,8 @@ class WebRetriever:
 
     def __init__(self, config: dict[str, object], api_key: str | None = None,
                  provider_request: Callable[[dict[str, object], str, float], dict[str, object]] | None = None,
-                 page_fetcher: Callable[[str, float], tuple[str, str]] | None = None) -> None:
+                 page_fetcher: Callable[[str, float], tuple[str, str]] | None = None,
+                 robots_fetcher: Callable[[str, float], str] | None = None) -> None:
         self.config = config
         self.provider = config["provider"]  # type: ignore[assignment]
         self.limits = config["limits"]  # type: ignore[assignment]
@@ -236,12 +238,50 @@ class WebRetriever:
         self.api_key = api_key if api_key is not None else os.environ.get(self.provider["api_key_env"])  # type: ignore[index]
         self.provider_request = provider_request or self._request_tavily
         self.page_fetcher = page_fetcher or self._fetch_page
+        self.robots_fetcher = robots_fetcher or self._fetch_robots
         self.ledger = UsageLedger(
             Path(self.cache["directory"]),  # type: ignore[index]
             int(self.limits["requests_per_minute"]),  # type: ignore[index]
             int(self.limits["monthly_credit_budget"]),  # type: ignore[index]
         )
         self.last_status = "not_run"
+
+    def _fetch_robots(self, page_url: str, timeout: float) -> str:
+        """Fetch robots.txt from the exact approved host without redirects."""
+        parsed = urlsplit(page_url)
+        robots_url = urlunsplit(("https", parsed.netloc, "/robots.txt", "", ""))
+        if not allowed_url(robots_url, set(self.allowed_sources)):
+            raise WebRetrievalError("robots.txt nằm ngoài allowlist")
+        assert_public_dns(parsed.hostname or "")
+        request = Request(robots_url, headers={"User-Agent": "VietnameseFactChecking/1.0", "Accept-Encoding": "identity"})
+        try:
+            with build_opener(_NoRedirect()).open(request, timeout=timeout) as response:
+                if not response.headers.get_content_type().startswith("text/"):
+                    raise WebRetrievalError("robots.txt không phải văn bản")
+                raw = response.read(int(self.policy["max_robots_bytes"]) + 1)  # type: ignore[index]
+                if len(raw) > int(self.policy["max_robots_bytes"]):  # type: ignore[index]
+                    raise WebRetrievalError("robots.txt vượt giới hạn kích thước")
+                charset = response.headers.get_content_charset() or "utf-8"
+                return raw.decode(charset)
+        except HTTPError as error:
+            if error.code == 404:
+                return ""
+            raise WebRetrievalError("Không tải được robots.txt") from error
+        except (URLError, TimeoutError, UnicodeDecodeError, LookupError) as error:
+            raise WebRetrievalError("Không tải hoặc giải mã được robots.txt") from error
+
+    def _robots_allow(self, page_url: str, timeout: float) -> bool:
+        if not bool(self.policy.get("obey_robots_txt", True)):
+            return True
+        try:
+            robots = self.robots_fetcher(page_url, timeout)
+            parser = RobotFileParser()
+            parser.parse(robots.splitlines())
+            return parser.can_fetch("VietnameseFactChecking", page_url)
+        except WebRetrievalError:
+            if self.policy.get("robots_failure", "deny") == "allow":
+                return True
+            return False
 
     def _request_tavily(self, payload: dict[str, object], api_key: str, timeout: float) -> dict[str, object]:
         body = json.dumps(payload).encode("utf-8")
@@ -323,6 +363,8 @@ class WebRetriever:
                 continue
             seen_urls.add(url)
             try:
+                if not self._robots_allow(url, float(self.limits["timeout_seconds"])):
+                    raise WebRetrievalError("robots.txt không cho phép tải trang nguồn")
                 final_url, html = self.page_fetcher(url, float(self.limits["timeout_seconds"]))
                 final_url = canonical_url(final_url)
                 if not allowed_url(final_url, set(self.allowed_sources)):
@@ -348,6 +390,7 @@ class WebRetriever:
                     content=passage,
                     source=str(source["name"]),
                     url=final_url,
+                    domain=urlsplit(final_url).hostname or "",
                     article_id=document_id,
                     title=title or str(result.get("title") or ""),
                     retrieved_at=fetched_at,

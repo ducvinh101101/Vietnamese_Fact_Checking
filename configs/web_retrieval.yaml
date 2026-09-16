@@ -26,6 +26,9 @@ source_policy:
   revalidate_every_redirect: true
   reject_private_ips: true
   require_original_page_passage: true
+  obey_robots_txt: true
+  robots_failure: deny
+  max_robots_bytes: 262144
   allowlist:
     - host: baochinhphu.vn
       name: Báo Điện tử Chính phủ

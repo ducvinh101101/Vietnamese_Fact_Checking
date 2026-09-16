@@ -28,9 +28,13 @@ def test_web_retriever_filters_allowlist_and_records_required_metadata(tmp_path)
         assert url == "https://vnexpress.net/test"
         return url, "<html><title>Trang nguồn</title><article><p>" + "Nội dung đã được nguồn công bố. " * 12 + "</p></article></html>"
 
-    results = WebRetriever(config(tmp_path), api_key="secret-not-logged", provider_request=provider, page_fetcher=fetch).search("claim", 3)
+    results = WebRetriever(
+        config(tmp_path), api_key="secret-not-logged", provider_request=provider,
+        page_fetcher=fetch, robots_fetcher=lambda *_: "User-agent: *\nAllow: /",
+    ).search("claim", 3)
     assert results
     assert all(item.evidence.url == "https://vnexpress.net/test" for item in results)
+    assert all(item.evidence.domain == "vnexpress.net" for item in results)
     assert all(item.evidence.title == "Trang nguồn" for item in results)
     assert all(item.evidence.retrieved_at for item in results)
     assert all(item.evidence.source_type == "news" for item in results)
@@ -84,3 +88,22 @@ def test_html_decoder_handles_gzip_and_meta_charset_before_bad_header():
     raw = '<html><head><meta charset="utf-8"><title>Tiêu đề tiếng Việt</title></head></html>'.encode("utf-8")
     decoded = decode_html_response(gzip.compress(raw), "gzip", "iso-8859-1")
     assert "Tiêu đề tiếng Việt" in decoded
+
+
+def test_web_retriever_respects_robots_txt(tmp_path):
+    fetched = False
+
+    def fetch(url, timeout):
+        nonlocal fetched
+        fetched = True
+        return url, "<p>" + "Nội dung không được phép tải. " * 10 + "</p>"
+
+    retriever = WebRetriever(
+        config(tmp_path), api_key="key",
+        provider_request=lambda *_: {"results": [{"url": "https://vnexpress.net/private"}]},
+        page_fetcher=fetch,
+        robots_fetcher=lambda *_: "User-agent: *\nDisallow: /private",
+    )
+    assert retriever.search("claim") == []
+    assert not fetched
+    assert retriever.last_status == "no_eligible_passages"
