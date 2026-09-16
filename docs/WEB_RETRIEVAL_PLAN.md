@@ -93,6 +93,11 @@ script kiểm tra ba truy vấn, ít nhất hai domain và metadata đầy đủ
 không nằm trong Git. Không dùng smoke này để khẳng định chất lượng web retrieval
 hoặc kết quả end-to-end.
 
+Nghiệm thu cuối ngày 2026-09-16 đạt: 3/3 truy vấn `ok`, 9 passage từ 5 URL trên
+3/3 domain allowlist; metadata URL/domain/title/fetched_at đủ và không có passage
+trùng trong cùng URL. Đây là nghiệm thu chức năng W3-05; Recall/MRR và Macro-F1
+web vẫn là W4-05/W5-01.
+
 ## Mục tiêu
 
 Bổ sung evidence thời gian thực từ các website uy tín, nhưng vẫn giữ kho evidence cục bộ là nguồn nền. Mỗi kết luận từ web phải hiển thị URL, domain, tiêu đề và thời điểm truy cập.

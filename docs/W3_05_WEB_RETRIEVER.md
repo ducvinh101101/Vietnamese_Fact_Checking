@@ -51,3 +51,9 @@ chỉ có hash của query/passage cùng URL, domain, title, source và fetched_
 không chứa API key hoặc nội dung passage. Exit code 0 mới là đạt. Chưa trộn
 evidence web vào BM25/PhoBERT và chưa đo Recall/MRR/Macro-F1; đó là W4-05/W5-01
 sau khi có protocol đánh giá web.
+
+Kết quả nghiệm thu ngày 2026-09-16: cả ba truy vấn đều `ok`, có 9 passage từ
+5 URL thuộc ba domain allowlist (`baochinhphu.vn`, `www.who.int`,
+`vnexpress.net`); đầy đủ URL/domain/title/fetched_at và không có hash passage
+trùng trong cùng URL. Đây xác nhận chức năng W3-05, không phải metric chất lượng
+fact-check end-to-end.
