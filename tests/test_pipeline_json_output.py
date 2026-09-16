@@ -40,6 +40,8 @@ def test_json_output_keeps_citation_id_url_and_json_safety():
     assert response["citations"] == [response["retrieval"]["evidence"][0]]
     assert response["citations"][0]["passage_id"] == "p1"
     assert response["citations"][0]["url"] == "https://example.org/article"
+    assert "domain" in response["citations"][0]
+    assert "retrieved_at" in response["retrieval"]["evidence"][0]
     json.dumps(response, ensure_ascii=False, allow_nan=False)
 
 
