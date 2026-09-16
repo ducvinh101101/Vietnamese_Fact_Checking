@@ -19,6 +19,8 @@ không chứa claim, key hoặc page content.
   private, link-local và địa chỉ không global.
 - Không tự dùng snippet của provider: chỉ passage trích từ HTML trang nguồn
   allowlist mới được trả.
+- Giải nén `gzip`/`deflate` và ưu tiên charset khai báo trong HTML để không đưa
+  bytes nén hoặc text lỗi mã hóa vào evidence; content encoding khác bị từ chối.
 - Tối đa ba redirect, trang 1 MB, passage 120–800 ký tự, tối đa ba passage/trang.
 
 ## Kiểm tra

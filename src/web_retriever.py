@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from contextlib import contextmanager
 from datetime import datetime, timezone
+import gzip
 from hashlib import sha256
 from html.parser import HTMLParser
 from ipaddress import ip_address
@@ -22,6 +23,7 @@ from typing import Callable
 from urllib.error import HTTPError, URLError
 from urllib.parse import urljoin, urlsplit, urlunsplit
 from urllib.request import HTTPRedirectHandler, Request, build_opener
+import zlib
 
 from src.schemas import Evidence, RetrievedEvidence
 
@@ -113,6 +115,35 @@ def assert_public_dns(hostname: str, resolver: Callable[..., object] = socket.ge
 def canonical_url(url: str) -> str:
     parsed = urlsplit(url)
     return urlunsplit((parsed.scheme.lower(), parsed.netloc.lower(), parsed.path or "/", parsed.query, ""))
+
+
+def decode_html_response(raw: bytes, content_encoding: str | None, header_charset: str | None) -> str:
+    """Decode a bounded HTML response without silently turning compressed bytes into text."""
+    encoding = (content_encoding or "identity").lower().strip()
+    try:
+        if encoding in {"", "identity"}:
+            decoded_bytes = raw
+        elif encoding in {"gzip", "x-gzip"}:
+            decoded_bytes = gzip.decompress(raw)
+        elif encoding == "deflate":
+            decoded_bytes = zlib.decompress(raw)
+        else:
+            raise WebRetrievalError(f"Content-Encoding không được hỗ trợ: {encoding}")
+    except (OSError, zlib.error) as error:
+        raise WebRetrievalError("Không giải nén được nội dung HTML nguồn web") from error
+
+    match = re.search(br"<meta[^>]+charset=[\"']?\s*([a-zA-Z0-9._-]+)", decoded_bytes[:8192], re.I)
+    candidates = [
+        match.group(1).decode("ascii") if match else None,
+        "utf-8",
+        header_charset,
+    ]
+    for charset in dict.fromkeys(candidate for candidate in candidates if candidate):
+        try:
+            return decoded_bytes.decode(charset)
+        except (LookupError, UnicodeDecodeError):
+            continue
+    raise WebRetrievalError("Không xác định được charset HTML nguồn web")
 
 
 def extract_passages(html: str, minimum_chars: int, maximum_chars: int, max_passages: int) -> tuple[str, list[str]]:
@@ -230,7 +261,7 @@ class WebRetriever:
             if not allowed_url(current, set(self.allowed_sources)):
                 raise WebRetrievalError("Redirect đi tới nguồn ngoài allowlist")
             assert_public_dns(urlsplit(current).hostname or "")
-            request = Request(current, headers={"User-Agent": "VietnameseFactChecking/1.0"})
+            request = Request(current, headers={"User-Agent": "VietnameseFactChecking/1.0", "Accept-Encoding": "gzip, deflate"})
             try:
                 with build_opener(_NoRedirect()).open(request, timeout=timeout) as response:
                     if not response.headers.get_content_type().startswith("text/html"):
@@ -238,7 +269,11 @@ class WebRetriever:
                     raw = response.read(int(self.extraction["max_page_bytes"]) + 1)  # type: ignore[index]
                     if len(raw) > int(self.extraction["max_page_bytes"]):  # type: ignore[index]
                         raise WebRetrievalError("Trang web vượt giới hạn kích thước")
-                    return current, raw.decode(response.headers.get_content_charset() or "utf-8", errors="replace")
+                    return current, decode_html_response(
+                        raw,
+                        response.headers.get("Content-Encoding"),
+                        response.headers.get_content_charset(),
+                    )
             except HTTPError as error:
                 if error.code not in {301, 302, 303, 307, 308} or not error.headers.get("Location"):
                     raise WebRetrievalError("Không tải được trang nguồn web") from error

@@ -1,9 +1,10 @@
 from copy import deepcopy
+import gzip
 from pathlib import Path
 
 import yaml
 
-from src.web_retriever import WebRetriever, allowed_url, assert_public_dns, extract_passages
+from src.web_retriever import WebRetriever, allowed_url, assert_public_dns, decode_html_response, extract_passages
 
 
 def config(tmp_path):
@@ -77,3 +78,9 @@ def test_url_dns_and_passage_guards():
     title, passages = extract_passages("<title>T</title><script>ignore()</script><p>" + "Đoạn đủ dài. " * 20 + "</p>", 120, 250, 3)
     assert title == "T"
     assert passages and all("ignore" not in passage for passage in passages)
+
+
+def test_html_decoder_handles_gzip_and_meta_charset_before_bad_header():
+    raw = '<html><head><meta charset="utf-8"><title>Tiêu đề tiếng Việt</title></head></html>'.encode("utf-8")
+    decoded = decode_html_response(gzip.compress(raw), "gzip", "iso-8859-1")
+    assert "Tiêu đề tiếng Việt" in decoded
