@@ -1,0 +1,10 @@
+{
+  "exported_pairs": 487,
+  "label_origin_counts": {
+    "ai_silver": 487
+  },
+  "allow_ai_reviewed": true,
+  "review_file_sha256": "5380d4eb0158e568a6f0e30e12f6da833096324682ff52893d7e5ccc7c5779bb",
+  "output_sha256": "bc93096f6362adbcc3793ea1eafa46bbbea5a7dff405463ff68c10026b214821",
+  "purpose": "Train additions; AI silver is not human gold. Merge with original train, never use for validation/test"
+}

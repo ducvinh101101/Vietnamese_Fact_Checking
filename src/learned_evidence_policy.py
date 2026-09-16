@@ -28,13 +28,23 @@ class LearnedEvidencePolicy:
         if self.model["labels"] != list(LABELS) or self.model["feature_version"] != 1:
             raise ValueError("Incompatible learned aggregator")
 
-    def decide(self, probabilities, scores):
+    def predict_probabilities(self, probabilities, scores):
         features = aggregation_features(probabilities, scores)
         standardized = [(x - m) / s for x, m, s in zip(features, self.model["mean"], self.model["scale"], strict=True)]
         logits = [sum(w * x for w, x in zip(weights, standardized, strict=True)) + bias
                   for weights, bias in zip(self.model["coef"], self.model["intercept"], strict=True)]
-        probs = softmax(logits)
+        return softmax(logits, self.model.get("temperature", 1.0))
+
+    def decide(self, probabilities, scores):
+        probs = self.predict_probabilities(probabilities, scores)
         label = max(range(3), key=probs.__getitem__)
-        # Citation selection is a heuristic requiring a separate faithfulness audit.
-        index = max(range(3), key=lambda i: probabilities[i][label] / (i + 1))
+        if label == 2:
+            return AggregatedDecision(LABELS[2], probs[2], -1)
+        if probs[label] < self.model.get("decisive_min_confidence", 0.0):
+            return AggregatedDecision(LABELS[2], probs[2], -1, "low_confidence")
+        eligible = [i for i in range(3) if scores[i] > 0 and max(range(3), key=probabilities[i].__getitem__) == label]
+        if not eligible:
+            return AggregatedDecision(LABELS[2], probs[2], -1, "no_agreeing_passage")
+        # Pair agreement is necessary, but not proof of citation faithfulness.
+        index = max(eligible, key=lambda i: probabilities[i][label] / (i + 1))
         return AggregatedDecision(LABELS[label], probs[label], index)

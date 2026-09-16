@@ -19,6 +19,7 @@ class AggregatedDecision:
     label: str
     confidence: float
     evidence_index: int
+    reason: str = "model_prediction"
 
 
 def decide_rank_aware(
@@ -60,4 +61,3 @@ def decide_rank_aware(
         _, confidence, evidence_index = max(nei_candidates, key=lambda item: item[0])
         label = "NOT_ENOUGH_INFO"
     return AggregatedDecision(label, confidence, evidence_index)
-

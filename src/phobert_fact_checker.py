@@ -6,6 +6,7 @@ from functools import lru_cache
 from pathlib import Path
 import os
 import sys
+from math import isfinite
 
 from src.decision_policy import DecisionPolicy
 from src.retrieval_aware_policy import decide_rank_aware
@@ -91,8 +92,12 @@ class PhoBERTFactChecker:
         return [self.decision_policy.probabilities(logits) for logits in self.predict_logits_batch(claim, evidences)]
 
     def verify(self, claim: str, evidence_items: list[RetrievedEvidence]) -> VerificationResult:
+        # BM25 zero-score hits do not establish even lexical relevance.
+        if any(not isfinite(item.score) for item in evidence_items):
+            raise ValueError("Điểm retrieval phải hữu hạn")
+        evidence_items = [item for item in evidence_items if item.score > 0 and item.evidence.content.strip()]
         if not evidence_items:
-            return VerificationResult("NOT_ENOUGH_INFO", 1.0, [], "Không tìm thấy bằng chứng trong kho tài liệu hiện có.")
+            return VerificationResult("NOT_ENOUGH_INFO", 0.0, [], "Không tìm thấy đoạn có điểm truy xuất dương trong kho hiện có; chưa đủ bằng chứng để kết luận.")
         probabilities = self.predict_probabilities_batch(claim, [item.evidence.content for item in evidence_items])
         if self.aggregation_policy is not None and len(evidence_items) == 3:
             decision = self.aggregation_policy.decide(probabilities, [item.score for item in evidence_items])
@@ -102,13 +107,17 @@ class PhoBERTFactChecker:
                 rank_bias=self.retrieval_rank_bias,
                 decisive_min_confidence=self.decision_policy.decisive_min_confidence,
             )
-        best_item = evidence_items[decision.evidence_index]
         label, confidence = decision.label, decision.confidence
         explanation = {
             "SUPPORTED": "PhoBERT đánh giá phát biểu được bằng chứng đã trích dẫn ủng hộ.",
             "REFUTED": "PhoBERT đánh giá phát biểu mâu thuẫn với bằng chứng đã trích dẫn.",
             "NOT_ENOUGH_INFO": "PhoBERT không tìm thấy bằng chứng đủ mạnh để kết luận ủng hộ hoặc bác bỏ.",
         }[label]
+        if decision.reason == "low_confidence":
+            explanation = "Điểm tổng hợp chưa đạt ngưỡng kết luận; cần kiểm tra thêm bằng chứng."
+        elif decision.reason == "no_agreeing_passage":
+            explanation = "Kết quả tổng hợp không được nhãn của passage nào xác nhận; chưa đủ bằng chứng để kết luận."
         if self.aggregation_policy is not None and len(evidence_items) == 3:
             explanation += " Điểm tổng hợp chưa được hiệu chỉnh trên dữ liệu thực tế; citation cần được đọc kiểm tra."
-        return VerificationResult(label, round(confidence, 4), [best_item.evidence.passage_id], explanation)
+        citation_ids = [] if label == "NOT_ENOUGH_INFO" else [evidence_items[decision.evidence_index].evidence.passage_id]
+        return VerificationResult(label, round(confidence, 4), citation_ids, explanation)

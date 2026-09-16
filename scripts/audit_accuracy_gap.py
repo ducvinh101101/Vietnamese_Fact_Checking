@@ -83,8 +83,8 @@ def main():
         "status": "dev-selected candidate; external real-world accuracy unmeasured; confidence uncalibrated"
     }, indent=2) + "\n", encoding="utf-8")
     runtime = LearnedEvidencePolicy(model_path)
-    actual = np.array([LABELS.index(runtime.decide(probs.tolist(), s.tolist()).label) for probs, s in zip(p, scores)])
-    assert np.array_equal(actual, model.predict(x)), "Export differs from sklearn model"
+    actual = np.array([runtime.predict_probabilities(probs.tolist(), s.tolist()) for probs, s in zip(p, scores)])
+    assert np.allclose(actual, model.predict_proba(x)), "Export differs from sklearn model"
     print(json.dumps({k: report[k] for k in ("queries", "argmax_candidate_selection_ceiling", "gold_label_absent_from_all_pair_argmax", "rank_1_citation_fraction")}))
     print("baseline", report["baseline"]["accuracy"], report["baseline"]["macro_f1"])
     print("group_oof", report["learned_aggregation_group_oof"]["accuracy"], report["learned_aggregation_group_oof"]["macro_f1"])

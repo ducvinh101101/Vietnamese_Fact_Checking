@@ -12,6 +12,7 @@ import json
 import os
 import sys
 import time
+import argparse
 from pathlib import Path
 
 import pandas as pd
@@ -63,9 +64,17 @@ def evaluate(frame: pd.DataFrame, rank_bias: float, threshold: float) -> dict[st
 
 
 def main() -> None:
-    config_path = ROOT / "configs/config.yaml"
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--config", type=Path, default=ROOT / "configs/config.yaml")
+    parser.add_argument("--split", type=Path, default=ROOT / "data/processed/vifactcheck_group_split/dev.parquet")
+    parser.add_argument("--predictions", type=Path, default=OUTPUT_PREDICTIONS)
+    parser.add_argument("--metrics", type=Path, default=OUTPUT_METRICS)
+    args = parser.parse_args()
+    config_path = args.config if args.config.is_absolute() else ROOT / args.config
+    split_path = args.split if args.split.is_absolute() else ROOT / args.split
+    output_predictions = args.predictions if args.predictions.is_absolute() else ROOT / args.predictions
+    output_metrics = args.metrics if args.metrics.is_absolute() else ROOT / args.metrics
     config = yaml.safe_load(config_path.read_text(encoding="utf-8"))
-    split_path = ROOT / "data/processed/vifactcheck_group_split/dev.parquet"
     corpus_path = ROOT / config["paths"]["evidence_path"]
     top_k = int(config["retrieval"]["top_k"])
     frame = pd.read_parquet(split_path)
@@ -114,8 +123,8 @@ def main() -> None:
         decide_rank_aware(json.loads(raw), best["rank_bias"], best["decisive_min_confidence"]).evidence_index + 1
         for raw in candidates["candidate_probabilities"]
     ]
-    OUTPUT_PREDICTIONS.parent.mkdir(parents=True, exist_ok=True)
-    candidates.to_csv(OUTPUT_PREDICTIONS, index=False, encoding="utf-8")
+    output_predictions.parent.mkdir(parents=True, exist_ok=True)
+    candidates.to_csv(output_predictions, index=False, encoding="utf-8")
     metrics = {
         "experiment": "E11-dev rank-aware local evidence aggregation",
         "protocol": "Grid selection on dev only; test split was not opened. Labels/evidence are withheld from runtime retrieval and verifier.",
@@ -123,7 +132,7 @@ def main() -> None:
             "config_sha256_before_selection": sha256(config_path),
             "corpus_sha256": sha256(corpus_path),
             "dev_split_sha256": sha256(split_path),
-            "candidates": str(OUTPUT_PREDICTIONS.relative_to(ROOT)),
+            "candidates": str(output_predictions.relative_to(ROOT)),
         },
         "configuration": {"top_k": top_k, "temperature": float(config["verification"].get("temperature", 1.0))},
         "grid": [{key: item[key] for key in ("rank_bias", "decisive_min_confidence", "macro_f1", "refuted_f1", "nei_f1")} for item in grid],
@@ -138,8 +147,8 @@ def main() -> None:
         },
         "wall_seconds": round(time.perf_counter() - started, 4),
     }
-    OUTPUT_METRICS.parent.mkdir(parents=True, exist_ok=True)
-    OUTPUT_METRICS.write_text(json.dumps(metrics, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    output_metrics.parent.mkdir(parents=True, exist_ok=True)
+    output_metrics.write_text(json.dumps(metrics, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({"baseline_macro_f1": metrics["baseline"]["macro_f1"], "selected": metrics["selected"]}, ensure_ascii=False))
 
 

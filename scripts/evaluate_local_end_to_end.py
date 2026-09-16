@@ -52,6 +52,7 @@ def percentile(values: list[float], quantile: float) -> float:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--config", type=Path, default=ROOT / "configs/config.yaml")
     parser.add_argument("--split", type=Path, default=DEFAULT_SPLIT)
     parser.add_argument("--metrics", type=Path, default=DEFAULT_METRICS)
     parser.add_argument("--predictions", type=Path, default=DEFAULT_PREDICTIONS)
@@ -59,7 +60,7 @@ def main() -> None:
     args.split = args.split if args.split.is_absolute() else ROOT / args.split
     args.metrics = args.metrics if args.metrics.is_absolute() else ROOT / args.metrics
     args.predictions = args.predictions if args.predictions.is_absolute() else ROOT / args.predictions
-    config_path = ROOT / "configs/config.yaml"
+    config_path = args.config if args.config.is_absolute() else ROOT / args.config
     config = yaml.safe_load(config_path.read_text(encoding="utf-8"))
     corpus_path = ROOT / config["paths"]["evidence_path"]
     frame = pd.read_parquet(args.split)
@@ -119,15 +120,15 @@ def main() -> None:
             "latency_ms": round(latency_ms, 4),
         })
         if number % 50 == 0 or number == len(frame):
-            print(f"Processed {number}/{len(frame)} test claims", flush=True)
+            print(f"Processed {number}/{len(frame)} evaluation claims", flush=True)
 
     prediction_frame = pd.DataFrame(records)
     y_true = prediction_frame["gold_label"].tolist()
     y_pred = prediction_frame["predicted_label"].tolist()
     report = classification_report(y_true, y_pred, labels=LABELS, output_dict=True, zero_division=0)
     metrics = {
-        "benchmark": "W4-02 frozen local end-to-end BM25 -> PhoBERT",
-        "purpose": "Held-out test evaluation after E6 decision parameters were fixed on dev. No test labels/evidence are passed to the pipeline.",
+        "benchmark": "Local end-to-end BM25 -> PhoBERT",
+        "purpose": "Evaluation of the explicitly selected split/config. If this is dev or a previously inspected test, it is NOT independent quality evidence. No gold labels/evidence are passed to the pipeline.",
         "scope": {
             "pipeline": "normalized claim -> local BM25 top-k -> PhoBERT per retrieved passage -> calibrated three-way decision -> cited passage",
             "retrieval_relevance": "URL-level only: a retrieved passage is relevant when its URL equals the annotated ViFactCheck evidence URL.",

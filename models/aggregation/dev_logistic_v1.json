@@ -128,5 +128,7 @@
     -0.026831709655447514
   ],
   "training_cache_sha256": "7c6f14041ae08d92e27d80342de2c068249d266052d9a07a74954b7d26f34d9e",
-  "status": "dev-selected candidate; external real-world accuracy unmeasured; confidence uncalibrated"
+  "status": "dev-calibrated with citation agreement guard; real-world calibration and accuracy unmeasured",
+  "temperature": 1.0,
+  "decisive_min_confidence": 0.0
 }

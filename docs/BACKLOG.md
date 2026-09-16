@@ -33,3 +33,16 @@
 | C5 | Corpus ingestion, query generation, time/source filter và reranker | Quang | Chưa bắt đầu | Passage corpus có metadata; Recall@k/MRR/nDCG/latency |
 | C6 | Temporal/source-held-out test, joint score và citation faithfulness audit | Vinh + Quang | Chưa bắt đầu | Báo cáo oracle/retrieval/E2E; 50 citation review; calibration |
 | C7 | Reproducible release | Quang | Chưa bắt đầu | Cài từ đầu, pytest chạy, manifest/hash và demo offline |
+
+## Hạng mục Vinh bổ sung 2026-09-12
+
+Giữ nguyên mã W{tuần}-{thứ tự} của workbook. Chỉ phần Vinh; không thay đổi hạng mục của Quang. Xem [việc còn lại của Vinh](VIEC_CON_LAI_VINH.md).
+
+| ID | Việc cần làm | Người phụ trách | Trạng thái | Điều kiện hoàn thành |
+|---|---|---|---|---|
+| W4-07 | Fine-tune RT-V1: tiếp tục E2 trên gold train + 487 cặp AI silver (trọng số 0,5) | Vinh | Hoàn thành | Checkpoint `models/rt_v1_silver/best_model`; dev end-to-end acc 72,31%, Macro-F1 71,35% ở ngưỡng 0,5; sửa đúng 140, làm sai 54, ròng +86 claim |
+| W5-04 | Chạy đối chứng gold-only và RT-V2 balanced; chọn checkpoint trên dev | Vinh | Chưa bắt đầu | Hai checkpoint đối chứng cùng seed/cấu hình; bảng so dev tách được cải thiện do nhãn silver. Cần GPU |
+| W5-05 | Hiệu chỉnh lại temperature/ngưỡng, fit lại aggregator và khóa config | Vinh | Chưa bắt đầu | Cache dev mới, aggregator fit lại từ logits mới, `configs/config.yaml` đã khóa |
+| W5-06 | Phân xử 53 cặp `needs_human_review` và spot-check 50 cặp silver | Vinh | Chưa bắt đầu | CSV v2 có nhãn người, tên và lý do; có tỷ lệ đồng thuận người–AI theo từng nhãn |
+
+Phần phân tích lỗi và phân rã chỉ số citation của RT-V1 không mở mã mới — nó nằm trong Q1/W3-04 và được ghi tại [RT_V1_ERROR_CITATION_ANALYSIS.md](RT_V1_ERROR_CITATION_ANALYSIS.md). Audit citation 50 mẫu thuộc W5-03, temporal/source held-out thuộc W5-03 và C6, ablation claim decomposition thuộc E11 — đều đã có mã, không tạo thêm.

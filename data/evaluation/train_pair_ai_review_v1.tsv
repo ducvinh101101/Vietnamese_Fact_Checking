@@ -1,0 +1,541 @@
+row	decision	note
+0	S	Đoạn nêu Phạm Thu Hằng trả lời họp báo hôm nay về Australia mua tàu ngầm Mỹ; claim viết chức danh chưa chuẩn.
+1	N	Có thương vụ Australia nhưng không xác nhận Phạm Thu Hằng nói tại họp báo hôm nay.
+2	N	Phạm Thu Hằng nói về Trung Quốc và đường bay, không có thương vụ tàu ngầm Australia.
+3	S	Nêu đủ chiều 28-3, vụ Quân Xa Lộ và bốn án chung thân về giết người có tính côn đồ.
+4	N	Có bốn án chung thân và tính côn đồ nhưng thiếu ngày 28-3 và định danh vụ Quân Xa Lộ trong riêng đoạn.
+5	N	Đây là đề nghị của VKS ngày 23-3, không xác nhận bản án ngày 28-3; đề nghị không phủ định phán quyết sau đó.
+6	U	Đoạn mở đầu khớp claim nhưng số tăng 720 là đồng/kg dầu mazut, không phải đồng/lít; cần xử lý lỗi đơn vị nguồn.
+7	N	Có giá tăng ngày 13/3 nhưng thiếu mốc 15 giờ và mức tăng hơn 700 đồng.
+8	N	Có mức tăng 720 nhưng không xác nhận ngày 13-3 lúc 15 giờ trong đoạn.
+9	S	Hai câu đầu trực tiếp nêu cảnh báo đụng độ Mỹ-Trung và khuyến nghị hợp tác châu Á.
+10	N	Có khuyến nghị hợp tác châu Á nhưng không có cảnh báo đụng độ Mỹ-Trung.
+11	N	Có đề xuất hợp tác và cạnh tranh nhưng không nêu cảnh báo đụng độ Mỹ-Trung như claim.
+12	U	X-quang chị P cho thấy C5-C6 nhưng thiếu tên đầy đủ và câu gắn tê tay với đúng bệnh nhân; cần phân giải đồng tham chiếu.
+13	N	Có chị Đ.T.T.P và triệu chứng đi khám, chưa có kết quả chẩn đoán C5-C6.
+14	N	Chỉ mô tả triệu chứng chung, không chẩn đoán riêng chị Đ.T.T.P.
+15	U	Nguồn nói tăng số đầu đạn sẵn sàng sử dụng từ 2017; claim nói tăng việc sở hữu hạt nhân, phạm vi mơ hồ.
+16	N	Không có xu hướng từ 2017 và năng lực phá hủy; giảm tổng dự trữ không phủ định tăng đầu đạn sẵn sàng.
+17	N	Nói Nga triển khai vũ khí ở Belarus, không xác nhận xu hướng từ 2017.
+18	U	Có MitM và BTS xen giữa nhưng chỉ gọi chung tin nhắn, chưa nói brandname trong đoạn; cần thống nhất độ chi tiết.
+19	N	Có brandname và BTS giả nhưng không mô tả cơ chế MitM xen giữa hai kết nối.
+20	N	Có hạ 2G và brandname nhưng không xác nhận cấu trúc MitM với BTS thật.
+21	N	Xác nhận gửi UAV cho Nga, thiếu lời Iran hỏi mua máy bay từ nhiều nước.
+22	N	Xác nhận hỏi mua máy bay, không có việc đã gửi UAV cho Nga.
+23	N	Nói MQ-9 của Mỹ và Su-27 Nga, không phải giao dịch máy bay của Iran.
+24	N	Có nội dung, hình thức và thể loại ma nhai, thiếu giá trị vượt ranh giới quốc gia.
+25	N	Có giá trị vượt quốc gia, thiếu mô tả nội dung đa dạng và các thể loại văn học.
+26	N	Có công nhận di sản nhưng không đủ các thuộc tính nội dung, hình thức và giá trị nêu trong claim.
+27	S	AILife trực tiếp mô tả thiết bị gương mặt cùng dự đoán tuổi, ngôn ngữ cơ thể và cảm xúc.
+28	N	Có Xoxe và nhận dạng gương mặt, thiếu đoán tuổi và nhận biết ngôn ngữ cơ thể.
+29	N	Mô tả Nicobo của Panasonic, không xác nhận tính năng Xoxe.
+30	S	Đủ việc tìm kho đồng cuối thế kỷ 19, đúc tượng và Thủ tướng công nhận bảo vật.
+31	N	Có năm 1893 và đúc tượng, chỉ nhắc hồ sơ đề nghị, chưa xác nhận đã được Thủ tướng công nhận.
+32	N	Lịch sử An Dương Vương và đền thượng, không đủ sự kiện kho đồng và quyết định công nhận tượng.
+33	S	Nêu sân chơi học sinh Hà Nội, gặp bạn các trường và rèn bản lĩnh, kỹ năng cờ vua.
+34	N	Có quy mô và thể thức giải, không xác nhận rèn bản lĩnh và kỹ năng qua gặp gỡ.
+35	N	Nêu kỳ vọng phát triển giải, không đủ cơ hội gặp bạn khắp địa bàn như claim.
+36	S	Đủ dọn bàn cà phê vỉa hè, hai thanh niên xe máy và sơn dính đầu, mặt, quần áo.
+37	N	Có vụ tạt sơn nhưng thiếu chi tiết sơn dính đầu, mặt và quần áo.
+38	N	Có hậu quả và mâu thuẫn, không đủ diễn biến lúc dọn bàn và vùng dính sơn.
+39	U	Nguồn nói người trẻ cần ứng dụng ChatGPT; claim có thể hiểu là đã ứng dụng, cần phân biệt khuyến nghị với sự kiện.
+40	N	Nói bộ lọc TikTok, không phải ứng dụng ChatGPT của gen Z.
+41	N	Nói AI trong nông nghiệp và ICheck, không phải ChatGPT của gen Z.
+42	U	Claim và đoạn đều thiếu nội dung điều mong muốn, phụ thuộc từ đây ở ngữ cảnh bị cắt; loại khỏi train sạch.
+43	N	Nói Trần Lưu Quang dự khai mạc 15/3, không phủ định Trần Hồng Hà ở bế mạc 18/3.
+44	N	Có Trần Hồng Hà dự bế mạc nhưng thiếu ngày, địa điểm và nội dung gửi gắm.
+45	S	Nêu đúng các Sở nhận yêu cầu tăng cường quản lý lễ hội năm 2023.
+46	N	Có yêu cầu quản lý lễ hội 2023, chưa nêu các đơn vị nhận yêu cầu.
+47	N	Nêu quản lý cuộc thi người đẹp, không đủ yêu cầu lễ hội 2023 với đầy đủ các Sở.
+48	S	Nêu Tuấn lấy cớ không biết chăm con để ngoại tình và nỗi đau Hồng bị phản bội.
+49	N	Có lời đồn và cớ không chăm con, chưa xác nhận động cơ thật và nỗi đau khi phát hiện.
+50	N	Có phát hiện ngoại tình, thiếu thủ đoạn lấy cớ không biết chăm con.
+51	S	Ngày hội Cần Thơ hơn 15.000 người, giải đáp thắc mắc và lời khuyên giá trị được nêu trực tiếp.
+52	N	Nêu ý nghĩa ngày hội chung, chưa xác nhận sự kiện Cần Thơ thu hút đông người.
+53	N	Nói sự kiện tuyển dụng và hồ sơ xin việc, không phải ngày hội tuyển sinh Cần Thơ.
+54	S	Nêu tử vong H5N1 tại Campuchia và yêu cầu tuyên truyền để phòng, xử lý lây sang người.
+55	N	Có tuyên truyền phòng cúm, thiếu bối cảnh H5N1 gây tử vong ở Campuchia.
+56	N	Có giám sát y tế, thiếu yêu cầu tuyên truyền và bối cảnh Campuchia.
+57	S	Nêu Hoài Thu hóa thân nữ thần, 1,3 triệu theo dõi TikTok và nhiều nền tảng khác.
+58	N	Nói cô đồng Trương Thị H., không phải Hoài Thu.
+59	N	Hoài Thu xem bóng rổ, không có hóa thân nữ thần và lượng theo dõi.
+60	S	Đủ trường Kim Giang, 915 học sinh khối 1-2, ngày 28/3 và cách chuẩn bị bữa trưa.
+61	N	Đủ số học sinh, ngày và bữa trưa nhưng nhà trường không được định danh Kim Giang trong đoạn.
+62	N	Có trường Kim Giang và nghi ngộ độc, thiếu số 915 và nơi nấu bữa trưa.
+63	N	Chỉ xác nhận đánh giá lại quan hệ, thiếu khả năng không theo đuổi thỏa thuận thương mại.
+64	N	Có khả năng bỏ thỏa thuận, thiếu tuyên bố đánh giá lại và giảm rủi ro.
+65	N	Nói Mỹ đánh giá TikTok, không phải chính sách EU của von Der Leyen.
+66	N	Có MLO nhiều băng tần tăng tốc, chưa xác nhận giảm độ trễ trong riêng đoạn.
+67	S	MLO của WiFi 7 tận dụng nhiều băng tần và giảm độ trễ được giải thích trực tiếp.
+68	N	Có giảm độ trễ nhưng thiếu MLO và cơ chế nhiều băng tần.
+69	S	Nêu đầy đủ vai trò du lịch bền vững đối với thương hiệu và quan hệ các bên.
+70	N	Nói sản phẩm golf TP.HCM, không đủ vai trò du lịch bền vững.
+71	N	Nói thông qua khung phát triển, không nêu các tác động cụ thể của claim.
+72	S	Nêu tên bà Nguyệt trước đây và đổi Thụy Khuê để khách dễ tìm.
+73	N	Có quán Thụy Khuê, không nói tên cũ hay lý do đổi tên.
+74	N	Có khách quen và đường khó tìm, không có lịch sử đổi tên.
+75	N	Có rà soát học sinh nhưng không có công an cấp lưu động tại THCS và THPT.
+76	N	Nói tuyển sinh Hà Nội, không có cấp giấy tờ lưu động của công an.
+77	N	Nói lịch thi TP.HCM, không có cấp lưu động và đối sánh dữ liệu công an.
+78	U	Claim dùng cá nhân được bảo lãnh còn nguồn dùng cá nhân nhận bảo lĩnh; cần xác định nhầm vai hay cách diễn đạt.
+79	U	Có yêu cầu giấy cam đoan nhưng claim lẫn người bảo lĩnh và người được bảo lĩnh; không đủ nghĩa vụ trong đoạn.
+80	N	Nói mua lại trái phiếu ngân hàng, không liên quan bảo lĩnh cá nhân.
+81	S	Nêu nữ nhân viên Ngân chiếm đoạt hơn 25 tỉ bằng gian dối vay đáo hạn lãi suất cao.
+82	N	Vụ Tâm 8,15 tỉ khác người; không chứng minh hoặc phủ định vụ Ngân hơn 25 tỉ.
+83	N	Có Ngân chiếm đoạt tài sản, thiếu tổng 25 tỉ và thủ đoạn lãi suất cao.
+84	S	Liệt kê đủ nghệ sĩ Việt-Hàn và hai địa điểm Seorak, Yongpyong ở Gangwon-do.
+85	N	Có hai địa điểm và thiên nhiên, không có danh sách nghệ sĩ.
+86	N	Có Cara và Vũ Cát Tường, không đủ các nghệ sĩ và địa điểm.
+87	R	Nguồn nói vừa truy bắt và thông báo ngày 27/3, không phải vụ bắt ngày 23/7 như claim.
+88	N	Có bắt ba đối tượng ở Cao Bằng nhưng không nêu ngày 23/7.
+89	N	Nói vụ Quân Xa Lộ và che giấu tội phạm, không phải vụ ba người Cao Bằng.
+90	S	Nêu cả chủ trương xuyên suốt và đầy đủ hạn chế bao trùm, liên kết, bao phủ, chênh lệch sống.
+91	N	Chỉ có chủ trương, thiếu các hạn chế chính sách.
+92	N	Nói hợp tác ASEAN, không phải đánh giá chính sách xã hội của Đảng và Nhà nước.
+93	S	Nêu nguyên văn lịch dự kiến trước đó 11 và 12-6.
+94	U	Claim thiếu địa phương và năm; đoạn là Hà Nội, không được mặc định cùng kỳ thi để bác bỏ bằng lịch 10-11/6.
+95	N	Có kỳ thi lớp 10 nhưng thiếu ngày thi 11-12/6.
+96	S	Nêu sửa quy chế thi THPT 2023, bỏ quy định cho phép máy ghi âm, ghi hình.
+97	N	Nêu bãi bỏ quy định cũ, không xác định thay đổi áp dụng năm 2023 trong đoạn.
+98	U	Đoạn mô tả quy định cho phép trước đây nhưng thiếu mốc thời gian; không lấy làm bác bỏ quy chế 2023.
+99	N	Có xác định, điều khiển và tối ưu, thiếu mở khóa tính năng tiềm ẩn.
+100	N	Có mở khóa và lợi ích chung, thiếu ba tác dụng cụ thể còn lại.
+101	N	Nêu ứng dụng doanh nghiệp, không đủ toàn bộ các tác dụng claim liệt kê.
+102	S	Lãnh đạo nhiều bệnh viện khẳng định không phải nộp tiền mới cấp cứu/phẫu thuật.
+103	U	Có hai ý kiến chuyên gia nhưng GS Giang chưa định danh bệnh viện; cần xác nhận lượng từ nhiều bệnh viện.
+104	N	Chỉ xác nhận Bệnh viện Nhi Trung ương, chưa đủ nhiều bệnh viện và phẫu thuật.
+105	N	Có Hồ Văn Tiện và Đoàn Văn Dương bị bắt, thiếu số tiền tang vật 1,34 tỷ.
+106	U	Tang vật gồm thành phẩm hoặc phôi, claim gọi toàn bộ thành phẩm; đoạn cũng thiếu tên Tiện và Dương.
+107	N	Vụ ma túy và vu khống khác, không liên quan tiền giả.
+108	U	Nguồn đặt điều kiện nếu giữ đến cuối phiên; claim bỏ điều kiện và đổi gần bốn phiên thành bốn phiên.
+109	N	Cổ phiếu NVL, không xác nhận mức tăng của TGG.
+110	N	Giá dầu WTI và Brent, không phải cổ phiếu TGG.
+111	S	Nêu trực tiếp Đà Nẵng tiếp thu ý kiến hoàn thiện phương án Dòng sông ánh sáng.
+112	S	Nêu chỉ đạo tiếp thu góp ý hoàn thiện đúng phương án của UBND Đà Nẵng.
+113	N	Nêu triển khai và tiến độ, không xác nhận tiếp thu góp ý.
+114	U	31-3 là ngày đưa tin vừa bắt, không khẳng định việc bắt diễn ra chính ngày 31-3 như claim.
+115	N	Vụ vật liệu nổ, không phải lừa đảo tài sản ngày 31-3.
+116	N	Có bắt vụ lừa vé máy bay, không xác định ngày bắt 31-3.
+117	S	Nêu sức khỏe Hồng Nga ổn định và đám đông giải tán sau báo đài đưa tin.
+118	N	Có sức khỏe và giải tán nhưng không có mốc sau báo đài đưa tin.
+119	N	Có sức khỏe và tin sai, chưa xác nhận đám đông đã giải tán.
+120	S	Nêu đủ 8 cao tốc, 5 dự án quốc lộ/cầu tại ĐBSCL, tổng 112.600 tỷ.
+121	N	Nói metro và xa lộ Hà Nội, không phải tổng dự án ĐBSCL.
+122	N	Nói cao tốc Khánh Hòa-Buôn Ma Thuột, không phải tổng dự án ĐBSCL.
+123	S	Nêu Sheikh Khaled vừa làm thái tử và đứng đầu Hội đồng điều hành Abu Dhabi.
+124	N	Có tân thái tử và các bổ nhiệm khác, thiếu chức đứng đầu Hội đồng điều hành.
+125	N	Có lựa chọn thái tử, thiếu chức Hội đồng điều hành.
+126	S	Nêu sinh viên mới ra trường rụt rè về lương, sợ bị xem trọng vật chất và bị loại.
+127	N	Nêu cách thương lượng lương, thiếu tâm lý và nguyên nhân claim nói.
+128	N	Có ngại bị nghĩ trọng vật chất nhưng thiếu đối tượng sinh viên mới ra trường và sợ bị loại.
+129	S	Đủ hai ngày, 18 người chưa kể bị thương, công an Bảo Lộc và vụ B'Lao.
+130	N	Có 18 người và vụ hỗn chiến, thiếu mốc hai ngày nay.
+131	N	Có diễn biến đánh chém, không có công an truy bắt 18 người trong hai ngày.
+132	N	Có vận động nhà trọ, thiếu rà soát lập danh sách của UBND và tổ công tác.
+133	N	Có rà soát lập danh sách, thiếu vận động nhà trọ cung cấp thông tin.
+134	N	Có kiểm tra địa bàn, thiếu vận động chủ nhà trọ.
+135	N	Có tường vàng bị bôi bẩn, chưa có lời du khách yêu cầu chấn chỉnh.
+136	U	Du khách phản đối và yêu cầu chấn chỉnh nhưng đoạn không xác định màu vàng của tường.
+137	N	Người dân và chính quyền phản đối, không phải lời du khách.
+138	S	Nêu ngày 26-3, UAV rơi ở Tula Nga, ít nhất ba người bị thương và ba tòa nhà hư hại.
+139	N	Có UAV rơi ở Nga, thiếu ngày và số người, số tòa nhà.
+140	N	Vụ ở Kyiv ngày 27.3 khác, không phủ định vụ ở Nga.
+141	S	Nêu trực tiếp chơi tốt trước Uruguay và quyết tâm thắng Colombia để vô địch sân nhà.
+142	N	Có giải giao hữu, chưa có màn thể hiện trước Uruguay và quyết tâm vô địch.
+143	N	Thống kê phong độ, không đủ hai sự kiện claim nói.
+144	N	Có chỉ đạo làm rõ và động viên nhưng thiếu tên trường Kim Giang.
+145	N	Có vụ Kim Giang, thiếu chỉ đạo UBND và động viên tâm lý.
+146	N	Có tạm hoãn dã ngoại, không có chỉ đạo làm rõ và động viên.
+147	S	Nêu hàng trăm hộ Mả Lạng ở nhà chật chội, ẩm thấp, thiếu ánh sáng.
+148	N	Có Mả Lạng chật chội thiếu sáng, chưa có quy mô hàng trăm hộ.
+149	N	Nói dự án treo và lo di dời, thiếu tình trạng nhà chật, thiếu ánh sáng.
+150	S	Nêu nam khoảng 40 tuổi nuốt dao lam được cấp cứu tại BVĐK Như Xuân.
+151	N	Các bệnh nhân ngộ độc cá ở Quảng Nam, không phải nam nuốt dao lam Thanh Hóa.
+152	N	Bệnh nhân nấm 61 tuổi tại Ấn Độ khác trường hợp claim.
+153	S	Nêu khó lường, COVID-19 khẩn cấp và nguy cơ biến thể mới khi nới phòng dịch, trong bối cảnh nguồn lịch sử.
+154	N	Có khẩn cấp và biến thể, thiếu mối liên hệ nới lỏng biện pháp.
+155	N	Có yêu cầu giám sát chung, thiếu tình trạng khẩn cấp và biến thể mới khi nới lỏng.
+156	S	Nêu Cuba quốc tang tri ân người hy sinh tại kho nhiên liệu vịnh Matanzas.
+157	N	Có tang lễ và tưởng nhớ, không xác nhận tuyên bố quốc tang.
+158	N	Có hỏa hoạn Matanzas, không có quốc tang.
+159	S	Đủ Tâm làm tín dụng ở Trà Vinh từ 2018 và động cơ lừa đảo đầu 2022.
+160	N	Nói Ngân, không phải Tâm.
+161	N	Nói nữ nhân viên Ngân ở Kon Tum, không phải Tâm ở Trà Vinh.
+162	S	Nêu đủ 12 thủ tục, Cục Bản quyền và hai ví dụ giấy chứng nhận.
+163	N	Lĩnh vực hợp tác quốc tế khác, không phủ định 12 thủ tục bản quyền.
+164	N	Nói thanh tra bản quyền, không có danh mục 12 thủ tục.
+165	N	Có tên đầy đủ và thủ khoa, thiếu 27 điểm khối A00.
+166	U	Có Bảo, 27 điểm và thủ khoa nhưng thiếu họ tên đầy đủ; cần phân giải người ngoài đoạn.
+167	N	Có thủ khoa và A00, thiếu 27 điểm và tên đầy đủ.
+168	S	Nêu cả chứng khoán Âu-Mỹ tăng 29/3 và Alibaba thúc đẩy chứng khoán châu Á.
+169	N	Có Alibaba tăng và chia tách, thiếu Âu-Mỹ ngày 29/3.
+170	N	Thị trường giảm ngày 20-3 không phủ định tăng ngày 29/3.
+171	S	Nêu SEVT tháng 3/2013 vốn 2 tỷ và thêm 3 tỷ sau một năm.
+172	N	FDI Bình Dương không phải dự án Samsung Thái Nguyên.
+173	N	Dự án du lịch Việt Úc-Cà Mau không phải SEVT.
+174	S	Nêu BV Hoàn Mỹ Sài Gòn phát hiện ung thư gan qua khám tổng quát.
+175	N	Có bệnh nhân ung thư gan tại viện, thiếu bối cảnh khám sức khỏe tổng quát.
+176	N	Thông tin ung thư chung, không phải ca phát hiện tại Hoàn Mỹ.
+177	S	Nêu nhiệm vụ CTV dân số và đang chờ tiền hỗ trợ 2021.
+178	N	Có gián đoạn hỗ trợ 2021, thiếu nhiệm vụ cập nhật biến động dân số.
+179	N	Có chờ giải ngân, thiếu nhiệm vụ chính sách và cập nhật dân số.
+180	R	Claim đảo hai chỉ tiêu: nguồn lợi nhuận gộp 137 tỷ, sau thuế gần 3.273 tỷ.
+181	N	Không có số lợi nhuận gộp và sau thuế.
+182	N	Báo cáo Đức Giang, không phải Sovico.
+183	R	Huỳnh Như nói chưa đủ lâu để hiểu hết, trái với đã đủ lâu trong claim.
+184	N	Có học được một phần, chưa xác nhận thời gian đã đủ lâu để hiểu hết.
+185	R	Huỳnh Như trực tiếp nói thời gian ở Lank chưa đủ lâu để hiểu hết bóng đá Bồ Đào Nha.
+186	R	Hai đơn vị trực tiếp nhận mỗi nơi 20 triệu, không phải 50 triệu.
+187	N	Có khen thưởng nhưng không nêu số tiền.
+188	N	Có chuyên án ma túy, không có tiền thưởng các đơn vị.
+189	U	Nguồn giới hạn một số địa bàn, lớp 1 và 6 tại TP.HCM; claim khái quát cả nước, chưa có phủ định trực tiếp toàn quốc.
+190	N	Tuyển sinh lớp 10 TP.HCM, không có nguyên tắc toàn quốc gần nhà.
+191	N	Chia sẻ máy tính Kon Tum, không phải chính sách phân tuyến.
+192	R	Nguồn gắn ba điều kiện với Điều 51, claim ghi Điều 61.
+193	N	Đề xuất thí điểm khác quy định hiện hành, không xác nhận điều luật 61 năm 2014.
+194	N	Nói đối tượng doanh nghiệp, thiếu điều luật và ba điều kiện của claim.
+195	N	Thắng lượt đi 5-1 không tự chứng minh chắc chắn đi tiếp bất kể lượt về.
+196	N	Đi tiếp sau hai trận thắng không chứng minh hay phủ định điều kiện bất kể kết quả lượt về.
+197	N	Huỳnh Như trở về tuyển, không có điều kiện đi tiếp.
+198	U	Có ý kiến truy tố người gây mất đăng cai, không đủ căn cứ danh dự/nhân phẩm/đạo đức; claim còn mơ hồ chủ thể bị truy tố.
+199	N	FIFA tước đăng cai, không có ý kiến truy tố của Akmal Marhal.
+200	N	Tin đồn đổi chủ nhà, không có ý kiến pháp lý của Akmal Marhal.
+201	N	Nêu xử lý nghiêm, không có mức án tử hình.
+202	R	Với hành vi ép cháu bé nêu trên, đoạn xác định khung 15-20 năm tù, không phải tử hình.
+203	N	Nói thêm tội tổ chức sử dụng và không tố giác, không đủ khung hình phạt tội cưỡng bức trong claim.
+204	R	Nguồn nói hệ dữ liệu lớn hàng tỉ trang, trái với nhỏ vài nghìn trang.
+205	N	Có nguồn dữ liệu và cảnh báo kiểm tra, không xác nhận quy mô vài nghìn trang.
+206	N	Nói Italy chặn ChatGPT, không phải quy mô dữ liệu và tiểu luận.
+207	R	Bà Trần Thị Hằng trong đoạn 55 tuổi, claim ghi 50 tuổi.
+208	N	Có phiên tòa giả định, không nêu bà Hằng và tuổi.
+209	N	Có người tham dự chung, không xác nhận bà Hằng 50 tuổi.
+210	U	Nguồn mô tả đạn Nga; claim nói loại của Mỹ nhưng không định danh loại, cần phân giải cùng vũ khí để gán REFUTED.
+211	U	Lancet Nga được nêu, claim không có tên loại đạn; không suy rộng rằng không tồn tại đạn Mỹ được dùng.
+212	N	Nói pháo binh Nga, không nói đạn tuần kích Mỹ.
+213	U	Họp báo bàn thông tin trên 100%, không phải trích dẫn trên 200%; lượng từ trên không tạo phủ định số học trực tiếp.
+214	N	Bác thông tin lãi trên 100%, chưa chứng minh nội dung họp báo có/không bàn tin trên 200%.
+215	N	Ứng dụng AI trồng trọt, không có cuộc họp báo Phùng Đức Tiến.
+216	R	Thanh Hóa đề xuất tăng 10, không phải 29 phó giám đốc sở.
+217	N	Bổ nhiệm Bình Thuận, không phải đề xuất Thanh Hóa.
+218	N	Liệt kê số cấp phó mong muốn, không đủ cơ sở tính chênh lệch 29 so với nghị định.
+219	R	Vụ Hyundai ở Gia Lâm, Hà Nội; claim đặt ở TP.HCM.
+220	N	Có bắt lái xe Gia Lâm, thiếu địa danh cấp thành phố và chi tiết đỗ xe trong claim.
+221	N	Công trình nút giao Ngọc Hội không phải vụ taxi tông bảo vệ.
+222	R	Nữ diễn viên nói chưa có kế hoạch vai mới, trái với có vài kế hoạch.
+223	N	Suri và Katie Holmes, không đủ ngữ cảnh nữ diễn viên, tuổi và vai mới trong claim.
+224	N	Lê Khánh nói áp lực vai diễn, không xác nhận mong bình yên và kế hoạch tuổi mới.
+225	U	Nguồn nói Hòa đạt hai giải, không phải năm; tên Đức Hòa thiếu trong đoạn, cần xác nhận đồng tham chiếu trước train.
+226	N	Lịch chọn đội Olympic, không có thành tích Đức Hòa.
+227	N	Có Đức Hòa giành OTE miền Trung, không nêu năm giải quốc gia thời cấp ba.
+228	S	Nêu cuộc họp 6/3 chuẩn bị hội nghị ASEAN 42 và Ngoại trưởng tháng 5/2023 tại Indonesia.
+229	N	Có họp nhóm lần 15 nhưng thiếu các hội nghị sau đó tháng 5/2023.
+230	N	Hội nghị tài chính ASEAN+3 khác, không đủ hội nghị ASEAN 42.
+231	R	Malaysia tăng 10 bậc từ 145 lên 135, không phải 20.
+232	R	Nêu từ Kim Pan-gon Malaysia tăng 10 bậc, trái con số 20.
+233	N	Tăng bốn bậc trong giai đoạn sau hai trận khác, chưa xác định cùng khoảng thời gian claim.
+234	R	VDSC nêu vùng hỗ trợ 1.045 điểm, không phải 1.500.
+235	N	Vùng này không có giá trị số hoặc định danh VDSC trong đoạn.
+236	N	Không xác định cùng nhận định VDSC hay thời điểm; vùng hỗ trợ khác chưa đủ bác bỏ claim.
+237	U	Hai người chuyển 50 triệu và nhắc NVT, nhưng chưa gắn rõ khoản chuyển với NVT trong đoạn.
+238	N	Các phụ huynh khác, không phải anh NVT 41 tuổi.
+239	N	Các khoản chuyển chung, không định danh NVT.
+240	U	Nguồn mô tả đối lưu, chưa trực tiếp loại trừ co giãn muối và thiếu định danh hoa văn lục giác.
+241	U	Giải thích lục giác bằng đối lưu và bay hơi, không trực tiếp bác giả thuyết co giãn; cần reviewer chuyên môn quyết định quan hệ.
+242	U	Mô tả cơ chế đối lưu và đường vân khác claim, nhưng không nêu rõ loại trừ tác động co giãn.
+243	R	Viettel's Stars 2022 tôn vinh 10 cá nhân, không phải 15.
+244	N	Không nêu số cá nhân được tôn vinh.
+245	R	Nêu 10 tập thể và 10 cá nhân năm 2022, trái 15 cá nhân.
+246	R	Trường Kim Giang đưa 915 học sinh đi, không phải đúng 900.
+247	N	Không nêu số học sinh đi và số có triệu chứng.
+248	N	Hơn 50 nhập viện không xác nhận 900 tham quan và đúng 56 đau bụng.
+249	R	An táng tại San Carlos de Matanzas cách La Habana 100 km, không ở La Habana.
+250	N	Tưởng niệm tại bảo tàng không xác định nơi an táng.
+251	N	Nơi hỏa hoạn và quốc tang không xác định nghĩa trang.
+252	R	Trung bình khoảng 1.000 lượt mỗi ngày, không phải 2.000.
+253	N	Nêu phương tiện chở hàng, không phải lượt người.
+254	N	Số du lịch tháng 1 toàn quốc, không phải lượt xuất nhập cảnh cuối tháng 3.
+255	U	Nguồn nêu 300 ngọn đuốc, không cho chiều dài hay loại LED; hai mô tả chưa loại trừ nhau.
+256	U	300 ngọn đuốc không tự phủ định LED dài 300 mét; cần xác nhận kỹ thuật hoặc gán thiếu thông tin.
+257	N	Không có chiều dài và vật liệu tuyến ánh sáng.
+258	R	Nợ Evergrande tương đương 2% GDP, không phải 7%.
+259	N	Có tổng nợ nhưng không có GDP để xác định tỷ lệ 7%.
+260	N	Phương án trả nợ không xác nhận tỷ lệ GDP.
+261	U	Hơn 130 không tự loại trừ hơn 150; thiếu tên trường trong đoạn, không dùng số ngưỡng để gán R tự động.
+262	U	Nguồn báo hơn 130 đối tác, không đủ kết luận hơn 150 đúng hay sai theo nghĩa cận dưới.
+263	N	Nói ILA, không phải đối tác Đông Á.
+264	R	Soyuz đưa hai phi hành gia Nga, không phải Anh, cùng một người NASA.
+265	N	Robot Mặt trăng, không phải phi hành gia lên ISS tháng 9/2022.
+266	N	Quan hệ Mỹ-châu Phi không liên quan ISS.
+267	U	Có hiệu quả bổ trợ môn văn hóa, chưa khẳng định đã tạo phương pháp mới hay mục đích chính; claim diễn đạt mơ hồ.
+268	N	Sân chơi cờ vua không xác nhận phương pháp bổ trợ môn văn hóa.
+269	N	Phát hiện tài năng cờ vua, không có phương pháp giáo dục mới.
+270	R	Nguồn nêu thất thoát 735 tỉ, không phải 750 tỉ.
+271	N	Có quy trình chuyển nhượng, không có số thiệt hại.
+272	U	207,4 tỉ thuộc án sơ thẩm; claim không xác định giai đoạn định giá, cần tránh trộn các mốc xét xử.
+273	U	Hơn 400 không trực tiếp phủ định hơn 700 theo cận dưới; thiếu nhận định điểm nghẽn của Cục trong đoạn.
+274	N	Có điểm nghẽn nhân sự nhưng không có số người bị bắt đầu tháng 3.
+275	N	Có ùn tắc và thiếu nhân lực, không có số hơn 700 bị bắt.
+276	R	Quy định thời hạn không quá 90 ngày, không phải bảo đảm chăm lo ít nhất 90 ngày.
+277	N	Có đưa vào cơ sở trợ giúp, thiếu thời hạn chăm lo.
+278	N	Có lập tổ công tác, thiếu thời hạn 90 ngày.
+279	R	Hai chi nhánh ngày 24-3 giữ gần 500 hồ sơ, không phải gần 600.
+280	N	Hai chi nhánh kiểm tra 23-3 khác ngày claim.
+281	N	Vụ cho vay Như Xuân khác, không phải kiểm tra hai chi nhánh 24/3.
+282	R	Việt Nam thắng Syria 2-0, claim đảo đội thắng và thua.
+283	N	Nói UAE-Thái Lan và Syria-Thái Lan, không phải Việt Nam-Syria.
+284	N	Pháp-Ireland và Hà Lan-Gibraltar khác cặp đấu.
+285	R	Nguồn có 10 kho LPG và chưa có kho LNG hoạt động; không phải 11 kho khí thiên nhiên hóa lỏng.
+286	N	Dự án điện Ô Môn không xác nhận số kho khí.
+287	N	Kho dầu Cuba, không phải kho khí Việt Nam.
+288	N	Có vụ tàu 350 khách đêm 28/2 nhưng thiếu số tử vong 100.
+289	N	Tai nạn máy bay Nepal, không phải đường sắt Hy Lạp.
+290	N	Tàu container không phải đoàn tàu chở khách.
+291	U	Lời chia sẻ là của ông T. trong clip; claim gọi clip của sinh viên, mơ hồ người tạo hay người đăng lại.
+292	U	Nguồn phân biệt bài sinh viên với clip phản hồi ông T.; claim mơ hồ quyền sở hữu clip, nội dung chân thành chưa có.
+293	N	Clip hướng dẫn viên Huế, không phải diễn giả và sinh viên HUFLIT.
+294	U	Đây là kỳ vọng tác động của hiệp hội, chưa đủ chứng minh mục đích Chính phủ nêu trong claim.
+295	R	Đoạn mô tả Chính phủ tạo hành lang giúp vượt khó, trái mục đích kìm hãm thị trường.
+296	R	Nêu Chính phủ ban hành nghị định để tháo gỡ khó khăn, trái mục đích kìm hãm.
+297	R	Tổng hai việc 304 tỷ, chỉnh lý hơn 256 tỷ nên phần số hóa còn dưới 48 tỷ, không cao hơn chỉnh lý.
+298	N	Chỉ có hơn 47 tỷ số hóa, thiếu chi phí chỉnh lý để so sánh.
+299	N	Lợi ích và thời hạn lưu trữ, không có so sánh chi phí.
+300	S	Đủ loại cảm biến và vị trí đặt; 24/7 bao hàm ghi suốt 24/24, không mâu thuẫn.
+301	N	Giao tiếp dơi và ong, không đủ vị trí cảm biến và thời lượng.
+302	N	Tổn hại do cưỡi voi, không phải cảm biến âm thanh.
+303	R	Bogeart chuyển cho A.Guerin, claim đảo chiều chuyển; nguồn còn nói anh em, không phải chị em Morin.
+304	N	Kỷ niệm khách sạn, thiếu lịch sử chuyển nhượng 1904-1907.
+305	N	Nâng cấp khách sạn, thiếu lịch sử chủ sở hữu.
+306	R	Kiến nghị Bộ Xây dựng giám sát, không phải Bộ Công thương.
+307	N	Có nghiên cứu chỉ tiêu nhưng thiếu bộ được kiến nghị giám sát.
+308	N	Cơ sở dữ liệu quốc gia, không phải chỉ tiêu tài chính bất động sản.
+309	R	Tăng dân số hàng năm 0,6%, không phải 1%.
+310	N	Nói nhập cư, không có tốc độ tăng tháng 1/2023.
+311	N	Điều tra dân số không nêu 10,5 triệu và tốc độ 1%.
+312	N	Chỉ có câu hỏi của Trấn Thành, chưa có phản hồi Đàm Vĩnh Hưng.
+313	R	Đàm Vĩnh Hưng thừa nhận nhiều khuyết điểm, trái khẳng định không có.
+314	N	Lời Trấn Thành không xác nhận Đàm Vĩnh Hưng phủ nhận khuyết điểm.
+315	R	Đây là trận đầu tiên của Hà Lan sau World Cup, không phải thứ ba.
+316	N	Nêu lần đầu của Pháp, không xác nhận số thứ tự trận Hà Lan sau World Cup.
+317	N	Hàn Quốc-Colombia không phải Hà Lan.
+318	R	Pinochet bị bắt năm 1998, không phải 1990; nguồn gọi cựu tổng thống.
+319	N	Quy trình ICC chung, không có vụ Pinochet.
+320	N	Du khách Indonesia, không có vụ Pinochet.
+321	S	Nêu A Nhi tử vong tại chỗ, A Phước không qua khỏi tại viện; có thêm người chết không phủ định hai người này.
+322	N	Ba người chết nhưng chỉ định danh A Tiến, không xác nhận cả A Nhi và A Phước.
+323	N	Vụ ép trẻ sử dụng ma túy, không phải nổ đầu đạn.
+324	U	Nguồn nói hủy niêm phong, claim nói đưa ra có thể hiểu công bố hoặc ban hành; cần làm rõ thuật ngữ.
+325	N	Có cáo trạng niêm phong, thiếu dự kiến thẩm phán công bố trong những ngày tới.
+326	N	Chưa công bố chi tiết nhưng thiếu dự kiến thẩm phán và thời gian.
+327	N	Dấu tích băng Mặt trăng, không mô tả cơ chế khối băng do không khí lạnh.
+328	N	Cơ chế bão và mây, không có tạo khối băng.
+329	N	Hợp tác khí hậu và kinh tế, không có cơ chế đóng băng.
+330	U	Có kế hoạch triển khai nhưng mở rộng và nâng cấp hàm ý phần đã tồn tại; không gán R chỉ vì thì tương lai.
+331	N	Vé phố cổ Hội An, không phải vé và phần mềm giao thông công cộng.
+332	N	Đề án dân cư, không xác nhận đã triển khai vé công cộng.
+333	U	Số liệu khác claim nhưng thiếu ngày, không chứng minh cùng phiên cuối 2022.
+334	N	Phiên 29/3 và cổ phiếu TGG, không phải phiên cuối 2022.
+335	N	Phiên 28-3 không phủ định số liệu cuối 2022.
+336	R	Thùy Linh khởi đầu thuận lợi và gây khó đối thủ, trái chiều diễn biến trong claim.
+337	N	Diễn biến ván hai và ba không xác nhận khởi đầu ván một.
+338	N	Chung kết đơn nam và nhận thưởng, thiếu ván đầu của Linh.
+339	R	Các đối thủ Commerzbank và nhiều ngân hàng giảm, phủ định tất cả đều tăng trong bối cảnh phiên được nêu.
+340	N	Chỉ giá Deutsche Bank, không có giá đối thủ.
+341	N	Có khủng hoảng ngân hàng nhưng thiếu giá cổ phiếu đối thủ.
+342	N	Thầy giáo và học sinh khác, không phải Takeoff.
+343	R	Takeoff bị bắn chết ở tuổi 28, không phải đau tim bất chợt.
+344	N	Có tưởng niệm Takeoff, thiếu nguyên nhân và tuổi qua đời.
+345	R	Dennis bắt đầu chức vụ từ 17-3, không phải 18-3.
+346	N	Tiểu sử Dennis không xác định ngày hiệu lực bổ nhiệm.
+347	N	Ngày công bố 17/3 không đủ xác định ngày bắt đầu chức vụ.
+348	R	Nguồn nói chính quyền chưa quản lý tốt đàn chó mèo, trái claim đã tốt.
+349	N	Khuyến nghị tăng quản lý không tự chứng minh đã hay chưa quản lý tốt trước đó.
+350	N	Thiếu thống kê chính xác nhưng chưa định danh Đồng Nai và nguyên nhân tái xuất hiện.
+351	U	Cụm khối u bệnh án không có nghĩa rõ; không tự sửa thành ác tính để gán nhãn.
+352	U	Claim lỗi thuật ngữ bệnh án, cần sửa có kiểm soát trước khi dùng train.
+353	U	Không suy diễn nghĩa cụm bệnh án từ ca phẫu thuật riêng lẻ.
+354	U	Nguồn xử phạt hồ sơ thiếu mục; có thể bao gồm chữ ký nhưng không chỉ rõ, không đủ gán R về phẫu thuật không ký.
+355	N	Nói quy trình ký cam kết chung, không có quyết định xử phạt hai bác sĩ.
+356	N	Xử phạt nha khoa khác, không phải hai bác sĩ chuyên khoa.
+357	R	Giá Kitco giảm khoảng 13 USD so với phiên trước, không giữ nguyên.
+358	N	Giá USD và quỹ mua vàng, không có giá đóng cửa Kitco.
+359	N	Giá vàng trong nước và thế giới ngày 29-30/3, không đủ cùng phiên cuối tuần Kitco.
+360	N	Bầu cử Andorra, không phải WB.
+361	N	Bầu cử Montenegro, không phải WB.
+362	U	Nguồn nói Mỹ đề cử, claim quy cho WB; WB cũng có quy trình đề cử nên cần phân biệt, chưa có bỏ phiếu kín.
+363	U	Có giải pháp trong dự thảo và tham luận nhưng thiếu định danh hội thảo; cần xác nhận ngữ cảnh tổ chức.
+364	N	Có tên hội thảo, chưa nêu đề xuất giải pháp.
+365	N	Đánh giá thực trạng và tính cấp thiết, không xác nhận giải pháp cụ thể được đề xuất.
+366	U	Có ca sĩ ảo trước đó và lợi thế không scandal; mới không có mốc/phạm vi, chưa thể chốt quan hệ.
+367	N	Scandal ca sĩ thật, không phải khái niệm ca sĩ ảo.
+368	N	Ann đầu tiên ở Việt Nam không chứng minh khái niệm mới toàn ngành và không scandal.
+369	N	Một vụ trộm gần 30 triệu không xác nhận nhiều vụ tại các trường.
+370	N	Chỉ một vụ trường Nguyễn Thị Diệu, không có nhiều vụ hay số tiền.
+371	N	Mất trộm công trường cao tốc, không phải trường học.
+372	N	Có hội thi và năm chữ vàng, thiếu ngày 3/5.
+373	N	Có giá trị văn hóa, không có hội thi ngày 3/5.
+374	N	Chỉ năm giá trị, thiếu hội thi và thời điểm.
+375	N	Có kế hoạch 63 tỉnh và thế giới, thiếu ưu tiên ba châu lục.
+376	N	Có hơn 70 nước, không có chiến lược ưu tiên châu Á, Úc, Âu.
+377	N	Có học viện toàn cầu, thiếu 63 tỉnh và ưu tiên châu lục.
+378	N	Có cản hai cú sút, thiếu quốc tịch và nguyên nhân tập luyện kỹ.
+379	N	Trận Đại học Tôn Đức Thắng-Thủy lợi khác thủ môn và đội.
+380	N	Có kết quả Đại học Huế, không có nguyên nhân cản phá của Channa.
+381	N	Danh mục hoạt động không xác nhận phái đoàn quân sự hay hợp tác quốc tế.
+382	U	Có đoàn cấp cao hợp tác quốc tế nhưng claim không định danh lễ kỷ niệm, không biết cùng sự kiện.
+383	U	Lễ Vovinam có khách quốc tế nhưng claim thiếu sự kiện, không đủ xác định cùng hoạt động kỷ niệm.
+384	N	Nguồn chỉ nói cao hơn rất nhiều, không có tỷ lệ gấp 10.
+385	N	Đối thoại Biển, không phải tiếp cận giá trị truyền thống.
+386	N	Đăng ký thi trực tuyến, không có so sánh chi phí văn hóa.
+387	U	George nói sáng tạo loại thịt ngon mới; claim đổi sang quảng bá rầm rộ, cần phân biệt thay lời với giải pháp có thể bổ sung.
+388	N	Thực khách ăn thịt ngựa, không phải George nói về thịt nhân tạo.
+389	N	Món ăn Bồ Đào Nha, không phải quan điểm George.
+390	N	Có giao hữu ngày 1.4, thiếu 20 giờ và sân Mỹ Đình.
+391	U	Nguồn nói chiều thứ bảy, claim 20 giờ; nhưng đoạn chỉ gọi đội nên thiếu định danh trận để chốt R.
+392	N	Có kế hoạch giao hữu, thiếu giờ 20h và sân Mỹ Đình.
+393	N	Có 10 người, làm 24 giờ, ngủ luân phiên 30 phút; thiếu nghĩa vụ đền bù khi chậm.
+394	N	An toàn học sinh, không phải nhóm Kiếng Cận.
+395	N	Nghiên cứu dơi, không phải nhóm nhiếp ảnh.
+396	N	Có phát biểu Hồ Quốc Dũng, thiếu quê Hải Dương.
+397	N	Phát biểu lãnh đạo khác, thiếu quê và lời Hồ Quốc Dũng.
+398	N	Lê Văn Dũng thưởng công an, không phải Hồ Quốc Dũng xử lý xây dựng.
+399	N	Có tương tác giảng viên-sinh viên, không nhắc bảo vệ thông tin cá nhân.
+400	N	Có lợi ích giáo dục và thách thức chung, thiếu gắn kết và thông tin cá nhân.
+401	N	Tài nguyên prompt, không có đánh giá rủi ro gắn kết và dữ liệu cá nhân.
+402	N	Nêu cải tổ vấn đề quan trọng, không cụ thể chính trị, xã hội, quân sự.
+403	N	Có bổ nhiệm và kinh nghiệm, không đủ phạm vi cải tổ của Sheikh Khaled.
+404	N	Chọn thái tử, không xác nhận chức hội đồng và lĩnh vực cải tổ.
+405	N	Có từ chối gặp mặt xin lỗi, không có bệnh sợ chỗ đông người.
+406	N	Xin lỗi trong phim, không phải Quân và Đức.
+407	N	Xử phạt bản quyền, không phải vụ xin lỗi ông Quân.
+408	N	Chỉ tạm giữ để kiểm tra, chưa xác định trái phép và con nợ trong/ngoài nước.
+409	N	Hai địa chỉ F88 khác, không có hồ sơ 468 Lê Duẩn hay con nợ ngoài nước.
+410	N	Kiểm tra F88 Bến Tre, không phải chi nhánh Đà Nẵng.
+411	N	Lãnh đạo Sở không được nêu tên hoặc năm sinh, thiếu Bùi Tiến Dũng 1999.
+412	N	Dương Trí Dũng ở TP.HCM khác lãnh đạo Sở Hà Nội.
+413	N	Quy định TP.HCM, không định danh người phát biểu Hà Nội.
+414	N	Có lối tự phát và nút giao dang dở, thiếu lệnh cấm của Bộ.
+415	N	Có đi tắt và thiếu vốn, không có lệnh cấm và toàn bộ chi tiết quốc lộ 1.
+416	N	Tiến độ dự án không xác nhận lệnh cấm và việc người dân vẫn đi.
+417	U	DPP yêu cầu tận dụng chuyến đi để ngừng hoạt động quân sự; claim đổi thành cáo buộc chưa làm đủ về cả quân sự/chính trị.
+418	N	Tiểu sử và lịch gặp, không có lời DPP chỉ trích.
+419	N	Lời Mã và Tống Đào, không phải cáo buộc DPP.
+420	N	Đúng người và ý kiến đào tạo AI nhưng không có năm sinh 1980.
+421	N	Ý kiến Nguyễn Quốc Toản, không có năm sinh Trần Quý.
+422	N	Ý kiến Hồ Xuân Hùng, không xác nhận claim Trần Quý.
+423	N	Có ứng xử cứng nhắc khiến phản ứng, thiếu nhận nhiều báo cáo xấu.
+424	N	Thủ tục du khách Hàn Quốc, không phải cán bộ khu di tích.
+425	N	Quy định du khách Bali, không phải ứng xử và báo cáo xấu trong claim.
+426	N	Có La Habana cách 124 km, không có trời Varadero đen khói.
+427	N	Nói an táng, không có khói Varadero.
+428	N	Điện Biên Phủ không phải hỏa hoạn Cuba.
+429	N	Có cảnh đốt ngón tay, không xác nhận ảnh hưởng đặc biệt thế hệ 7x.
+430	N	Có ấn tượng nhiều thế hệ, không chỉ ra đặc biệt 7x.
+431	N	Thông tin chấn thương y khoa, không phải phân đoạn phim.
+432	N	Cảnh báo học sinh, không có bắt cóc phụ nữ.
+433	N	Dụ học sinh hút thuốc lá điện tử, không có cảnh báo bắt cóc phụ nữ.
+434	N	Thông tin tiếp cận học sinh ở Vinh, không có cảnh báo phụ nữ.
+435	N	Có quan hệ lâu năm và kết hôn, thiếu việc người thân, bạn bè mai mối.
+436	N	Phỏng vấn học sinh An, không phải Thư Kỳ và Phùng Đức Luân.
+437	N	Có hôn nhân Thư Kỳ, không có mai mối.
+438	N	Có thương mại hóa nghiên cứu, không cụ thể chạy thử máy tại doanh nghiệp.
+439	N	Xúc tiến thương mại Quảng Tây, không có chạy thử máy.
+440	N	Hợp tác đầu tư Mỹ, không có thí điểm chính sách bằng chạy thử máy.
+441	N	Xác nhận bóng đá thi đầu tiên, chưa có thời lượng dài nhất.
+442	N	Có lịch SEA Games và bốc thăm, không có so sánh thời lượng các môn.
+443	N	Nói Vovinam, không có lịch và thời lượng bóng đá.
+444	N	Có đề xuất gia hạn và thông quan, thiếu giấy phép hết hiệu lực từ tháng 3.
+445	N	Gia hạn thuốc khác trang thiết bị, không xác nhận mốc hết hiệu lực trong claim.
+446	N	Có tháo gỡ mua sắm, thiếu mốc hết hạn và thông quan đầu tuần.
+447	N	Có khai mạc 3-6 Việt Nam-Phần Lan, thiếu chủ đề và 5.000 khách.
+448	N	Có chủ đề, thiếu 5.000 khách và chi tiết khai mạc.
+449	N	Có trình diễn và sự kiện phụ, thiếu 5.000 khách.
+450	N	Có thuốc hướng dẫn và cách ly, không có cấp thuốc bởi HTX hay camera giám sát.
+451	N	Có tiêu chuẩn xuất khẩu, không có camera và cấp thuốc.
+452	N	Ghi hình phòng thi không phải giám sát vườn HTX.
+453	N	Có hỗ trợ nhưng lĩnh vực chưa cụ thể là tài chính.
+454	N	Có Tony Blair tiếp tục hỗ trợ, không xác nhận ưu tiên tài chính.
+455	N	Mục tiêu TBI và hợp tác chung, không có cam kết tài chính.
+456	N	Có tính ưu việt luật, thiếu nhận định ngày càng mất an tâm và đi sai hướng.
+457	N	Phương án rút BHXH, không có đánh giá ngày càng mất an tâm.
+458	N	Có lỗ hổng và vi phạm, không đủ kết luận xu hướng mất an tâm của người lao động nói chung.
+459	N	Có tên tạp chí và ca bệnh, thiếu quy định phải trình bày lâm sàng rõ cho mọi người đọc.
+460	N	Báo tạp chí của Đảng, không phải Medical Mycology Case Reports.
+461	N	Xét nghiệm di truyền, không có quy định trình bày ca bệnh của tạp chí.
+462	N	Có hơn 2.000 thành viên, không có điều kiện tất cả định cư trên ba năm.
+463	N	Ngày hội việc làm Đông Á, không phải thành viên Hội trí thức.
+464	N	Có gặp Hội trí thức, thiếu số thành viên và thời gian định cư.
+465	N	Có thạc sĩ và bằng khen, không có công bố nhiều nghiên cứu trên báo.
+466	N	Có khen thưởng Minh Tâm, thiếu công bố nghiên cứu.
+467	N	Nói thạc sĩ Trần Thanh Vũ, không phải Minh Tâm.
+468	N	So với nền kinh tế trong bối cảnh Việt Nam, không xác nhận so với toàn cầu.
+469	N	Tăng trưởng ASEAN+3, không có yêu cầu kinh tế tư nhân.
+470	N	Ngân hàng và tăng trưởng lớn, không có chỉ tiêu tư nhân so toàn cầu.
+471	N	Có sửa sẹo bốn năm sau, thiếu năm 2015 và tên bác sĩ Đặng Luân.
+472	N	Có chấn thương ban đầu, thiếu lần sửa sẹo và tên bác sĩ.
+473	N	Lê Khánh diễn xuất, không phải chuyện sửa sẹo.
+474	N	Có giải pháp cấp ủy, thiếu yêu cầu nhân dân tích cực ủng hộ.
+475	N	Trách nhiệm cấp ủy và chính quyền, không có yêu cầu nhân dân.
+476	N	Có hội nghị và vai trò báo, thiếu hai điều kiện claim nêu.
+477	N	Có xử lý linh hoạt đúng người, không nêu mục tiêu tránh mâu thuẫn với nhân dân.
+478	N	Có xử lý nghiêm và được ủng hộ, chưa xác nhận không cứng nhắc và tránh mâu thuẫn.
+479	N	Taxi tông bảo vệ, không phải CSGT xử lý vi phạm.
+480	N	Đủ Veena, ngoại hình, ngôn ngữ và á hậu, thiếu tuổi 25.
+481	N	Nói Reneé, không xác nhận tuổi Veena.
+482	N	Nói Chonnikarn 24 tuổi, người khác Veena.
+483	N	Có hậu quả không đáp ứng niêm phong, thiếu tiêu chí móp méo/hư vỡ cụ thể.
+484	N	Có tiêu chí rách vỡ nhưng không nêu móp méo và hậu quả không cho bốc xếp đầy đủ.
+485	N	Kiểm tra vận chuyển không nguyên trạng, không đủ trường hợp claim.
+486	N	Có họ hàng và cùng lớn lên, không xác định bên nội.
+487	N	Có anh họ nhưng không xác định bên nội và nơi lớn lên.
+488	N	Tổ chức sự kiện Hà Nội không liên quan Offset và Takeoff.
+489	N	Có H.M.H gục xuống, thiếu đổ mồ hôi, xanh mặt, khó thở và thời điểm tử vong.
+490	N	Có học sinh tử vong, thiếu định danh, ngày giờ và triệu chứng chi tiết.
+491	N	Trần Đức Hòa thi IELTS, không phải học sinh ở huyện Đức Hòa.
+492	N	Có quy mô học bổng, không có điều kiện B+ để duy trì.
+493	N	Có học bổng khi ghi danh/thành tích, không có ngưỡng B+ hoặc đầy đủ loại học bổng.
+494	N	Dự định du học của An, không có chính sách CĐ cộng đồng.
+495	N	Có đường lây Marburg, không có giới hạn chỉ người trên 50; không dùng kiến thức ngoài đoạn để bác.
+496	N	Có đường lây và triệu chứng, không nêu giới hạn tuổi.
+497	N	Có số ca, tử vong, không có tuổi bệnh nhân để phủ định giới hạn trên 50.
+498	N	Có cảm ơn vì trung gian, không có nguyên nhân sâu xa khác.
+499	N	Có bối cảnh đàm phán, không có lý do cảm ơn khác của thái tử.
+500	N	Vai trò trung gian các nơi khác, không xác nhận lý do thái tử cảm ơn.
+501	N	Có tiền thưởng và động lực, thiếu đãi ngộ nơi ở và luyện tập.
+502	N	Có bình đẳng thu nhập, thiếu đãi ngộ nơi ở/luyện tập và động lực tuyển Việt Nam.
+503	N	U20 Indonesia bị tước đăng cai, không phải đãi ngộ bóng đá nữ.
+504	N	Có cặp vợ chồng đánh nhau, không xác định nạn nhân nam 20 tuổi.
+505	N	Có tên vợ chồng và diễn xiếc, thiếu vụ đánh nhau và tuổi nạn nhân.
+506	N	Có điều tra thương tích, không có nạn nhân nam 20 tuổi.
+507	U	Tin lan truyền ảnh có Tạ Minh Tâm khác với claim không đi; ông chỉ xác nhận được mời, chưa xác thực ảnh hoặc lý do vắng.
+508	N	Lịch hôn nhân Ngọc Mai, không có lịch diễn Tạ Minh Tâm.
+509	N	NSND Thụy Vân, không phải Tạ Minh Tâm.
+510	N	Có lời Chính ủy, không xác nhận cuộc họp thường niên của Đảng.
+511	N	Giao nhiệm vụ bổ nhiệm cán bộ, không có cuộc họp thường niên và lời yêu cầu đầy đủ.
+512	N	Báo tạp chí tại TP.HCM, không phải Chính ủy Quân khu 4.
+513	N	Có khả năng đo CO2, không nêu phát minh mới năm 2023.
+514	N	Thuế carbon Thái Lan, không có phát minh đo CO2 năm 2023.
+515	N	Công nghệ chống rung camera, không phải đo CO2 sản phẩm.
+516	N	Có Quyết định 1513 ngày 3/12/2022, thiếu chính sách đặc biệt khác.
+517	N	Kế hoạch vốn HĐND, không xác nhận Thủ tướng ban hành chính sách đặc biệt khác.
+518	N	Nguyên tắc bố trí vốn, không có chính sách đặc biệt cùng Quyết định 1513.
+519	N	Cùng ngày không có mốc cụ thể, chưa xác nhận chuyến Kishida ngày 6/5.
+520	N	Trong tuần này không có ngày cụ thể để gán đúng/sai 6/5.
+521	N	Chuẩn bị G7 và gặp Hàn-Nhật, không xác nhận ngày thăm Ukraine.
+522	N	Có triển lãm 29 tranh tháng 7/2022, thiếu 500 người dự.
+523	N	Triển lãm mới và lịch sử xử phạt, không có 500 người dự triển lãm cũ.
+524	N	Thay đổi quyết định tiêu hủy tranh, không có số người dự.
+525	N	Có gặp mặt TNXP dưới cờ Đoàn, không mô tả biểu tượng búa liềm.
+526	N	Mô tả một lá cờ nhưng không định danh cờ Đoàn và không có buổi gặp TNXP.
+527	N	Buổi gặp cựu cán bộ Đoàn, không xác nhận biểu tượng cờ và buổi gặp TNXP.
+528	N	Có ít nhất 35 ngày và kỷ lục John, thiếu hậu quả nặng nhất lịch sử châu Phi.
+529	N	Chỉ số năng lượng không đồng nghĩa thiệt hại nặng nhất, thiếu thời lượng John.
+530	N	Có đường đi và khả năng kỷ lục, thiếu số ngày và so sánh thiệt hại lịch sử.
+531	U	Nguồn nói ăn uống bất tiện, claim nói hạn chế đồ ăn/nước uống; cần phân biệt thiếu nguồn cung và bất tiện.
+532	N	Du lịch vợ chồng anh Quý, không phải nam nghệ sĩ diễn và từ thiện.
+533	N	Sức khỏe Hồng Nga, không phải nghệ sĩ nam từ thiện.
+534	N	Có busking đang hot nhưng không khẳng định đánh giá tác động dự án là không rõ ràng.
+535	N	Có thành công và địa điểm, không có đánh giá tác động tới độ phổ biến busking.
+536	N	Cảm xúc HoonDoo, không có đánh giá mức phổ biến busking.
+537	N	Có Nguyễn Toàn Thắng và ý kiến đất đai, thiếu tuổi 30.
+538	N	Luật sư Nguyễn Văn Hậu, không phải Toàn Thắng.
+539	N	Ý kiến Phó Thủ tướng, không xác nhận tuổi và lời Toàn Thắng.

@@ -15,7 +15,9 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
-Ứng dụng khởi chạy bằng dữ liệu mẫu tại `data/evidence/sample_evidence.jsonl`.
+Config hiện tại dùng corpus `data/evidence/vifactcheck_passages.jsonl`, checkpoint PhoBERT tại `models/e2_phobert/best_model`, VnCoreNLP tại `models/vncorenlp` và bộ tổng hợp AGG-V1. Cần chuẩn bị các model và Java trước khi kiểm chứng; chỉ cài requirements chưa đủ. Xem [hướng dẫn tái lập](docs/REPRODUCIBILITY_BASELINE.md).
+
+Đây là bản thử nghiệm với kho bằng chứng cục bộ, chưa được xác nhận đạt accuracy 80% ngoài thực tế. Xem [tiến độ ưu tiên và kiểm tra](docs/PRIORITY_READINESS_PROGRESS.md).
 
 ## Cấu trúc
 
