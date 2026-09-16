@@ -86,8 +86,9 @@ git check-ignore .env .env.local .streamlit/secrets.toml .cache/web_retrieval/ch
 ```
 
 W3-05 đã triển khai adapter, budget/rate limit, fetch/extract, mạng an toàn,
-fallback, metadata và test offline. Chưa có live API smoke test vì key không nằm
-trong Git; không dùng trạng thái hoàn thành adapter để khẳng định chất lượng web
+fallback, metadata và test offline. Live smoke Tavily ngày 2026-09-16 đã trả ba
+passage tiếng Việt đọc được từ `baochinhphu.vn`, có URL/title/fetched_at hợp lệ.
+Key vẫn không nằm trong Git. Không dùng smoke này để khẳng định chất lượng web
 retrieval hoặc kết quả end-to-end.
 
 ## Mục tiêu

@@ -31,5 +31,7 @@ không chứa claim, key hoặc page content.
 
 Các test hoàn toàn offline, mock provider/page fetch và kiểm tra allowlist,
 fallback không key, metadata, DNS private và HTML extraction. Chưa bật call API
-thật, chưa trộn evidence web vào BM25/PhoBERT và chưa đo Recall/MRR/Macro-F1;
-đó là W4-05/W5-01 sau khi có protocol đánh giá web.
+thật trong test CI. Live smoke ngày 2026-09-16 với key local đã trả ba passage
+đọc được từ `baochinhphu.vn`, cùng URL/title/fetched_at hợp lệ. Chưa trộn evidence
+web vào BM25/PhoBERT và chưa đo Recall/MRR/Macro-F1; đó là W4-05/W5-01 sau khi
+có protocol đánh giá web.
