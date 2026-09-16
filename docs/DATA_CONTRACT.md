@@ -34,4 +34,8 @@ Mỗi dòng là một passage và phải có `document_id`, `passage_id`, `conte
 
 ## Kiểm tra bàn giao
 
+Corpus dẫn xuất W3-07 v2.0.0 thêm `domain`, `original_url` và `corpus_version`.
+`retrieved_at` của v2 là thời điểm nạp snapshot local, không được diễn giải là thời
+điểm crawl bài nguồn. Xem [corpus versioned](W3_07_VERSIONED_EVIDENCE_CORPUS.md).
+
 Chạy `python scripts/build_vifactcheck_evidence.py`, sau đó load `data/evidence/vifactcheck_passages.jsonl` bằng `src.io_utils.load_evidence_jsonl`. Test contract nằm tại `tests/test_data_contract.py`.

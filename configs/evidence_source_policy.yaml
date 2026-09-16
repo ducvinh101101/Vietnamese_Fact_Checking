@@ -1,0 +1,31 @@
+# W3-07 source metadata policy for the versioned local ViFactCheck corpus.
+# Exact hosts only. Authority is a retrieval-prior policy, never a verdict.
+version: 1
+sources:
+  baochinhphu.vn:
+    source_type: government
+    authority_score: 0.95
+  baotintuc.vn:
+    source_type: news
+    authority_score: 0.70
+  dantri.com.vn:
+    source_type: news
+    authority_score: 0.70
+  nld.com.vn:
+    source_type: news
+    authority_score: 0.70
+  plo.vn:
+    source_type: news
+    authority_score: 0.70
+  thanhnien.vn:
+    source_type: news
+    authority_score: 0.70
+  tienphong.vn:
+    source_type: news
+    authority_score: 0.70
+  tuoitre.vn:
+    source_type: news
+    authority_score: 0.70
+  vnexpress.net:
+    source_type: news
+    authority_score: 0.70

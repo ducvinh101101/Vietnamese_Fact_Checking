@@ -13,6 +13,7 @@
 | W3-01 | Pipeline retrieval → verifier → SUPPORTED/REFUTED/NEI | Quang | Hoàn thành | Corpus ViFactCheck → BM25 top-3 → PhoBERT E2; smoke 3 claim frozen, kiểm tra contract ba nhãn và citation provenance |
 | W3-03 | Kiểm tra citation ID/URL, JSON output và trường hợp không có evidence | Quang | Hoàn thành | JSON contract v1 kiểm tra citation ID/URL/score; smoke PhoBERT no-evidence trả NEI, 0 citation; pytest 88 pass |
 | W3-05 | Web retrieval: allowlist, passage và metadata nguồn | Quang | Hoàn thành | Acceptance Tavily 2026-09-16: 3 query, 3 domain allowlist, 9 passage/5 URL; URL/domain/title/fetched_at đủ, không passage trùng |
+| W3-07 | Corpus passage có metadata nguồn/thời gian và dedup | Quang | Hoàn thành | Corpus v2.0.0: 5.844/5.845 passage, 1.041 URL; exact-host metadata, retrieved_at provenance, published_at không suy đoán, manifest/hash và validator |
 | W3-02 / E6 | Calibration PhoBERT và chính sách NEI | Vinh | Hoàn thành (oracle) | Dev gold-evidence OOF: temperature 1,140542; ECE 3,74% → 2,91%; Brier 0,2398 → 0,2376. Không có threshold decisive nào cải thiện Macro-F1; retrieval gating chờ E2E |
 | P1 | Tích hợp kỹ thuật verifier PhoBERT | Vinh | Hoàn thành | Pipeline dùng `VerificationResult` không đổi; smoke test đạt |
 | W2-05 | Chốt interface Retriever và Verifier; review chung | Vinh + Quang | Hoàn thành | `src/contracts.py`, dependency injection trong pipeline, integration contract và test bàn giao |
@@ -32,7 +33,7 @@
 | C2 | Baseline content-only TF-IDF/SVM trên title + body | Vinh | Hoàn thành | E9 VFND article-only, nested source-domain OOF: Macro-F1 77,27%; ROC-AUC 88,21%; risk score không dùng làm evidence |
 | C3 | Content-risk PhoBERT/XLM-R | Vinh | Hoàn thành | E10 PhoBERT nested source-domain OOF: Macro-F1 48,59%; ROC-AUC 70,20%; xác minh không rò rỉ domain. Kém E9 nên giữ E9 làm baseline triển khai |
 | C4 | Claim decomposition và tổng hợp cấp bài | Vinh | Hoàn thành phần Vinh | Article→claim→claim verdict→aggregation đã chạy qua contract; chờ Quang nối UI/retrieval benchmark để chạy E11 end-to-end |
-| C5 | Corpus ingestion, query generation, time/source filter và reranker | Quang | Chưa bắt đầu | Passage corpus có metadata; Recall@k/MRR/nDCG/latency |
+| C5 | Corpus ingestion, query generation, time/source filter và reranker | Quang | Đang thực hiện | W3-07 có corpus v2 metadata/dedup; W3-08 còn temporal/source filter, reranker và metric |
 | C6 | Temporal/source-held-out test, joint score và citation faithfulness audit | Vinh + Quang | Chưa bắt đầu | Báo cáo oracle/retrieval/E2E; 50 citation review; calibration |
 | C7 | Reproducible release | Quang | Chưa bắt đầu | Cài từ đầu, pytest chạy, manifest/hash và demo offline |
 
