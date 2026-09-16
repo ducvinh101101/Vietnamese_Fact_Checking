@@ -8,8 +8,8 @@ Tài liệu này là điểm tham chiếu cho phạm vi đầy đủ của đề
 | Tách claim nguyên tử | C4; W3-06; E11 | Vinh | W3-06 hoàn thành; E11 ablation chờ protocol retrieval/end-to-end |
 | Tổng hợp verdict cấp bài | W4-06; E11 | Vinh + Quang | Component Vinh hoàn thành; UI/retrieval benchmark và E11 chờ phối hợp |
 | Schema article/evidence có metadata nguồn-thời gian | C1; W1-06 | Vinh + Quang | Hoàn thành |
-| Corpus passage và khử trùng | C5; W3-07 | Quang | Planned |
-| BM25, dense, hybrid, reranker | W2-01, W2-04, W3-08, W5-01; E3, E4, E5, E12 | Quang | Planned |
+| Corpus passage và khử trùng | C5; W3-07 | Quang | Corpus v2.0.0 versioned: metadata nguồn/thời gian, dedup và manifest/hash |
+| BM25, dense, hybrid, reranker | W2-01, W2-04, W3-08, W5-01; E3, E4, E5, E12 | Quang | W3-08 có metadata filter/rerank/dedup; metric chọn retrieval còn W5-01 |
 | Web retrieval allowlist | R3, R4; W2-07, W3-05; E8 | Quang | Planned |
 | Claim–evidence verifier | E1, E2, E7; P1 | Vinh | E2 hoàn thành |
 | Calibration và NEI | E6; W3-02 | Vinh | E6 oracle hoàn thành; NEI retrieval-gating chờ đánh giá end-to-end |
