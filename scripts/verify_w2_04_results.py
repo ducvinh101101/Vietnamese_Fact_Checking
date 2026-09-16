@@ -35,9 +35,13 @@ def main():
         }
         for metric, value in recalculated.items():
             assert abs(report['metrics'][name][metric] - value) < 1e-12
+    # W5-01 later extended the active evaluator with reranking.  Keep W2-04
+    # independently verifiable against the immutable copy that produced its
+    # stored predictions, rather than coupling a historical artifact to the
+    # current experiment script.
     for path, expected in [(corpus, report['corpus_sha256']),
                            (root/'data/processed/vifactcheck_group_split/dev.parquet', report['split_sha256']),
-                           (root/'scripts/evaluate_dense_hybrid.py', report['script_sha256'])]:
+                           (root/'scripts/evaluate_w2_04_dense_hybrid.py', report['script_sha256'])]:
         with path.open('rb') as handle:
             assert hashlib.file_digest(handle, 'sha256').hexdigest() == expected
     print(f'Validated {len(rows)} queries, all three rankings/metrics, corpus/split/script hashes.')

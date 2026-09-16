@@ -6,7 +6,7 @@
 | M1 | TF-IDF + SVM baseline | Vinh | Hoàn thành | E1 group split: Macro-F1 test 40,15%; có confusion matrix và dự đoán |
 | M2 | Fine-tune PhoBERT-base | Vinh | Hoàn thành | E2 group split: Macro-F1 test 81,07%; cải thiện 40,92 điểm % so với E1 |
 | R1 | Đổi dữ liệu mẫu sang passage ViFactCheck | Quang | Hoàn thành | 5.845 passage từ 1.041 URL ViFactCheck; JSONL hợp lệ, loader đã kiểm tra |
-| W1-07 | Khóa môi trường, chạy pytest và ghi manifest/hash artefact | Quang | Hoàn thành | `requirements.lock` (79 dependency), manifest SHA-256 11 artefact và pytest 10/10 pass |
+| W1-07 | Khóa môi trường, chạy pytest và ghi manifest/hash artefact | Quang | Hoàn thành | `requirements.lock` (80 dependency), manifest SHA-256 11 artefact và pytest 102/102 pass |
 | R2 | Đánh giá BM25 Recall@3/5 | Quang | Hoàn thành | URL-level test: Recall@3 98,14%; Recall@5 98,98%; MRR@5 0,9671; p95 81,20 ms; 10 truy vấn audit |
 | W2-04 | Thử dense/FAISS và hybrid RRF | Quang | Hoàn thành | Dev 1.080 query: Recall@5 BM25 98,52%, dense 95,65%, RRF 98,43%; giữ BM25; báo cáo `W2_04_DENSE_HYBRID.md` |
 | W2-10 | Protocol corpus ingestion, query set gold và Recall/MRR/nDCG | Quang | Hoàn thành | Query set v1: 2.156 query frozen, manifest/hash, dev/test URL-disjoint; URL-level metrics và passage-qrels/nDCG protocol đã tách rõ |
@@ -27,7 +27,7 @@
 | V5 | Chạy E7 biến thể batch ở giới hạn 256 token | Vinh | Hoàn thành | Macro-F1 test 80,25%; giữ E2 (81,07%) |
 
 | R3 | Chốt search provider, allowlist nguồn web và chính sách API key | Quang | Hoàn thành | W2-07: Tavily basic, allowlist 3 host, YAML + chính sách key/quota; validator và test offline. Live retrieval thuộc W3-05 |
-| R4 | Web retrieval: lọc domain, trích passage, metadata URL/thời điểm | Quang | Chưa bắt đầu | 100% evidence qua allowlist; có timeout/cache và test |
+| R4 | Web retrieval: lọc domain, trích passage, metadata URL/thời điểm | Quang | Hoàn thành | W3-05: 100% evidence qua allowlist; timeout/cache, metadata và acceptance test |
 | R5 | Đánh giá retrieval web/cục bộ/hợp nhất và end-to-end | Vinh + Quang | Hoàn thành local; web/hợp nhất chờ Quang | Local E11: Macro-F1 62,94%, URL Recall@3 98,14%, p95 948,77 ms; web/hybrid chưa đo |
 ## Mở rộng phạm vi đề tài — roadmap 6 tuần
 
@@ -36,7 +36,7 @@
 | C2 | Baseline content-only TF-IDF/SVM trên title + body | Vinh | Hoàn thành | E9 VFND article-only, nested source-domain OOF: Macro-F1 77,27%; ROC-AUC 88,21%; risk score không dùng làm evidence |
 | C3 | Content-risk PhoBERT/XLM-R | Vinh | Hoàn thành | E10 PhoBERT nested source-domain OOF: Macro-F1 48,59%; ROC-AUC 70,20%; xác minh không rò rỉ domain. Kém E9 nên giữ E9 làm baseline triển khai |
 | C4 | Claim decomposition và tổng hợp cấp bài | Vinh | Hoàn thành phần Vinh | Article→claim→claim verdict→aggregation đã chạy qua contract; chờ Quang nối UI/retrieval benchmark để chạy E11 end-to-end |
-| C5 | Corpus ingestion, query generation, time/source filter và reranker | Quang | Đang thực hiện | W3-07 có corpus v2 metadata/dedup; W3-08 còn temporal/source filter, reranker và metric |
+| C5 | Corpus ingestion, query generation, time/source filter và reranker | Quang | Hoàn thành | W3-07 corpus v2 metadata/dedup; W3-08 filter/reranker/dedup; W5-01 benchmark frozen, giữ BM25 |
 | C6 | Temporal/source-held-out test, joint score và citation faithfulness audit | Vinh + Quang | Chưa bắt đầu | Báo cáo oracle/retrieval/E2E; 50 citation review; calibration |
 | C7 | Reproducible release | Quang | Chưa bắt đầu | Cài từ đầu, pytest chạy, manifest/hash và demo offline |
 
