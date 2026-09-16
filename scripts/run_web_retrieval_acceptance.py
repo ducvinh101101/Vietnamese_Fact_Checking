@@ -56,6 +56,8 @@ def report_for_queries(queries: list[str], top_k: int) -> tuple[dict[str, object
     runs: list[dict[str, object]] = []
     domains: set[str] = set()
     all_queries_returned_evidence = True
+    seen_content_by_url: dict[str, set[str]] = {}
+    duplicate_content = False
 
     for query in queries:
         evidence = retriever.search(query, top_k=top_k)
@@ -63,6 +65,10 @@ def report_for_queries(queries: list[str], top_k: int) -> tuple[dict[str, object
         for item in evidence:
             source = item.evidence
             domains.add(source.domain)
+            content_sha256 = digest(source.content)
+            if content_sha256 in seen_content_by_url.setdefault(source.url, set()):
+                duplicate_content = True
+            seen_content_by_url[source.url].add(content_sha256)
             items.append({
                 "passage_id": source.passage_id,
                 "url": source.url,
@@ -71,7 +77,7 @@ def report_for_queries(queries: list[str], top_k: int) -> tuple[dict[str, object
                 "source": source.source,
                 "source_type": source.source_type,
                 "fetched_at": source.retrieved_at,
-                "content_sha256": digest(source.content),
+                "content_sha256": content_sha256,
                 "content_chars": len(source.content),
             })
         all_queries_returned_evidence = all_queries_returned_evidence and bool(items)
@@ -82,6 +88,7 @@ def report_for_queries(queries: list[str], top_k: int) -> tuple[dict[str, object
         and all_queries_returned_evidence
         and len(domains) >= 2
         and domains.issubset(set(allowed_domains))
+        and not duplicate_content
     )
     report = {
         "schema_version": 1,
@@ -95,6 +102,7 @@ def report_for_queries(queries: list[str], top_k: int) -> tuple[dict[str, object
             "minimum_distinct_domains": 2,
             "distinct_domains": sorted(domains),
             "all_domains_allowlisted": domains.issubset(set(allowed_domains)),
+            "no_duplicate_content_per_url": not duplicate_content,
             "passed": policy_ok,
         },
     }

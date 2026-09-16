@@ -90,6 +90,14 @@ def test_html_decoder_handles_gzip_and_meta_charset_before_bad_header():
     assert "Tiêu đề tiếng Việt" in decoded
 
 
+def test_extract_passages_removes_duplicate_page_text():
+    repeated = "Đoạn nội dung trùng lặp cần chỉ xuất hiện một lần trong evidence. " * 4
+    _, passages = extract_passages(
+        f"<article><div><p>{repeated}</p></div><p>{repeated}</p></article>", 120, 800, 3,
+    )
+    assert passages == [repeated.strip()]
+
+
 def test_web_retriever_respects_robots_txt(tmp_path):
     fetched = False
 

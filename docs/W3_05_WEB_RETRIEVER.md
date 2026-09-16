@@ -46,7 +46,7 @@ key** (không nhập key vào tham số và không commit báo cáo):
 ```
 
 Script chạy ba truy vấn, yêu cầu mỗi truy vấn có evidence và tổng cộng ít nhất
-hai domain allowlist. Báo cáo local `outputs/web_retrieval/acceptance_report.json`
+hai domain allowlist, đồng thời không có passage trùng trong cùng URL. Báo cáo local `outputs/web_retrieval/acceptance_report.json`
 chỉ có hash của query/passage cùng URL, domain, title, source và fetched_at;
 không chứa API key hoặc nội dung passage. Exit code 0 mới là đạt. Chưa trộn
 evidence web vào BM25/PhoBERT và chưa đo Recall/MRR/Macro-F1; đó là W4-05/W5-01

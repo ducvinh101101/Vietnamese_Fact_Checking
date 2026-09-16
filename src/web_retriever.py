@@ -153,19 +153,26 @@ def extract_passages(html: str, minimum_chars: int, maximum_chars: int, max_pass
     parser.close()
     title = re.sub(r"\s+", " ", parser.title).strip()
     passages: list[str] = []
+    seen_passages: set[str] = set()
+
+    def append_unique(passage: str) -> None:
+        normalized = re.sub(r"\s+", " ", passage).strip()
+        fingerprint = normalized.casefold()
+        if len(normalized) >= minimum_chars and fingerprint not in seen_passages:
+            seen_passages.add(fingerprint)
+            passages.append(normalized[:maximum_chars])
+
     for paragraph in parser.paragraphs():
         sentences = re.split(r"(?<=[.!?…])\s+", paragraph)
         chunk = ""
         for sentence in sentences:
             candidate = f"{chunk} {sentence}".strip()
             if chunk and len(candidate) > maximum_chars:
-                if len(chunk) >= minimum_chars:
-                    passages.append(chunk)
+                append_unique(chunk)
                 chunk = sentence
             else:
                 chunk = candidate
-        if len(chunk) >= minimum_chars:
-            passages.append(chunk[:maximum_chars])
+        append_unique(chunk)
         if len(passages) >= max_passages:
             break
     return title, passages[:max_passages]

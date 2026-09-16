@@ -49,3 +49,4 @@ def test_acceptance_report_requires_multiple_allowlisted_domains(monkeypatch):
     assert "q1" not in str(report) and "q2" not in str(report) and "q3" not in str(report)
     serialized = str(report)
     assert "Nội dung passage" not in serialized
+    assert report["acceptance"]["no_duplicate_content_per_url"] is True
