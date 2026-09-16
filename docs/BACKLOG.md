@@ -11,6 +11,7 @@
 | W2-04 | Thử dense/FAISS và hybrid RRF | Quang | Hoàn thành | Dev 1.080 query: Recall@5 BM25 98,52%, dense 95,65%, RRF 98,43%; giữ BM25; báo cáo `W2_04_DENSE_HYBRID.md` |
 | W2-10 | Protocol corpus ingestion, query set gold và Recall/MRR/nDCG | Quang | Hoàn thành | Query set v1: 2.156 query frozen, manifest/hash, dev/test URL-disjoint; URL-level metrics và passage-qrels/nDCG protocol đã tách rõ |
 | W3-01 | Pipeline retrieval → verifier → SUPPORTED/REFUTED/NEI | Quang | Hoàn thành | Corpus ViFactCheck → BM25 top-3 → PhoBERT E2; smoke 3 claim frozen, kiểm tra contract ba nhãn và citation provenance |
+| W3-03 | Kiểm tra citation ID/URL, JSON output và trường hợp không có evidence | Quang | Hoàn thành | JSON contract v1 kiểm tra citation ID/URL/score; smoke PhoBERT no-evidence trả NEI, 0 citation; pytest 88 pass |
 | W3-02 / E6 | Calibration PhoBERT và chính sách NEI | Vinh | Hoàn thành (oracle) | Dev gold-evidence OOF: temperature 1,140542; ECE 3,74% → 2,91%; Brier 0,2398 → 0,2376. Không có threshold decisive nào cải thiện Macro-F1; retrieval gating chờ E2E |
 | P1 | Tích hợp kỹ thuật verifier PhoBERT | Vinh | Hoàn thành | Pipeline dùng `VerificationResult` không đổi; smoke test đạt |
 | W2-05 | Chốt interface Retriever và Verifier; review chung | Vinh + Quang | Hoàn thành | `src/contracts.py`, dependency injection trong pipeline, integration contract và test bàn giao |

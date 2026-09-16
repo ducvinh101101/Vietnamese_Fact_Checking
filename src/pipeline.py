@@ -2,6 +2,7 @@ from src.fact_checker import RuleBasedFactChecker
 from src.contracts import Retriever, Verifier
 from src.io_utils import load_evidence_jsonl
 from src.phobert_fact_checker import PhoBERTFactChecker
+from src.pipeline_output import build_pipeline_output
 from src.preprocessing import normalize_text
 from src.retriever import BM25Retriever
 from src.schemas import RetrievedEvidence, VerificationResult
@@ -63,3 +64,8 @@ class FactCheckingPipeline:
         if not set(result.evidence_ids).issubset(retrieved_ids):
             raise RuntimeError("Verifier trả evidence_id không thuộc evidence đã truy xuất")
         return result, retrieved
+
+    def run_json(self, claim: str) -> dict[str, object]:
+        """Run the pipeline and serialize its verdict/evidence audit trail."""
+        result, retrieved = self.run(claim)
+        return build_pipeline_output(result, retrieved)
