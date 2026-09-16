@@ -1,9 +1,10 @@
 # Kế hoạch web retrieval có kiểm soát
 
 **W2-07 hoàn thành: đã chốt provider, allowlist v1 và chính sách key.**
-Ứng dụng vẫn chỉ chạy local; adapter search, tải trang và tích hợp là W3-05/R4.
-Config `configs/web_retrieval.yaml` là hợp đồng triển khai, chưa tự thực thi quota,
-redirect/DNS protection hay fallback trong pipeline. Có validator/test offline.
+W3-05 đã bổ sung adapter search, tải trang và trích passage độc lập; evidence web
+chưa được trộn vào pipeline/verifier. Config `configs/web_retrieval.yaml` là hợp
+đồng triển khai; adapter thực thi quota local, redirect/DNS protection và fallback
+local-only. Test mặc định vẫn offline, không cần key thật.
 
 ## Quyết định provider (2026-09-05)
 
@@ -42,9 +43,10 @@ Match hostname chính xác bằng parser URL, không tìm substring, không wild
 toàn bộ `.gov.vn`, không tự chấp nhận subdomain. Host khác như `who.int` hoặc
 `www.vnexpress.net` phải được review rồi thêm riêng nếu thực tế cần dùng.
 Lọc kết quả sau search dù đã gửi `include_domains`. HTTPS, không userinfo,
-không port lạ. W3-05 phải kiểm tra từng redirect và địa chỉ DNS/IP đích để chặn
+không port lạ. W3-05 kiểm tra từng redirect và địa chỉ DNS/IP đích để chặn
 loopback/private/link-local, kể cả DNS rebinding; không gửi key search khi tải trang.
-Test URL hiện có chỉ kiểm tra cú pháp/allowlist, chưa thay cho bảo vệ mạng này.
+Test offline phủ URL giả, DNS private và redirect cuối ngoài allowlist; live API
+smoke chỉ chạy khi người dùng tự đặt key local.
 
 ## API key, quota và dữ liệu
 
@@ -83,9 +85,10 @@ tests allowlist chống giả mạo hostname. Không cần có key thật để 
 git check-ignore .env .env.local .streamlit/secrets.toml .cache/web_retrieval/check.json
 ```
 
-W3-05 còn phải triển khai adapter, budget/rate limit, fetch/extract, mạng an toàn,
-cache/fallback, metadata và test tích hợp bằng key local. Chưa có live API smoke
-test ở W2-07; không dùng trạng thái hoàn thành kế hoạch để khẳng định web đã chạy.
+W3-05 đã triển khai adapter, budget/rate limit, fetch/extract, mạng an toàn,
+fallback, metadata và test offline. Chưa có live API smoke test vì key không nằm
+trong Git; không dùng trạng thái hoàn thành adapter để khẳng định chất lượng web
+retrieval hoặc kết quả end-to-end.
 
 ## Mục tiêu
 

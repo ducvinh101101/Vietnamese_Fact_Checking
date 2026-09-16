@@ -48,6 +48,11 @@ def validate(config):
     assert cache['directory'] == '.cache/web_retrieval'
     assert all(cache[k] is False for k in ['persist_provider_responses', 'persist_page_content', 'commit_to_git'])
     assert all(value is False for value in config['secrets'].values())
+    extraction = config['extraction']
+    assert 0 <= extraction['max_redirects'] <= 5
+    assert 0 < extraction['max_page_bytes'] <= 2_000_000
+    assert 80 <= extraction['minimum_passage_chars'] < extraction['maximum_passage_chars'] <= 2_000
+    assert 1 <= extraction['max_passages_per_page'] <= 5
     return hosts
 
 
