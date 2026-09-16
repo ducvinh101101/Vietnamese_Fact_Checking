@@ -16,7 +16,7 @@
 | W3-07 | Corpus passage có metadata nguồn/thời gian và dedup | Quang | Hoàn thành | Corpus v2.0.0: 5.844/5.845 passage, 1.041 URL; exact-host metadata, retrieved_at provenance, published_at không suy đoán, manifest/hash và validator |
 | W3-08 | Query, lọc nguồn/thời gian, rerank và dedup evidence | Quang | Hoàn thành | BM25 candidates → metadata filter → lexical/authority rerank → dedup; top-3 cho 1.080 query dev frozen |
 | W4-01 | Streamlit: kết quả nhánh, evidence, nguồn, cache | Quang | Hoàn thành | UI tách verifier/retrieval, citation provenance và source URL/metadata; cache model + JSON response |
-| W5-01 | Đo BM25/dense/hybrid/reranker query frozen | Quang | Hoàn thành | Dev 1.080 query corpus v2: giữ BM25; dense/hybrid giảm quality, reranker bằng BM25 nhưng chậm hơn; nDCG pending qrels |
+| W5-01 | Đo BM25/dense/hybrid/reranker query frozen | Quang | Đang thực hiện | Benchmark dev 1.080 query corpus v2 đã xong: giữ BM25; dense/hybrid giảm quality, reranker bằng BM25 nhưng chậm hơn. Chưa đóng vì thiếu passage-qrels review độc lập để tính nDCG@5 |
 | W3-02 / E6 | Calibration PhoBERT và chính sách NEI | Vinh | Hoàn thành (oracle) | Dev gold-evidence OOF: temperature 1,140542; ECE 3,74% → 2,91%; Brier 0,2398 → 0,2376. Không có threshold decisive nào cải thiện Macro-F1; retrieval gating chờ E2E |
 | P1 | Tích hợp kỹ thuật verifier PhoBERT | Vinh | Hoàn thành | Pipeline dùng `VerificationResult` không đổi; smoke test đạt |
 | W2-05 | Chốt interface Retriever và Verifier; review chung | Vinh + Quang | Hoàn thành | `src/contracts.py`, dependency injection trong pipeline, integration contract và test bàn giao |

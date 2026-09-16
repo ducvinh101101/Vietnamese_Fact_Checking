@@ -3,6 +3,10 @@
 Đo trên 1.080 query **dev** frozen và corpus W3-07 v2 (5.844 passage). Relevance
 là URL-level, không phải passage-qrels. Không dùng test để chọn cấu hình.
 
+> **Trạng thái: Đang thực hiện.** Benchmark bốn nhánh và quyết định giữ BM25 đã
+> hoàn tất. W5-01 chỉ được đóng sau khi có passage-qrels do reviewer độc lập
+> xác nhận để đo `nDCG@5`/passage-level metrics.
+
 | Nhánh | Recall@3 | Recall@5 | MRR@5 | p95 ms/query |
 |---|---:|---:|---:|---:|
 | BM25 | 98,15% | 98,52% | 0,96585 | 160,39 |
