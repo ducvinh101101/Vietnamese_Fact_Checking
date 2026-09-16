@@ -1,0 +1,12 @@
+# W3-08 deterministic metadata filtering and lexical reranking over corpus v2.
+version: 1
+corpus: data/evidence/vifactcheck_passages_v2.jsonl
+candidate_k: 100
+rerank:
+  query_overlap_weight: 0.20
+  authority_weight: 0.05
+filters:
+  allowed_source_types: [government, news]
+  published_after: null
+  published_before: null
+  include_unknown_published_at: true
