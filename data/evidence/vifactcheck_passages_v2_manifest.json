@@ -1,0 +1,40 @@
+{
+  "corpus": "data/evidence/vifactcheck_passages_v2.jsonl",
+  "corpus_sha256": "b8f4b150e323f5187bd069fc21b2c0f748274576089383fa7ab80c0b0645e6c9",
+  "corpus_version": "v2.0.0",
+  "deduplication": {
+    "input_records": 5845,
+    "key": "canonical_url + normalized_content_casefold",
+    "original_records_preserved": true,
+    "output_records": 5844,
+    "removed_duplicates": 1
+  },
+  "documents": 1041,
+  "git_commit": "5aefe8f2ea2f26f68e4e7839cf5505c6950fc981",
+  "ingestion_script": "scripts/ingest_versioned_evidence_corpus.py",
+  "ingestion_script_sha256": "ffe26e6e32a2821a96b496e2de0a27956bb5fc1473e164203b0d930a1194ce92",
+  "input": "data/evidence/vifactcheck_passages.jsonl",
+  "input_sha256": "dc7e96cfb1b28e2e4a4a7c7ae521e44cbee0f35a4f3bae6091db917d84039312",
+  "metadata": {
+    "missing_published_at": 4757,
+    "published_at_from_url": "Only unambiguous validated YYYYMMDD or Bao Chinh Phu 102YYMMDD URL dates.",
+    "retrieved_at": "2026-09-16T11:10:00Z",
+    "retrieved_at_semantics": "UTC time that the local corpus snapshot was ingested; not article publication/crawl time.",
+    "source_counts": {
+      "baochinhphu.vn": 1244,
+      "baotintuc.vn": 628,
+      "dantri.com.vn": 708,
+      "nld.com.vn": 639,
+      "plo.vn": 516,
+      "thanhnien.vn": 608,
+      "tienphong.vn": 484,
+      "tuoitre.vn": 597,
+      "vnexpress.net": 420
+    }
+  },
+  "passages": 5844,
+  "schema_version": "2.0",
+  "source_policy": "configs/evidence_source_policy.yaml",
+  "source_policy_sha256": "4f8ac4580106d2980b39cbb0b1c3a31b76889e22a9fb70d679f374d7245dae39",
+  "urls": 1041
+}

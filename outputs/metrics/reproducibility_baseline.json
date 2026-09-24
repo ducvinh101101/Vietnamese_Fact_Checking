@@ -1,27 +1,27 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-09-04T10:01:18.709079+00:00",
-  "git_commit": "66bca98475b5799056f233b5e5308b0d9032b7a1",
+  "generated_at": "2026-09-16T16:49:41.188859+00:00",
+  "git_commit": "7d7f7738b9167b5a2bc5513cc78a8529e73bd0b0",
   "python": "3.11.9 (tags/v3.11.9:de54cf5, Apr  2 2024, 10:12:12) [MSC v.1938 64 bit (AMD64)]",
-  "platform": "Windows-10-10.0.22631-SP0",
+  "platform": "Windows-10-10.0.26200-SP0",
   "dependency_lockfile": "requirements.lock",
-  "dependency_count": 79,
+  "dependency_count": 80,
   "artifacts": {
     "requirements.txt": {
       "sha256": "baa3d0f3e34a189ae56122ec95c5d6ca04dd06e59caf9e8a529860080d703a4c",
       "bytes": 299
     },
     "requirements.lock": {
-      "sha256": "b0d19b1b0ac14f56fb28828246434127affa344c765dee75a46129c100af02d7",
-      "bytes": 1347
+      "sha256": "aecec2d2fdd31a4bfd6d76b04fd21c6dfe818d63c98e51410a7bdbfcbaa4ce6c",
+      "bytes": 1365
     },
     "configs/config.yaml": {
-      "sha256": "dd197ec19e7ff61908e56ebff770e7e6b587b426e6ee0a22745b22ce1c3e0ef2",
-      "bytes": 457
+      "sha256": "8e255f1cb3932326a3f48f99a28a2d9b9b559bb5f8cc2303d29bc14d4c073d41",
+      "bytes": 614
     },
     "data/manifest.json": {
-      "sha256": "ae8b6b3d863bcd13d1c6eb00fc23adbcbcc6013ee463d53e3691006c17e52591",
-      "bytes": 470
+      "sha256": "83de0526dcb58c6fc15dbbcb828b6535e1a10b9ebcb3efa17aeb41c57d738ae1",
+      "bytes": 733
     },
     "data/evidence/sample_evidence.jsonl": {
       "sha256": "9f0d6214c628c0e1ee8e786ddfd5cba08108e58cce546a45b202b55faefe7267",
@@ -55,7 +55,7 @@
   "pytest": {
     "command": "D:\\Vietnamese_Fact_Checking\\.venv\\Scripts\\python.exe -m pytest -q",
     "exit_code": 0,
-    "stdout": "..........                                                               [100%]\n10 passed in 0.79s",
+    "stdout": "........................................................................ [ 70%]\n..............................                                           [100%]\n102 passed in 2.16s",
     "stderr": ""
   }
 }
