@@ -1,0 +1,28 @@
+project:
+  name: vietnamese-fact-checking-mvp
+  seed: 42
+
+paths:
+  evidence_path: data/evidence/vifactcheck_passages.jsonl
+  outputs_dir: outputs
+
+retrieval:
+  method: bm25
+  top_k: 3
+
+verification:
+  engine: phobert
+  model_path: models/rt_v2_balanced/best_model
+  vncorenlp_dir: models/vncorenlp
+  max_length: 256
+  temperature: 1.0
+  decisive_min_confidence: 0.5
+  retrieval_rank_bias: 1.0
+  aggregation_model_path: null
+  support_threshold: 0.45
+  refute_markers:
+    - "không"
+    - "chưa"
+    - "sai"
+    - "bác bỏ"
+    - "trái ngược"

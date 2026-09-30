@@ -1,0 +1,81 @@
+{
+  "benchmark": "Reranked-local end-to-end (W3-08) -> PhoBERT",
+  "purpose": "Đo tầng reranked-local tách riêng để so với BM25-local. Dev/test đã xem không phải bằng chứng chất lượng độc lập.",
+  "scope": {
+    "pipeline": "claim -> BM25 candidates -> source/time filter -> lexical+authority rerank -> dedup top-k -> PhoBERT -> policy -> citation",
+    "retrieval_relevance": "URL-level proxy only.",
+    "not_measured": "Web retrieval, fusion local+web, passage-level relevance."
+  },
+  "artifacts": {
+    "config_sha256": "5e0330f36de0e7c1c56c24e9053c90a7fb4a621359014067bc59cc487a09f33b",
+    "corpus_sha256": "dc7e96cfb1b28e2e4a4a7c7ae521e44cbee0f35a4f3bae6091db917d84039312",
+    "split_sha256": "b624326d72ef714169a42317e9473396c9281d1457f0af45d58a0df0d8da30ed",
+    "predictions": "outputs\\predictions\\reranked_e2e_test.csv"
+  },
+  "configuration": {
+    "retriever": "reranked_metadata_w3_08",
+    "candidate_k": 20,
+    "top_k": 3,
+    "engine": "phobert",
+    "model_path": "models/e2_phobert/best_model"
+  },
+  "evaluation_split": {
+    "path": "data\\processed\\vifactcheck_group_split\\test.parquet",
+    "queries": 1076
+  },
+  "classification": {
+    "accuracy": 0.70539,
+    "macro_f1": 0.699159,
+    "per_label": {
+      "SUPPORTED": {
+        "precision": 0.730673,
+        "recall": 0.796196,
+        "f1-score": 0.762029,
+        "support": 368.0
+      },
+      "REFUTED": {
+        "precision": 0.768595,
+        "recall": 0.522472,
+        "f1-score": 0.622074,
+        "support": 356.0
+      },
+      "NOT_ENOUGH_INFO": {
+        "precision": 0.646651,
+        "recall": 0.795455,
+        "f1-score": 0.713376,
+        "support": 352.0
+      }
+    },
+    "confusion_matrix_rows_gold_columns_predicted": [
+      [
+        293,
+        24,
+        51
+      ],
+      [
+        68,
+        186,
+        102
+      ],
+      [
+        40,
+        32,
+        280
+      ]
+    ],
+    "label_order": [
+      "SUPPORTED",
+      "REFUTED",
+      "NOT_ENOUGH_INFO"
+    ],
+    "retrieval_and_citation": {
+      "gold_url_recall_at_top_k": 0.981413,
+      "citation_url_matches_gold_rate": 0.553903
+    },
+    "latency_ms": {
+      "mean": 606.7228,
+      "p50": 583.6137,
+      "p95": 843.8007
+    }
+  }
+}
