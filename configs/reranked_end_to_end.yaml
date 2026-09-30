@@ -1,0 +1,36 @@
+# W4-05 / W5-02: cấu hình end-to-end với retriever rerank cục bộ (W3-08).
+# Verifier giữ y hệt config đang khóa để so sánh chỉ đổi retriever.
+# Chưa gồm web/fusion — đó là hạng mục riêng.
+
+project:
+  name: vietnamese-fact-checking-reranked-e2e
+  seed: 42
+
+paths:
+  # Corpus v2.0.0 có metadata source/time (W3-07). Nếu tên file khác, sửa ở đây.
+  evidence_path: data/evidence/vifactcheck_passages.jsonl
+  outputs_dir: outputs
+
+retrieval:
+  method: reranked
+  top_k: 3
+  reranked:
+    candidate_k: 20            # số ứng viên BM25 trước khi rerank
+    rerank:
+      query_overlap_weight: 1.0
+      authority_weight: 0.0    # bật > 0 nếu muốn ưu tiên nguồn có authority_score
+    filters:
+      allowed_source_types: []              # rỗng = không lọc theo loại nguồn
+      published_after: null
+      published_before: null
+      include_unknown_published_at: true    # giữ passage thiếu published_at
+
+verification:
+  engine: phobert
+  model_path: models/e2_phobert/best_model
+  vncorenlp_dir: models/vncorenlp
+  max_length: 256
+  temperature: 1.140542
+  decisive_min_confidence: 0.6
+  retrieval_rank_bias: 1.0
+  aggregation_model_path: models/aggregation/dev_logistic_v1.json

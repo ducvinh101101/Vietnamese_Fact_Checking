@@ -15,9 +15,20 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
-Config hiện tại dùng corpus `data/evidence/vifactcheck_passages.jsonl`, checkpoint PhoBERT tại `models/e2_phobert/best_model`, VnCoreNLP tại `models/vncorenlp` và bộ tổng hợp AGG-V1. Cần chuẩn bị các model và Java trước khi kiểm chứng; chỉ cài requirements chưa đủ. Xem [hướng dẫn tái lập](docs/REPRODUCIBILITY_BASELINE.md).
+Config hiện tại (`configs/config.yaml`) dùng corpus `data/evidence/vifactcheck_passages.jsonl`, checkpoint verifier tại `models/rt_v2_balanced/best_model` (RT-V2, đã khóa runtime), VnCoreNLP tại `models/vncorenlp`, và chính sách quyết định theo hạng (rank policy, không dùng AGG-V1). Cần chuẩn bị model và Java trước khi kiểm chứng; chỉ cài requirements chưa đủ. Xem [hướng dẫn tái lập](docs/REPRODUCIBILITY_BASELINE.md).
 
-Đây là bản thử nghiệm với kho bằng chứng cục bộ, chưa được xác nhận đạt accuracy 80% ngoài thực tế. Xem [tiến độ ưu tiên và kiểm tra](docs/PRIORITY_READINESS_PROGRESS.md).
+Đây là bản thử nghiệm với kho bằng chứng cục bộ, **chưa được xác nhận đạt accuracy 80% ngoài thực tế**. Xem [tiến độ ưu tiên](docs/PRIORITY_READINESS_PROGRESS.md) và [báo cáo kết quả đầy đủ](docs/BAO_CAO_KET_QUA_GIOI_HAN.md).
+
+## Kết quả chính (dev/test, dữ liệu ViFactCheck)
+
+| Phép đo | Macro-F1 | Ghi chú |
+|---|---:|---|
+| Verifier oracle (E2, gold evidence) | 81,07% | Trần verifier, không phải năng lực hệ thống |
+| End-to-end BM25-local (test) | 62,94% | Tự đi tìm bằng chứng |
+| End-to-end Reranked-local (test) | **69,92%** | Rerank W3-08, +6,98 điểm |
+| Verifier RT-V2 balanced (end-to-end dev) | 70,75% | Đã khóa; F1 REFUTED 64,23%, giảm lệch NEI |
+
+Mọi con số trên là dev/test đã xem nhiều lần, **không phải bằng chứng độc lập**. Chi tiết, ablation và giới hạn: [báo cáo kết quả](docs/BAO_CAO_KET_QUA_GIOI_HAN.md).
 
 ## Cấu trúc
 
@@ -50,9 +61,9 @@ Script đọc `Context`, `Author` và `Url`, khử trùng theo URL rồi chia b�
 
 Kế hoạch triển khai hiện hành nằm trong [workbook phân công Vinh–Quang](KE_HOACH_TRIEN_KHAI_2_NGUOI.xlsx), kèm [quy trình nghiên cứu](docs/QUY_TRINH_NGHIEN_CUU.md) và [backlog](docs/BACKLOG.md).
 
-## Web retrieval (kế hoạch)
+## Web retrieval và rerank
 
-Hệ thống hiện chỉ dùng kho evidence cục bộ. Web retrieval uy tín đang ở trạng thái **chưa triển khai**; xem [kế hoạch web retrieval](docs/WEB_RETRIEVAL_PLAN.md) để biết phạm vi, allowlist, metadata nguồn và tiêu chí đánh giá.
+Web retriever qua allowlist (`src/web_retriever.py`), corpus v2 có metadata nguồn/thời gian, và rerank theo nguồn/authority (`src/reranked_retriever.py`, W3-08) **đã được hiện thực và test riêng**. Pipeline chạy mặc định vẫn dùng kho cục bộ + rerank; bước **hợp nhất local + web (fusion) chưa triển khai**, nên tầng hybrid end-to-end chưa đo được. Xem [kế hoạch web retrieval](docs/WEB_RETRIEVAL_PLAN.md).
 
 ## Kế hoạch phạm vi đầy đủ
 

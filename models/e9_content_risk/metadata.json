@@ -1,0 +1,52 @@
+{
+  "experiment": "E9 content-risk, fitted on full VFND for deployment",
+  "task": "binary content-risk; NOT claim verification, NOT evidence",
+  "risk_score_meaning": "P(class=FAKE) theo văn phong/nguồn của tập huấn luyện; không phải xác suất một bài là tin giả ngoài đời.",
+  "input": "[TITLE] title [BODY] body",
+  "selected_c": 0.25,
+  "seed": 42,
+  "positive_label_index": 1,
+  "band_edges": [
+    0.34,
+    0.67
+  ],
+  "band_names": [
+    "thấp",
+    "trung bình",
+    "cao"
+  ],
+  "n_training_records": 221,
+  "training_source_domains": [
+    "autoxe.net",
+    "baoangiang.com.vn",
+    "baonuocmy.com",
+    "binhluan.biz",
+    "dantri.com.vn",
+    "doisong.vnexpress.net",
+    "dulich.vnexpress.net",
+    "giadinhtiepthi.com",
+    "giaitri.vnexpress.net",
+    "haiduong.tintuc.vn",
+    "https://news.zing.vn",
+    "kinhdoanh.vnexpress.net",
+    "laodong.vn",
+    "news.zing.vn",
+    "phapluat.news",
+    "sohoa.vnexpress.net",
+    "sorry.vn",
+    "suckhoe.vnexpress.net",
+    "thanhnien.vn",
+    "thegioitre.vn",
+    "thethao.tuoitre.vn",
+    "thoibao.de",
+    "thoibao.today",
+    "tintucqpvn.net",
+    "tinvn.info",
+    "tuoitre.vn",
+    "vnexpress.net",
+    "www.gioitreviet.net",
+    "www.ipick.vn"
+  ],
+  "domain_confounding_warning": "Mỗi source_domain trong VFND chỉ có một nhãn. Điểm trên một nguồn ngoài danh sách training gần như vô nghĩa; runtime phải gắn cờ out-of-distribution.",
+  "fitted_on": "2026-10-01"
+}
