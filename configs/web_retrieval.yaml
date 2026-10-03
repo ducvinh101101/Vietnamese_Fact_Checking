@@ -86,11 +86,11 @@ source_policy:
       category: government
       scope: Tỷ giá, lãi suất, chính sách tiền tệ
       reference: https://www.sbv.gov.vn/
-    - host: moh.gov.vn
-      name: Bộ Y tế
+    - host: www.sbv.gov.vn
+      name: Ngân hàng Nhà nước Việt Nam
       category: government
-      scope: Y tế, dịch bệnh, thuốc
-      reference: https://moh.gov.vn/
+      scope: Tỷ giá, lãi suất, chính sách tiền tệ
+      reference: https://www.sbv.gov.vn/
     # Báo chính thống lớn (apex + www)
     - host: tuoitre.vn
       name: Tuổi Trẻ
@@ -157,6 +157,11 @@ source_policy:
       category: press
       scope: Tin chính thống TTXVN; kiểm tác giả/thời gian/nguồn
       reference: https://www.vietnamplus.vn/
+    - host: www.vietnamplus.vn
+      name: VietnamPlus (TTXVN)
+      category: press
+      scope: Tin chính thống TTXVN; kiểm tác giả/thời gian/nguồn
+      reference: https://www.vietnamplus.vn/
     # Báo kinh tế — mạnh về giá xăng dầu, tài chính, điều hành
     - host: congthuong.vn
       name: Báo Công Thương
@@ -185,6 +190,11 @@ source_policy:
       reference: https://thoibaotaichinhvietnam.vn/
     # Báo chính thống lớn khác
     - host: sggp.org.vn
+      name: Sài Gòn Giải Phóng
+      category: press
+      scope: Tin tức tổng hợp; kiểm tác giả/thời gian/nguồn
+      reference: https://www.sggp.org.vn/
+    - host: www.sggp.org.vn
       name: Sài Gòn Giải Phóng
       category: press
       scope: Tin tức tổng hợp; kiểm tác giả/thời gian/nguồn

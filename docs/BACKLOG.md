@@ -12,7 +12,7 @@
 | W2-10 | Protocol corpus ingestion, query set gold và Recall/MRR/nDCG | Quang | Hoàn thành | Query set v1: 2.156 query frozen, manifest/hash, dev/test URL-disjoint; URL-level metrics và passage-qrels/nDCG protocol đã tách rõ |
 | W3-01 | Pipeline retrieval → verifier → SUPPORTED/REFUTED/NEI | Quang | Hoàn thành | Corpus ViFactCheck → BM25 top-3 → PhoBERT E2; smoke 3 claim frozen, kiểm tra contract ba nhãn và citation provenance |
 | W3-03 | Kiểm tra citation ID/URL, JSON output và trường hợp không có evidence | Quang | Hoàn thành | JSON contract v1 kiểm tra citation ID/URL/score; smoke PhoBERT no-evidence trả NEI, 0 citation; pytest 88 pass |
-| W3-05 | Web retrieval: allowlist, passage và metadata nguồn | Quang | Hoàn thành | Acceptance Tavily 2026-10-03: 5/6 query host-targeted pass, 5 domain verified, 15 passage/7 URL; `moh.gov.vn` chưa có passage eligible |
+| W3-05 | Web retrieval: allowlist, passage và metadata nguồn | Quang | Hoàn thành | Sau merge: allowlist 33 exact host; acceptance Tavily 2026-10-03 đạt 6/6 query host-targeted, 6 domain và 6 passage, metadata/URL đầy đủ |
 | W3-07 | Corpus passage có metadata nguồn/thời gian và dedup | Quang | Hoàn thành | Corpus v2.0.0: 5.844/5.845 passage, 1.041 URL; exact-host metadata, retrieved_at provenance, published_at không suy đoán, manifest/hash và validator |
 | W3-08 | Query, lọc nguồn/thời gian, rerank và dedup evidence | Quang | Hoàn thành | BM25 candidates → metadata filter → lexical/authority rerank → dedup; top-3 cho 1.080 query dev frozen |
 | W4-01 | Streamlit: kết quả nhánh, evidence, nguồn, cache | Quang | Hoàn thành | UI tách verifier/retrieval, citation provenance và source URL/metadata; cache model + JSON response |

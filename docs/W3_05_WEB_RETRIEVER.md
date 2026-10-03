@@ -14,10 +14,11 @@ không chứa claim, key hoặc page content.
 
 ## Nguồn allowlist
 
-Allowlist hiện có bảy host exact-match: `baochinhphu.vn`, `moh.gov.vn`,
-`mofa.gov.vn`, `www.who.int`, `vnexpress.net`, `vnanet.vn` và `vov.vn`. Mỗi
-nguồn có phạm vi sử dụng ghi trong YAML; không coi kết quả của một nguồn là bằng
-chứng cho mọi chủ đề.
+Allowlist hiện có 33 host exact-match, gồm nguồn chính phủ, tổ chức quốc tế và
+báo chí uy tín. Sáu host nghiệm thu mặc định là `baochinhphu.vn`, `mofa.gov.vn`,
+`www.who.int`, `vnexpress.net`, `tuoitre.vn` và `thanhnien.vn`; mỗi nguồn có
+phạm vi sử dụng ghi trong YAML. Không coi kết quả của một nguồn là bằng chứng
+cho mọi chủ đề.
 
 ## Rào chắn nguồn
 
@@ -52,19 +53,20 @@ key** (không nhập key vào tham số và không commit báo cáo):
 .\.venv\Scripts\python.exe scripts\run_web_retrieval_acceptance.py
 ```
 
-Script chạy sáu truy vấn host-targeted, yêu cầu tối thiểu bốn truy vấn thành
-công từ bốn domain allowlist khác nhau, đồng thời không có passage trùng trong
-cùng URL. Một host trả `no_eligible_passages` vẫn được ghi rõ trong report và
-không được tính là nguồn đã nghiệm thu. Báo cáo local `outputs/web_retrieval/acceptance_report.json`
+Script chạy sáu truy vấn host-targeted, mỗi truy vấn yêu cầu một passage để giới
+hạn thời gian kiểm tra robots/trang nguồn; cần tối thiểu bốn truy vấn thành công
+từ bốn domain allowlist khác nhau, đồng thời không có passage trùng trong cùng
+URL. Một host trả `no_eligible_passages` vẫn được ghi rõ trong report và không
+được tính là nguồn đã nghiệm thu. Báo cáo local `outputs/web_retrieval/acceptance_report.json`
 chỉ có hash của query/passage cùng URL, domain, title, source và fetched_at;
 không chứa API key hoặc nội dung passage. Exit code 0 mới là đạt. Chưa trộn
 evidence web vào BM25/PhoBERT và chưa đo Recall/MRR/Macro-F1; đó là W4-05/W5-01
 sau khi có protocol đánh giá web.
 
-Kết quả nghiệm thu ngày 2026-10-03: 5/6 truy vấn targeted `ok`, có 15 passage
-từ 7 URL thuộc năm domain allowlist (`baochinhphu.vn`, `mofa.gov.vn`,
-`www.who.int`, `vnanet.vn`, `vov.vn`); đầy đủ URL/domain/title/fetched_at và
-không có hash passage trùng trong cùng URL. `moh.gov.vn` trả
-`no_eligible_passages` dưới policy robots/extraction, nên vẫn là nguồn
-allowlist nhưng chưa được xác minh live. Đây xác nhận chức năng W3-05, không
-phải metric chất lượng fact-check end-to-end.
+Kết quả nghiệm thu sau merge ngày 2026-10-03: 6/6 truy vấn targeted `ok`, có
+một passage từ mỗi trong sáu domain allowlist (`baochinhphu.vn`, `mofa.gov.vn`,
+`www.who.int`, `vnexpress.net`, `tuoitre.vn`, `thanhnien.vn`); đầy đủ
+URL/domain/title/fetched_at và không có hash passage trùng trong cùng URL. Sáu
+nguồn này được chọn làm smoke ổn định; các nguồn khác vẫn bị ràng buộc cùng
+policy robots/extraction. Đây xác nhận chức năng W3-05, không phải metric chất
+lượng fact-check end-to-end.

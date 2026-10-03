@@ -38,6 +38,7 @@ def test_acceptance_report_requires_four_allowlisted_domains(monkeypatch):
             return [RetrievedEvidence(evidence, 1.0)]
 
     config = {
+        "provider": {"max_results": 15},
         "source_policy": {"allowlist": [
             {"host": "baochinhphu.vn"}, {"host": "moh.gov.vn"},
             {"host": "www.who.int"}, {"host": "vnanet.vn"},

@@ -12,7 +12,9 @@ def config():
 
 
 def test_contract():
-    assert len(validate(config())) == 7
+    hosts = validate(config())
+    assert len(hosts) >= 7
+    assert {"baochinhphu.vn", "moh.gov.vn", "mofa.gov.vn", "www.who.int", "vnanet.vn", "vov.vn"}.issubset(hosts)
 
 
 @pytest.mark.parametrize('url', [

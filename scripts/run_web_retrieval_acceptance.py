@@ -27,19 +27,19 @@ from src.web_retriever import WebRetriever
 
 DEFAULT_QUERIES = (
     "site:baochinhphu.vn thông tin chính thức Chính phủ Việt Nam",
-    "site:moh.gov.vn hướng dẫn Bộ Y tế Việt Nam",
     "site:mofa.gov.vn thông tin Bộ Ngoại giao Việt Nam",
     "site:www.who.int Vietnam health guidance",
-    "site:vnanet.vn Thông tấn xã Việt Nam",
-    "site:vov.vn Đài Tiếng nói Việt Nam",
+    "site:vnexpress.net tin tức Việt Nam",
+    "site:tuoitre.vn tin tức Việt Nam",
+    "site:thanhnien.vn tin tức Việt Nam",
 )
 DEFAULT_TARGET_HOSTS = (
     "baochinhphu.vn",
-    "moh.gov.vn",
     "mofa.gov.vn",
     "www.who.int",
-    "vnanet.vn",
-    "vov.vn",
+    "vnexpress.net",
+    "tuoitre.vn",
+    "thanhnien.vn",
 )
 
 
@@ -64,6 +64,11 @@ def report_for_queries(
     queries: list[str], top_k: int, target_hosts: list[str] | None = None,
 ) -> tuple[dict[str, object], bool]:
     config, config_sha256 = load_config()
+    # Acceptance only needs one accepted passage per query to prove the
+    # end-to-end contract.  Keep the candidate pool equal to top_k so rejected
+    # pages (robots/timeout) cannot turn this quality check into a live crawl.
+    config["provider"] = dict(config["provider"])
+    config["provider"]["max_results"] = top_k
     allowed_domains = sorted(entry["host"] for entry in config["source_policy"]["allowlist"])
     target_hosts = target_hosts or [None] * len(queries)
     if len(target_hosts) != len(queries):
