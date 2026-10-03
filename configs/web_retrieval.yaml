@@ -11,7 +11,8 @@ provider:
   auto_parameters: false
   include_answer: false
   include_raw_content: false
-  max_results: 10
+  # Tăng 10 -> 15: allowlist rộng hơn, cần nhiều kết quả hơn để có bài MỚI, CÓ NGÀY.
+  max_results: 15
 limits:
   requests_per_claim: 1
   requests_per_minute: 10
@@ -65,6 +66,139 @@ source_policy:
       category: press
       scope: Tin thời sự và chương trình phát thanh của cơ quan báo chí quốc gia
       reference: https://vov.vn/
+    # --- Mở rộng allowlist 2026-10-03: thêm nguồn uy tín. Khớp hostname CHÍNH XÁC,
+    # không wildcard; nhiều báo phục vụ cả apex và www nên liệt kê cả hai biến thể
+    # để tránh bị loại sau redirect. Nguồn press có authority thấp hơn gov/quốc tế;
+    # tên miền KHÔNG phải nhãn fact-check — vẫn cần kiểm tác giả/thời gian/nguồn.
+    # Cơ quan nhà nước (.gov.vn) — chính sách, số liệu điều hành
+    - host: moit.gov.vn
+      name: Bộ Công Thương
+      category: government
+      scope: Điều hành giá xăng dầu, thương mại, công nghiệp
+      reference: https://moit.gov.vn/
+    - host: mof.gov.vn
+      name: Bộ Tài chính
+      category: government
+      scope: Tài chính, thuế, giá
+      reference: https://mof.gov.vn/
+    - host: sbv.gov.vn
+      name: Ngân hàng Nhà nước Việt Nam
+      category: government
+      scope: Tỷ giá, lãi suất, chính sách tiền tệ
+      reference: https://www.sbv.gov.vn/
+    - host: moh.gov.vn
+      name: Bộ Y tế
+      category: government
+      scope: Y tế, dịch bệnh, thuốc
+      reference: https://moh.gov.vn/
+    # Báo chính thống lớn (apex + www)
+    - host: tuoitre.vn
+      name: Tuổi Trẻ
+      category: press
+      scope: Tin tức tổng hợp; kiểm tác giả/thời gian/nguồn
+      reference: https://tuoitre.vn/
+    - host: thanhnien.vn
+      name: Thanh Niên
+      category: press
+      scope: Tin tức tổng hợp; kiểm tác giả/thời gian/nguồn
+      reference: https://thanhnien.vn/
+    - host: vietnamnet.vn
+      name: VietNamNet
+      category: press
+      scope: Tin tức tổng hợp; kiểm tác giả/thời gian/nguồn
+      reference: https://vietnamnet.vn/
+    - host: dantri.com.vn
+      name: Dân Trí
+      category: press
+      scope: Tin tức tổng hợp; kiểm tác giả/thời gian/nguồn
+      reference: https://dantri.com.vn/
+    - host: nld.com.vn
+      name: Người Lao Động
+      category: press
+      scope: Tin tức tổng hợp; kiểm tác giả/thời gian/nguồn
+      reference: https://nld.com.vn/
+    - host: laodong.vn
+      name: Lao Động
+      category: press
+      scope: Tin tức tổng hợp; kiểm tác giả/thời gian/nguồn
+      reference: https://laodong.vn/
+    - host: tienphong.vn
+      name: Tiền Phong
+      category: press
+      scope: Tin tức tổng hợp; kiểm tác giả/thời gian/nguồn
+      reference: https://tienphong.vn/
+    - host: plo.vn
+      name: Pháp Luật TP.HCM
+      category: press
+      scope: Tin tức tổng hợp, pháp luật; kiểm tác giả/thời gian/nguồn
+      reference: https://plo.vn/
+    - host: nhandan.vn
+      name: Báo Nhân Dân
+      category: press
+      scope: Cơ quan báo chí; tin chính thống
+      reference: https://nhandan.vn/
+    - host: vtv.vn
+      name: Đài Truyền hình Việt Nam
+      category: press
+      scope: Tin tức tổng hợp; kiểm tác giả/thời gian/nguồn
+      reference: https://vtv.vn/
+    # --- Mở rộng allowlist 2026-10-03 (đợt 2): thêm báo kinh tế/chính thống mạnh
+    # về giá cả, điều hành và số liệu — tăng khả năng tìm được BÀI MỚI, CÓ NGÀY
+    # cho claim thời sự. Khớp hostname CHÍNH XÁC, không wildcard. Nguồn press vẫn
+    # cần kiểm tác giả/thời gian/nguồn; tên miền không phải nhãn fact-check.
+    # Thông tấn xã Việt Nam (TTXVN)
+    - host: baotintuc.vn
+      name: Báo Tin Tức (TTXVN)
+      category: press
+      scope: Tin chính thống TTXVN; kiểm tác giả/thời gian/nguồn
+      reference: https://baotintuc.vn/
+    - host: vietnamplus.vn
+      name: VietnamPlus (TTXVN)
+      category: press
+      scope: Tin chính thống TTXVN; kiểm tác giả/thời gian/nguồn
+      reference: https://www.vietnamplus.vn/
+    # Báo kinh tế — mạnh về giá xăng dầu, tài chính, điều hành
+    - host: congthuong.vn
+      name: Báo Công Thương
+      category: press
+      scope: Điều hành giá xăng dầu, thương mại; kiểm tác giả/thời gian/nguồn
+      reference: https://congthuong.vn/
+    - host: vneconomy.vn
+      name: VnEconomy
+      category: press
+      scope: Kinh tế, tài chính, giá cả; kiểm tác giả/thời gian/nguồn
+      reference: https://vneconomy.vn/
+    - host: cafef.vn
+      name: CafeF
+      category: press
+      scope: Kinh tế, tài chính, thị trường; kiểm tác giả/thời gian/nguồn
+      reference: https://cafef.vn/
+    - host: baodautu.vn
+      name: Báo Đầu Tư
+      category: press
+      scope: Kinh tế, đầu tư, tài chính; kiểm tác giả/thời gian/nguồn
+      reference: https://baodautu.vn/
+    - host: thoibaotaichinhvietnam.vn
+      name: Thời báo Tài chính Việt Nam
+      category: press
+      scope: Tài chính, thuế, giá (cơ quan của Bộ Tài chính); kiểm tác giả/thời gian/nguồn
+      reference: https://thoibaotaichinhvietnam.vn/
+    # Báo chính thống lớn khác
+    - host: sggp.org.vn
+      name: Sài Gòn Giải Phóng
+      category: press
+      scope: Tin tức tổng hợp; kiểm tác giả/thời gian/nguồn
+      reference: https://www.sggp.org.vn/
+    - host: vtcnews.vn
+      name: VTC News
+      category: press
+      scope: Tin tức tổng hợp; kiểm tác giả/thời gian/nguồn
+      reference: https://vtcnews.vn/
+    - host: kinhtedothi.vn
+      name: Kinh tế & Đô thị
+      category: press
+      scope: Kinh tế, đô thị, tin tổng hợp; kiểm tác giả/thời gian/nguồn
+      reference: https://kinhtedothi.vn/
 cache:
   directory: .cache/web_retrieval
   persist_provider_responses: false
