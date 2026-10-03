@@ -22,12 +22,17 @@ Guard chỉ đọc nội dung ĐÃ trích dẫn; không gọi lại mô hình, k
 
 from __future__ import annotations
 
+import re
+
 from src.contracts import Verifier
 from src.schemas import RetrievedEvidence, VerificationResult
-from src.topical_rerank import relevance
+from src.topical_rerank import _RETAIL_HINTS, relevance
 
 _DECISIVE = ("SUPPORTED", "REFUTED")
 _OPPOSITE = {"tăng": "giảm", "giảm": "tăng"}
+_SENTENCES = re.compile(r"[.!?;]+")
+_HEDGED_PRICE_WORDS = ("dự báo", "có thể", "khả năng", "ước tính", "kỳ vọng")
+_RELATIVE_TIME_WORDS = ("hôm nay", "chiều nay", "sáng nay", "tối nay", "ngày mai")
 
 
 def _claim_direction(claim: str) -> str | None:
@@ -39,6 +44,28 @@ def _claim_direction(claim: str) -> str | None:
     if has_down and not has_up:
         return "giảm"
     return None
+
+
+def _has_direct_retail_fuel_support(claim: str, passage: str, direction: str) -> bool:
+    """Return whether a time-sensitive petrol-price claim has direct support.
+
+    Articles about crude oil often mention a *forecast* for petrol prices.  That
+    is not evidence that Vietnamese retail petrol has already changed.  For this
+    narrow high-risk claim type, require the same sentence to name petrol, state
+    the claimed direction, and contain a retail/price-administration indicator.
+    """
+    claim_low = claim.casefold()
+    if "xăng" not in claim_low or not any(word in claim_low for word in _RELATIVE_TIME_WORDS):
+        return True
+    for sentence in _SENTENCES.split(passage.casefold()):
+        if (
+            "xăng" in sentence
+            and direction in sentence
+            and any(hint in sentence for hint in _RETAIL_HINTS)
+            and not any(hedge in sentence for hedge in _HEDGED_PRICE_WORDS)
+        ):
+            return True
+    return False
 
 
 def guard_reason(claim: str, result: VerificationResult,
@@ -63,6 +90,11 @@ def guard_reason(claim: str, result: VerificationResult,
         direction = _claim_direction(claim)
         if direction is not None:
             text = " ".join(e.content for e in cited).casefold()
+            if not any(_has_direct_retail_fuel_support(claim, e.content, direction) for e in cited):
+                return (
+                    "bằng chứng không xác nhận trực tiếp giá xăng bán lẻ "
+                    f"'{direction}'"
+                )
             if "trái chiều" in text:
                 return f"bằng chứng nói 'trái chiều' — chưa khẳng định được '{direction}'"
             opposite = _OPPOSITE[direction]

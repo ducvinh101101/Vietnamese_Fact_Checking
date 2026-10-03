@@ -51,6 +51,17 @@ def test_keep_support_when_direction_matches():
     assert out.label == "SUPPORTED" and not g.last_downgraded
 
 
+def test_downgrade_when_world_oil_forecast_mentions_petrol():
+    items = [_it(
+        "a",
+        "Dầu giảm nhẹ sau khi xả kho dự trữ dầu diesel. Dự báo giá xăng trong nước có thể giảm.",
+    )]
+    g = GuardedVerifier(_FixedVerifier("SUPPORTED"))
+    out = g.verify(CLAIM_UP, items)
+    assert out.label == "NOT_ENOUGH_INFO"
+    assert "không xác nhận trực tiếp" in (g.last_reason or "")
+
+
 def test_downgrade_on_offtopic_evidence():
     # Claim giá bán lẻ nhưng bằng chứng toàn giá dầu thế giới -> relevance <= 0.
     items = [_it("a", "Dầu WTI ở mức 90 USD/thùng, dầu Brent trên thị trường thế giới OPEC.")]
