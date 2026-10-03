@@ -8,7 +8,7 @@ remain later retrieval tasks.
 from __future__ import annotations
 
 from contextlib import contextmanager
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 import gzip
 from hashlib import sha256
 from html.parser import HTMLParser
@@ -482,6 +482,33 @@ class WebRetriever:
         raise WebRetrievalError("Trang web chuyển hướng quá nhiều lần")
 
     def search(self, claim: str, top_k: int = 3) -> list[RetrievedEvidence]:
+        """Search without a publication-date restriction."""
+        return self._search(claim, top_k)
+
+    def search_time_window(self, claim: str, top_k: int, start_date: date,
+                           end_date: date, *, language: str | None = None) -> list[RetrievedEvidence]:
+        """Search fresh news only, using Tavily's server-side date filter.
+
+        The page is still fetched and its own publication metadata is extracted;
+        the provider's date is used only to avoid spending candidates on pages
+        outside the requested window.
+        """
+        if start_date > end_date:
+            raise ValueError("start_date phải không muộn hơn end_date")
+        options: dict[str, object] = {
+            "topic": "news",
+            "start_date": start_date.isoformat(),
+            "end_date": end_date.isoformat(),
+            "include_published_date": True,
+            "filter_by_published_date": True,
+        }
+        if language:
+            options["language"] = language
+            options["filter_by_language"] = True
+        return self._search(claim, top_k, options)
+
+    def _search(self, claim: str, top_k: int,
+                provider_overrides: dict[str, object] | None = None) -> list[RetrievedEvidence]:
         if top_k < 1:
             raise ValueError("top_k phải lớn hơn 0")
         if not self.enabled:
@@ -500,6 +527,8 @@ class WebRetriever:
             "include_raw_content": False,
             "auto_parameters": False,
         }
+        if provider_overrides:
+            payload.update(provider_overrides)
         try:
             self.ledger.reserve()
             response = self.provider_request(payload, self.api_key, float(self.limits["timeout_seconds"]))

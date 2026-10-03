@@ -29,6 +29,12 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
+# Windows may default redirected stdout/stderr to a legacy code page.  The CLI
+# reports Vietnamese claim/evidence text, so keep logs usable in terminals and
+# redirected acceptance runs alike.
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8", errors="replace")
 os.environ.setdefault("HF_HOME", str(ROOT / ".cache/huggingface"))
 os.environ.setdefault("TRANSFORMERS_CACHE", str(ROOT / ".cache/huggingface"))
 
@@ -120,6 +126,9 @@ def main() -> None:
             BM25Retriever(load_evidence_jsonl(ROOT / rr["corpus"])), rr,
         )
 
+    window_today = args.recency_days if args.recency_days is not None else args.recency_today
+    window_current = args.recency_days if args.recency_days is not None else args.recency_current
+
     web = None
     if not args.local_only:
         web, status = load_web_retriever()
@@ -128,13 +137,14 @@ def main() -> None:
 
     web_layer = None
     if web is not None:
-        web_layer = TimeAwareRetriever(web, as_of=as_of, enabled=not args.no_time_enrich)
+        web_layer = TimeAwareRetriever(
+            web, as_of=as_of, enabled=not args.no_time_enrich,
+            window_today=window_today, window_current=window_current,
+        )
 
     fusion = FusionRetriever(local, web_layer or web, candidate_k=args.candidate_k)
     # Neo thời gian: với claim thời sự, loại bằng chứng cũ hơn cửa sổ cho phép;
     # hết bằng chứng mới -> pipeline trả NEI thay vì SUPPORTED bằng bài cũ.
-    window_today = args.recency_days if args.recency_days is not None else args.recency_today
-    window_current = args.recency_days if args.recency_days is not None else args.recency_current
     gate = TemporalGateRetriever(
         fusion, as_of=as_of, window_today=window_today, window_current=window_current,
         candidate_k=args.candidate_k, drop_unknown_dates=not args.keep_undated,

@@ -14,7 +14,7 @@ Nguyên tắc quan trọng — chỉ sửa truy vấn, KHÔNG sửa claim gửi 
 
 from __future__ import annotations
 
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 import re
 
 from src.contracts import Retriever
@@ -74,13 +74,32 @@ class TimeAwareRetriever:
     local tĩnh.
     """
 
-    def __init__(self, inner: Retriever, as_of: date | None = None, enabled: bool = True) -> None:
+    def __init__(self, inner: Retriever, as_of: date | None = None, enabled: bool = True,
+                 window_today: int = 10, window_current: int = 365) -> None:
+        if window_today < 0 or window_current < 0:
+            raise ValueError("cửa sổ tìm kiếm web không được âm")
         self.inner = inner
         self.as_of = as_of
         self.enabled = enabled
+        self.window_today = window_today
+        self.window_current = window_current
         self.last_enriched_query: str | None = None
 
     def search(self, claim: str, top_k: int = 3) -> list[RetrievedEvidence]:
         query, enriched = (enrich_query(claim, self.as_of) if self.enabled else (claim, False))
         self.last_enriched_query = query if enriched else None
+        # WebRetriever exposes this opt-in capability.  Keep the Retriever
+        # protocol unchanged so non-web retrievers remain compatible.
+        search_time_window = getattr(self.inner, "search_time_window", None)
+        recency = recency_class(claim)
+        if enriched and recency is not None and callable(search_time_window):
+            reference = self.as_of or datetime.now().date()
+            window = self.window_today if recency == "today" else self.window_current
+            return search_time_window(
+                query,
+                top_k,
+                reference - timedelta(days=window),
+                reference,
+                language="vi",
+            )
         return self.inner.search(query, top_k)
