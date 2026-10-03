@@ -22,6 +22,7 @@ Guard chỉ đọc nội dung ĐÃ trích dẫn; không gọi lại mô hình, k
 
 from __future__ import annotations
 
+import math
 import re
 
 from src.contracts import Verifier
@@ -31,8 +32,16 @@ from src.topical_rerank import _RETAIL_HINTS, relevance
 _DECISIVE = ("SUPPORTED", "REFUTED")
 _OPPOSITE = {"tăng": "giảm", "giảm": "tăng"}
 _SENTENCES = re.compile(r"[.!?;]+")
+_WORDS = re.compile(r"\w+", re.UNICODE)
 _HEDGED_PRICE_WORDS = ("dự báo", "có thể", "khả năng", "ước tính", "kỳ vọng")
 _RELATIVE_TIME_WORDS = ("hôm nay", "chiều nay", "sáng nay", "tối nay", "ngày mai")
+_TIME_IN_SENTENCE = re.compile(r"\b(?:từ\s*)?\d{1,2}\s*(?:h|giờ)\b|\bngày\s+\d{1,2}(?:[/-]\d{1,2})?\b")
+_FOCUS_STOPWORDS = frozenset(
+    "và của có là các một những được cho với từ đã đang sẽ trong ngoài trên dưới khi về "
+    "thì mà nếu nên hay hoặc tại theo đến ra vào này đó kia ấy rất quá cũng chỉ vẫn còn "
+    "chiều sáng trưa tối đêm nay mai qua hôm hiện bây giờ gần đây mới đây vừa tuần tháng "
+    "năm ngày số giá tăng giảm".split()
+)
 
 
 def _claim_direction(claim: str) -> str | None:
@@ -44,6 +53,38 @@ def _claim_direction(claim: str) -> str | None:
     if has_down and not has_up:
         return "giảm"
     return None
+
+
+def _focus_terms(claim: str) -> set[str]:
+    """Return claim terms that identify its subject, not generic relation words."""
+    return {
+        word for word in _WORDS.findall(claim.casefold())
+        if len(word) > 1 and word not in _FOCUS_STOPWORDS
+    }
+
+
+def _focus_coverage(focus: set[str], sentence: str) -> int:
+    return len(focus & set(_WORDS.findall(sentence.casefold())))
+
+
+def _has_direct_subject_support(claim: str, passage: str, direction: str | None = None) -> bool:
+    """Require one sentence to cover the claim subject and, when present, direction.
+
+    This intentionally prefers abstention over treating loose lexical similarity
+    as entailment.  It blocks evidence that shares only broad words such as
+    "giá" while discussing another entity or a speculative outcome.
+    """
+    focus = _focus_terms(claim)
+    required = max(1, math.ceil(len(focus) * 0.6)) if focus else 0
+    for sentence in _SENTENCES.split(passage.casefold()):
+        if required and _focus_coverage(focus, sentence) < required:
+            continue
+        if direction is not None and direction not in sentence:
+            continue
+        if direction is not None and any(hedge in sentence for hedge in _HEDGED_PRICE_WORDS):
+            continue
+        return True
+    return False
 
 
 def _has_direct_retail_fuel_support(claim: str, passage: str, direction: str) -> bool:
@@ -63,6 +104,11 @@ def _has_direct_retail_fuel_support(claim: str, passage: str, direction: str) ->
             and direction in sentence
             and any(hint in sentence for hint in _RETAIL_HINTS)
             and not any(hedge in sentence for hedge in _HEDGED_PRICE_WORDS)
+            and (
+                not any(word in claim_low for word in _RELATIVE_TIME_WORDS)
+                or any(word in sentence for word in _RELATIVE_TIME_WORDS)
+                or _TIME_IN_SENTENCE.search(sentence) is not None
+            )
         ):
             return True
     return False
@@ -84,12 +130,16 @@ def guard_reason(claim: str, result: VerificationResult,
     best_rel = max(relevance(claim, e.content) for e in cited)
     if best_rel <= min_relevance:
         return "bằng chứng trích dẫn không khớp chủ đề của claim"
+    if not any(_has_direct_subject_support(claim, e.content) for e in cited):
+        return "bằng chứng không nêu trực tiếp chủ đề trọng tâm của claim"
 
     # (2) Ngược chiều / mơ hồ — chỉ với SUPPORTED.
     if result.label == "SUPPORTED":
         direction = _claim_direction(claim)
         if direction is not None:
             text = " ".join(e.content for e in cited).casefold()
+            if not any(_has_direct_subject_support(claim, e.content, direction) for e in cited):
+                return f"bằng chứng không khẳng định trực tiếp chiều '{direction}' của claim"
             if not any(_has_direct_retail_fuel_support(claim, e.content, direction) for e in cited):
                 return (
                     "bằng chứng không xác nhận trực tiếp giá xăng bán lẻ "
