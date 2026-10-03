@@ -1,0 +1,163 @@
+# Golden cases cho chuỗi RAG web -> xác minh (deterministic).
+#
+# Mỗi case dựng SẴN bằng chứng local/web (mô phỏng cái Tavily/kho trả về) để kiểm
+# từng mắt xích mà KHÔNG cần mạng hay PhoBERT:
+#   fusion -> neo thời gian (temporal gate) -> gộp URL + rerank chủ đề -> guard.
+# `verifier_says` = nhãn mà verifier (PhoBERT) GIẢ ĐỊNH trả ra; `expect.label` = nhãn
+# hệ thống phải cho SAU khi qua gate/guard. Nhờ vậy ta khóa được hành vi an toàn
+# (vd verifier nói SUPPORTED nhưng bằng chứng "trái chiều" -> hệ thống phải hạ NEI).
+#
+# as_of cố định 2026-10-03. Cửa sổ: today=10 ngày, current=365 ngày.
+
+defaults:
+  as_of: "2026-10-03"
+  recency_today: 10
+  recency_current: 365
+
+cases:
+  - id: fresh_retail_support
+    issue: "Freshness + grounding: có bài giá bán lẻ MỚI, đúng chiều -> SUPPORTED"
+    claim: "Giá xăng tăng từ chiều nay"
+    verifier_says: SUPPORTED
+    web:
+      - url: "https://vtcnews.vn/gia-xang-1-10"
+        content: "Giá xăng bán lẻ trong nước tăng 300 đồng/lít từ 15h chiều nay theo kỳ điều hành liên bộ."
+        published_at: "2026-10-01"
+    expect:
+      label: SUPPORTED
+      gate_class: today
+      guard_downgraded: false
+      cited_content_contains: "bán lẻ"
+
+  - id: stale_only_nei
+    issue: "Neo thời gian: chỉ còn bài CŨ -> NEI, không SUPPORTED bằng bài cũ"
+    claim: "Giá xăng tăng từ chiều nay"
+    verifier_says: SUPPORTED
+    local:
+      - url: "https://baochinhphu.vn/2023"
+        content: "Giá xăng tăng từ chiều 13-3."
+        published_at: "2023-03-13"
+    web:
+      - url: "https://vtcnews.vn/thang-3"
+        content: "Giá xăng bán lẻ trong nước tăng hồi tháng 3."
+        published_at: "2026-03-01"
+    expect:
+      label: NOT_ENOUGH_INFO
+      gate_class: today
+      retrieved_count: 0
+
+  - id: mixed_direction_guard
+    issue: "Guard: bằng chứng 'trái chiều' -> không được SUPPORTED claim 'tăng'"
+    claim: "Giá xăng tăng từ chiều nay"
+    verifier_says: SUPPORTED
+    web:
+      - url: "https://vtcnews.vn/the-gioi-1-10"
+        content: "Giá xăng dầu thế giới tăng giảm trái chiều trong phiên giao dịch."
+        published_at: "2026-10-01"
+    expect:
+      label: NOT_ENOUGH_INFO
+      guard_downgraded: true
+
+  - id: offtopic_world_oil_guard
+    issue: "Guard: bằng chứng chỉ nói giá dầu THẾ GIỚI -> lạc chủ đề giá bán lẻ -> NEI"
+    claim: "Giá xăng tăng từ chiều nay"
+    verifier_says: SUPPORTED
+    web:
+      - url: "https://cafef.vn/the-gioi"
+        content: "Dầu WTI ở mức 90 USD/thùng, dầu Brent trên thị trường thế giới, OPEC họp bàn sản lượng."
+        published_at: "2026-10-01"
+    expect:
+      label: NOT_ENOUGH_INFO
+      guard_downgraded: true
+
+  - id: current_wide_window_support
+    issue: "Cửa sổ 'current' rộng: bài vài tháng trước vẫn hợp lệ cho claim hiện tại"
+    claim: "Tổng thống Mỹ hiện nay là Trump"
+    verifier_says: SUPPORTED
+    web:
+      - url: "https://vtv.vn/trump-100-ngay"
+        content: "Ông Trump là tổng thống đương nhiệm của nước Mỹ hiện nay."
+        published_at: "2026-04-28"
+    expect:
+      label: SUPPORTED
+      gate_class: current
+      guard_downgraded: false
+
+  - id: current_window_drops_too_old
+    issue: "Cửa sổ 'current': bài quá 1 năm vẫn bị loại -> NEI"
+    claim: "Tổng thống Mỹ hiện nay là Trump"
+    verifier_says: SUPPORTED
+    web:
+      - url: "https://vtv.vn/trump-cu"
+        content: "Ông Trump là tổng thống nước Mỹ."
+        published_at: "2024-01-01"
+    expect:
+      label: NOT_ENOUGH_INFO
+      gate_class: current
+      retrieved_count: 0
+
+  - id: url_collapse_pick_retail
+    issue: "Gộp URL + rerank: cùng 1 bài -> 1 dòng, chọn đoạn bán lẻ thay vì đoạn thế giới"
+    claim: "Giá xăng tăng từ chiều nay"
+    verifier_says: SUPPORTED
+    web:
+      - url: "https://vtcnews.vn/gia-xang-hom-nay"
+        content: "Giá dầu WTI và Brent trên thị trường thế giới USD/thùng biến động."
+        published_at: "2026-10-01"
+      - url: "https://vtcnews.vn/gia-xang-hom-nay"
+        content: "Giá xăng bán lẻ trong nước tăng 300 đồng/lít từ chiều nay kỳ điều hành."
+        published_at: "2026-10-01"
+    expect:
+      label: SUPPORTED
+      retrieved_count: 1
+      cited_content_contains: "bán lẻ"
+
+  - id: undated_web_dropped
+    issue: "Đọc ngày web: bài KHÔNG rõ ngày bị loại cho claim thời sự -> NEI"
+    claim: "Giá xăng tăng từ chiều nay"
+    verifier_says: SUPPORTED
+    web:
+      - url: "https://vietnamnet.vn/tag-gia-xang"
+        content: "Giá xăng bán lẻ trong nước tăng 300 đồng/lít từ chiều nay."
+        published_at: null
+    expect:
+      label: NOT_ENOUGH_INFO
+      dropped_undated_min: 1
+      retrieved_count: 0
+
+  - id: historical_not_gated
+    issue: "Claim phi thời sự: không neo thời gian, bài cũ vẫn hợp lệ"
+    claim: "Thủ đô của Việt Nam là Hà Nội"
+    verifier_says: SUPPORTED
+    local:
+      - url: "https://vnexpress.net/thu-do"
+        content: "Hà Nội là thủ đô của Việt Nam."
+        published_at: "2015-01-01"
+    expect:
+      label: SUPPORTED
+      gate_applied: false
+
+  - id: web_empty_fallback_local
+    issue: "Khả năng chịu lỗi: web rỗng -> fallback local (fusion fail_to local)"
+    claim: "Giá xăng tăng từ chiều nay"
+    verifier_says: SUPPORTED
+    local:
+      - url: "https://baochinhphu.vn/moi"
+        content: "Giá xăng bán lẻ trong nước tăng 300 đồng/lít từ chiều nay."
+        published_at: "2026-10-01"
+    web: []
+    expect:
+      label: SUPPORTED
+      cited_origin: local
+
+  - id: absolute_date_not_gated
+    issue: "Claim có ngày tuyệt đối -> không coi là thời sự, không neo thời gian"
+    claim: "Giá xăng tăng ngày 13/3/2023"
+    verifier_says: SUPPORTED
+    local:
+      - url: "https://baochinhphu.vn/2023-abs"
+        content: "Giá xăng tăng từ chiều 13-3-2023."
+        published_at: "2023-03-13"
+    expect:
+      label: SUPPORTED
+      gate_applied: false

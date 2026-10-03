@@ -48,9 +48,30 @@ class _PageTextParser(HTMLParser):
         self._in_title = False
         self._skip_depth = 0
         self._parts: list[str] = []
+        # Tín hiệu ngày đăng: meta tags (name/property/itemprop -> content),
+        # thuộc tính datetime của <time>, và các blob JSON-LD (<script ld+json>).
+        self.meta: dict[str, str] = {}
+        self.time_values: list[str] = []
+        self.ldjson_blobs: list[str] = []
+        self._in_ldjson = False
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         tag = tag.lower()
+        if tag == "meta":
+            attr = {k.lower(): (v or "") for k, v in attrs}
+            key = attr.get("property") or attr.get("name") or attr.get("itemprop")
+            content = attr.get("content")
+            if key and content:
+                # Giữ tín hiệu đầu tiên cho mỗi khóa (thường là tag chuẩn ở <head>).
+                self.meta.setdefault(key.lower().strip(), content.strip())
+        if tag == "time":
+            attr = {k.lower(): (v or "") for k, v in attrs}
+            if attr.get("datetime"):
+                self.time_values.append(attr["datetime"].strip())
+        if tag == "script":
+            attr = {k.lower(): (v or "") for k, v in attrs}
+            if "ld+json" in attr.get("type", "").lower():
+                self._in_ldjson = True
         if tag in self._SKIP:
             self._skip_depth += 1
         if tag == "title":
@@ -62,6 +83,8 @@ class _PageTextParser(HTMLParser):
         tag = tag.lower()
         if tag == "title":
             self._in_title = False
+        if tag == "script":
+            self._in_ldjson = False
         if tag in self._SKIP and self._skip_depth:
             self._skip_depth -= 1
         if self._skip_depth == 0 and tag in self._BLOCKS:
@@ -70,6 +93,8 @@ class _PageTextParser(HTMLParser):
     def handle_data(self, data: str) -> None:
         if self._in_title:
             self.title += data
+        if self._in_ldjson:
+            self.ldjson_blobs.append(data)
         if self._skip_depth == 0:
             self._parts.append(data)
 
@@ -176,6 +201,133 @@ def extract_passages(html: str, minimum_chars: int, maximum_chars: int, max_pass
         if len(passages) >= max_passages:
             break
     return title, passages[:max_passages]
+
+
+# --- Trích xuất ngày đăng (published_at) cho bằng chứng web -------------------
+#
+# Bằng chứng web trước đây chỉ có ``retrieved_at`` (thời điểm ta tải trang), nên
+# không thể neo thời gian: một bài 2023 trông "mới" như bài hôm nay. Ở đây ta rút
+# NGÀY ĐĂNG thật từ trang, theo thứ tự tín hiệu đáng tin cậy giảm dần. Chỉ đọc,
+# không bịa: không có tín hiệu hợp lệ thì trả None (verifier/neo thời gian tự xử).
+
+# Thứ tự ưu tiên khóa meta: tín hiệu "published" chuẩn trước, "modified" sau cùng.
+_PUBLISHED_META_KEYS = (
+    "article:published_time",
+    "datepublished",
+    "og:published_time",
+    "pubdate",
+    "publishdate",
+    "publish-date",
+    "publication_date",
+    "parsely-pub-date",
+    "sailthru.date",
+    "dc.date.issued",
+    "dc.date",
+    "date",
+    "article:modified_time",
+    "og:updated_time",
+    "lastmod",
+)
+
+_DMY = re.compile(r"\b(\d{1,2})[/-](\d{1,2})[/-](\d{4})\b")
+_YMD = re.compile(r"\b(\d{4})[/-](\d{1,2})[/-](\d{1,2})\b")
+
+
+def _normalize_date(raw: str | None) -> str | None:
+    """Chuẩn hóa một chuỗi ngày về ISO (giữ nguyên độ chính xác sẵn có).
+
+    Chấp nhận ISO 8601 (có/không giờ, có 'Z'), dd/mm/yyyy và yyyy/mm/dd. Trả None
+    nếu không parse được hoặc năm vô lý (ngoài 2000..năm sau)."""
+    if not raw:
+        return None
+    text = raw.strip()
+    if not text:
+        return None
+    parsed: datetime | None = None
+    # 1) ISO 8601 trực tiếp (ưu tiên vì giữ cả timezone/giờ).
+    try:
+        parsed = datetime.fromisoformat(text.replace("Z", "+00:00"))
+    except ValueError:
+        parsed = None
+    # 2) yyyy-mm-dd / yyyy/mm/dd ở đầu chuỗi (một số trang gắn thêm chữ phía sau).
+    if parsed is None:
+        match = _YMD.search(text)
+        if match:
+            year, month, day = (int(g) for g in match.groups())
+            try:
+                parsed = datetime(year, month, day)
+            except ValueError:
+                parsed = None
+    # 3) dd/mm/yyyy (định dạng VN phổ biến).
+    if parsed is None:
+        match = _DMY.search(text)
+        if match:
+            day, month, year = (int(g) for g in match.groups())
+            try:
+                parsed = datetime(year, month, day)
+            except ValueError:
+                parsed = None
+    if parsed is None:
+        return None
+    upper = datetime.now(parsed.tzinfo).year + 1 if parsed.tzinfo else datetime.now().year + 1
+    if not (2000 <= parsed.year <= upper):
+        return None
+    return parsed.isoformat()
+
+
+def _ldjson_dates(blobs: list[str]) -> list[str]:
+    """Rút mọi giá trị datePublished/dateCreated từ các blob JSON-LD."""
+    dates: list[str] = []
+    for blob in blobs:
+        text = blob.strip()
+        if not text:
+            continue
+        try:
+            data = json.loads(text)
+        except (json.JSONDecodeError, ValueError):
+            # Vài trang chèn nhiều object nối nhau; bắt bằng regex làm phương án dự phòng.
+            for match in re.finditer(r'"date(?:Published|Created)"\s*:\s*"([^"]+)"', text):
+                dates.append(match.group(1))
+            continue
+
+        def walk(node: object) -> None:
+            if isinstance(node, dict):
+                for field in ("datePublished", "dateCreated"):
+                    value = node.get(field)
+                    if isinstance(value, str):
+                        dates.append(value)
+                for value in node.values():
+                    walk(value)
+            elif isinstance(node, list):
+                for value in node:
+                    walk(value)
+
+        walk(data)
+    return dates
+
+
+def extract_published_at(html: str) -> str | None:
+    """Trả ngày đăng (ISO) tốt nhất tìm được trên trang, hoặc None.
+
+    Thứ tự: meta tag chuẩn -> JSON-LD datePublished -> thẻ <time datetime=...>.
+    Luôn ưu tiên tín hiệu 'published' hơn 'modified'."""
+    parser = _PageTextParser()
+    parser.feed(html)
+    parser.close()
+
+    for key in _PUBLISHED_META_KEYS:
+        normalized = _normalize_date(parser.meta.get(key))
+        if normalized:
+            return normalized
+    for candidate in _ldjson_dates(parser.ldjson_blobs):
+        normalized = _normalize_date(candidate)
+        if normalized:
+            return normalized
+    for candidate in parser.time_values:
+        normalized = _normalize_date(candidate)
+        if normalized:
+            return normalized
+    return None
 
 
 class UsageLedger:
@@ -382,6 +534,7 @@ class WebRetriever:
                     int(self.extraction["maximum_passage_chars"]),
                     int(self.extraction["max_passages_per_page"]),
                 )
+                published_at = extract_published_at(html)
             except WebRetrievalError:
                 continue
             source = self.allowed_sources[urlsplit(final_url).hostname or ""]
@@ -400,6 +553,7 @@ class WebRetriever:
                     domain=urlsplit(final_url).hostname or "",
                     article_id=document_id,
                     title=title or str(result.get("title") or ""),
+                    published_at=published_at,
                     retrieved_at=fetched_at,
                     source_type={"government": "government", "international": "international_org", "press": "news"}[source["category"]],
                     authority_score={"government": 0.95, "international": 0.95, "press": 0.7}[source["category"]],

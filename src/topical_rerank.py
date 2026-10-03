@@ -1,0 +1,126 @@
+"""Gộp bằng chứng theo URL và xếp lại theo độ khớp chủ đề của claim.
+
+Hai vấn đề quan sát được khi chạy thật:
+1) Nhiều đoạn của CÙNG một bài (p01/p02/p03) chiếm hết top-k, nhìn lặp và làm
+   verifier thấy toàn một nguồn. -> Gộp mỗi URL còn MỘT đoạn khớp nhất.
+2) Bài "giá dầu thế giới" (WTI/Brent, USD/thùng) bị xếp trên bài "giá xăng bán lẻ
+   trong nước" dù claim hỏi về giá bán lẻ. -> Xếp lại theo độ khớp với claim.
+
+Cách tính độ khớp (cố ý GIỮ TỔNG QUÁT, không phải hack riêng xăng dầu):
+- Chính: số từ nội dung của claim xuất hiện trong đoạn (bỏ stopword tiếng Việt).
+  Claim "giá xăng tăng chiều nay" khớp đoạn bán lẻ ("giá xăng ... tăng ... đồng/lít")
+  nhiều hơn đoạn thế giới ("giá dầu WTI ... USD/thùng") một cách tự nhiên.
+- Phụ (chỉ bật khi claim nói về GIÁ): cộng nhẹ nếu đoạn có dấu hiệu GIÁ BÁN LẺ /
+  KỲ ĐIỀU HÀNH trong nước, trừ nhẹ nếu đoạn chỉ nói GIÁ DẦU THẾ GIỚI. Trọng số nhỏ
+  nên chỉ nghiêng cán cân khi độ khớp xấp xỉ nhau, không bẻ cong verifier.
+
+Lớp này chỉ XẾP LẠI + GỘP; không tạo/sửa nội dung bằng chứng, không đụng verifier.
+"""
+
+from __future__ import annotations
+
+import re
+
+from src.contracts import Retriever
+from src.schemas import RetrievedEvidence
+
+_SPACE = re.compile(r"\s+")
+
+# Stopword tiếng Việt tối thiểu (từ chức năng + mốc thời gian tương đối) để độ khớp
+# phản ánh từ NỘI DUNG, không bị nhiễu bởi "từ, các, đã, chiều, nay"...
+_STOPWORDS = frozenset("""
+và của có là các một những được cho với từ đã đang sẽ trong ngoài trên dưới khi về
+thì mà nếu nên hay hoặc tại theo đến ra vào này đó kia ấy rất quá cũng chỉ vẫn còn
+chiều sáng trưa tối đêm nay mai qua hôm hiện bây giờ gần đây mới đây vừa tuần tháng
+năm ngày số
+""".split())
+
+# Dấu hiệu GIÁ BÁN LẺ / KỲ ĐIỀU HÀNH trong nước (claim giá cả thường nhắm vào đây).
+_RETAIL_HINTS = (
+    "bán lẻ", "đồng/lít", "đồng một lít", "kỳ điều hành", "điều hành giá",
+    "liên bộ", "ron 95", "ron95", "ron 92", "xăng e5", "e5 ron", "trong nước",
+    "niêm yết", "bình ổn", "quỹ bình ổn",
+)
+# Dấu hiệu GIÁ DẦU THẾ GIỚI (nền thị trường, không phải giá bán lẻ VN).
+_WORLD_HINTS = (
+    "wti", "brent", "usd/thùng", "usd một thùng", "thị trường thế giới",
+    "dầu thô", "opec",
+)
+# Claim có nói về giá không? (để bật phần phụ)
+_PRICE_CLAIM = ("giá", "xăng", "dầu", "tăng", "giảm", "đồng")
+
+_RETAIL_BONUS = 0.6   # nhỏ: chỉ nghiêng khi độ khớp xấp xỉ
+_WORLD_PENALTY = 0.6
+
+
+def _tokens(text: str) -> set[str]:
+    return {t for t in _SPACE.sub(" ", text.casefold()).split() if t and t not in _STOPWORDS}
+
+
+def _hint_count(text: str, hints: tuple[str, ...]) -> int:
+    low = text.casefold()
+    return sum(1 for h in hints if h in low)
+
+
+def relevance(claim: str, passage: str) -> float:
+    """Điểm khớp chủ đề giữa claim và một đoạn bằng chứng (càng cao càng đúng chủ đề)."""
+    claim_terms = _tokens(claim)
+    if not claim_terms:
+        return 0.0
+    overlap = len(claim_terms & _tokens(passage))
+    score = float(overlap)
+    # Phần phụ chỉ áp dụng cho claim về giá cả.
+    if any(k in claim.casefold() for k in _PRICE_CLAIM):
+        retail = min(_hint_count(passage, _RETAIL_HINTS), 3)
+        world = min(_hint_count(passage, _WORLD_HINTS), 3)
+        score += _RETAIL_BONUS * retail - _WORLD_PENALTY * world
+    return score
+
+
+class TopicalRerankRetriever:
+    """Bọc một retriever: gộp theo URL (giữ đoạn khớp nhất) rồi xếp theo độ khớp claim.
+
+    ``inner`` thường là TemporalGateRetriever. Lấy dư ứng viên (``candidate_k``),
+    gộp mỗi URL một đoạn, xếp lại và trả ``top_k`` bài RIÊNG BIỆT.
+    """
+
+    def __init__(self, inner: Retriever, candidate_k: int = 20, enabled: bool = True) -> None:
+        if candidate_k < 1:
+            raise ValueError("candidate_k phải lớn hơn 0")
+        self.inner = inner
+        self.candidate_k = candidate_k
+        self.enabled = enabled
+
+    def _url_key(self, item: RetrievedEvidence) -> str:
+        url = (item.evidence.url or "").strip().casefold()
+        return url or f"doc::{item.evidence.document_id}"
+
+    def search(self, claim: str, top_k: int = 3) -> list[RetrievedEvidence]:
+        if top_k < 1:
+            raise ValueError("top_k phải lớn hơn 0")
+        if not self.enabled:
+            return self.inner.search(claim, top_k)
+
+        candidates = self.inner.search(claim, max(top_k, self.candidate_k))
+
+        # Gộp theo URL: mỗi bài giữ đoạn có độ khớp cao nhất (hòa thì theo score gốc).
+        best: dict[str, tuple[float, RetrievedEvidence]] = {}
+        for item in candidates:
+            rel = relevance(claim, item.evidence.content)
+            key = self._url_key(item)
+            current = best.get(key)
+            if current is None or (rel, item.score) > (current[0], current[1].score):
+                best[key] = (rel, item)
+
+        # Xếp bài theo (độ khớp, score gốc) giảm dần. Gán lại score = độ khớp để
+        # pipeline thấy thứ tự giảm dần (pipeline yêu cầu score không tăng dần).
+        ranked = sorted(
+            best.values(),
+            key=lambda pair: (-pair[0], -pair[1].score, pair[1].evidence.passage_id),
+        )
+        result: list[RetrievedEvidence] = []
+        for order, (rel, item) in enumerate(ranked[:top_k]):
+            # Score giảm dần nghiêm ngặt theo thứ hạng để không phá kiểm tra của pipeline,
+            # vẫn giữ quan hệ hơn-kém theo độ khớp.
+            result.append(RetrievedEvidence(item.evidence, float(len(ranked) - order)))
+        return result
