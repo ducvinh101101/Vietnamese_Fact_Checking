@@ -54,15 +54,15 @@ def load_dotenv(path: Path) -> None:
 load_dotenv(ROOT / ".env")
 
 from src.fusion_retriever import FusionRetriever
-from src.query_enrichment import TimeAwareRetriever
-from src.temporal_gate import TemporalGateRetriever
-from src.topical_rerank import TopicalRerankRetriever
-from src.verdict_guard import GuardedVerifier
 from src.io_utils import load_evidence_jsonl
 from src.phobert_fact_checker import PhoBERTFactChecker
 from src.pipeline import FactCheckingPipeline
+from src.query_enrichment import TimeAwareRetriever
 from src.retriever import BM25Retriever
 from src.reranked_retriever import MetadataRerankedRetriever
+from src.temporal_gate import TemporalGateRetriever
+from src.topical_rerank import TopicalRerankRetriever
+from src.verdict_guard import GuardedVerifier
 from src.web_retriever import WebRetriever
 
 
