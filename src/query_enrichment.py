@@ -33,6 +33,16 @@ _CURRENT_MARKERS = (
     "vừa qua", "vừa mới", "tuần này", "tháng này", "năm nay",
     "sắp tới", "tới đây", "đương nhiệm",
 )
+# Chức danh có nhiệm kỳ là một dạng claim "hiện tại" ngầm. Ví dụ "Donald Trump
+# là tổng thống Mỹ" không có từ "hiện nay", nhưng nếu không neo thời gian thì
+# retriever có thể dùng bài viết về một nhiệm kỳ cũ để kết luận sai ở hiện tại.
+# Danh sách này cố ý chỉ gồm vai trò thay đổi theo thời gian, không gồm các nghề
+# nghiệp chung như "bác sĩ" hoặc "ca sĩ".
+_CURRENT_ROLE_MARKERS = (
+    "tổng thống", "thủ tướng", "chủ tịch nước", "bộ trưởng", "thống đốc",
+    "ceo", "giám đốc điều hành", "quốc vương", "thị trưởng",
+)
+_HISTORICAL_ROLE_MARKERS = ("cựu ", "từng ", "đã từng", "trước đây", "sẽ ", "dự kiến")
 _RELATIVE_MARKERS = _TODAY_MARKERS + _CURRENT_MARKERS
 # Nếu claim đã có ngày tuyệt đối (13/3, 13-3-2023, ngày 5 tháng 10...) thì KHÔNG
 # cần chèn — nó đã có mốc.
@@ -43,13 +53,19 @@ def recency_class(claim: str) -> str | None:
     """Trả 'today' | 'current' | None theo loại mốc thời gian của claim.
 
     None nếu claim không thời sự (hoặc đã có ngày tuyệt đối). 'today' ưu tiên hơn
-    'current' khi có cả hai (mốc chặt hơn thì an toàn hơn)."""
+    'current' khi có cả hai (mốc chặt hơn thì an toàn hơn). Chức danh nhiệm kỳ
+    không có dấu hiệu quá khứ cũng được coi là 'current' ngầm."""
     text = claim.casefold()
     if _ABSOLUTE_DATE.search(text):
         return None
     if any(marker in text for marker in _TODAY_MARKERS):
         return "today"
     if any(marker in text for marker in _CURRENT_MARKERS):
+        return "current"
+    if (
+        any(role in text for role in _CURRENT_ROLE_MARKERS)
+        and not any(marker in text for marker in _HISTORICAL_ROLE_MARKERS)
+    ):
         return "current"
     return None
 

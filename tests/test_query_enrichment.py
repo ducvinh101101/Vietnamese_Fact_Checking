@@ -32,6 +32,16 @@ def test_time_sensitive_web_search_uses_same_window_as_gate():
     )]
 
 
+def test_implicit_current_office_query_uses_fresh_news_window():
+    inner = _WebLikeRetriever()
+    retriever = TimeAwareRetriever(inner, as_of=date(2026, 10, 3), window_current=365)
+    assert retriever.search("Donald Trump là tổng thống Mỹ", 3) == []
+    assert inner.calls == [(
+        "window", "Donald Trump là tổng thống Mỹ ngày 03/10/2026", 3,
+        date(2025, 10, 3), date(2026, 10, 3), "vi",
+    )]
+
+
 def test_non_time_sensitive_query_keeps_general_web_search():
     inner = _WebLikeRetriever()
     retriever = TimeAwareRetriever(inner, as_of=date(2026, 10, 3))

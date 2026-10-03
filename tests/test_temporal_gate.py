@@ -135,6 +135,8 @@ from src.query_enrichment import recency_class
 def test_recency_class_today_vs_current():
     assert recency_class("Giá xăng tăng chiều nay") == "today"
     assert recency_class("Tổng thống Mỹ hiện nay là ai") == "current"
+    assert recency_class("Donald Trump là tổng thống Mỹ") == "current"
+    assert recency_class("Donald Trump từng là tổng thống Mỹ") is None
     assert recency_class("Thủ đô Việt Nam là Hà Nội") is None
     assert recency_class("Giá xăng ngày 13/3/2023") is None  # có ngày tuyệt đối
 
@@ -159,3 +161,14 @@ def test_current_claim_uses_wide_window():
     kept = gate.search("Tổng thống Mỹ hiện nay là Trump", top_k=5)
     assert [i.evidence.passage_id for i in kept] == ["apr"]
     assert gate.last_class == "current" and gate.last_window == 365
+
+
+def test_implicit_current_office_claim_drops_old_officeholder_evidence():
+    inner = _FakeInner([
+        _ev("old-2016", "2016-11-12", 0.9),
+        _ev("fresh-2026", "2026-04-28", 0.8),
+    ])
+    gate = TemporalGateRetriever(inner, as_of=AS_OF, window_today=10, window_current=365)
+    kept = gate.search("Donald Trump là tổng thống Mỹ", top_k=5)
+    assert [i.evidence.passage_id for i in kept] == ["fresh-2026"]
+    assert gate.last_class == "current" and gate.last_dropped == 1
