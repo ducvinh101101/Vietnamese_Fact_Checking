@@ -1,6 +1,6 @@
 {
   "purpose": "Technical W3-01 smoke test; not accuracy/Macro-F1/retrieval benchmark.",
-  "config_sha256": "775211d0a4c297ff9b9451380279466c41e834b4dcb824fadb3f98614eb9787d",
+  "config_sha256": "016cd2c1f16fbd91de3f3ab9e3717e03ef2feeee57b5204a9129d2fd9184b48b",
   "corpus_sha256": "dc7e96cfb1b28e2e4a4a7c7ae521e44cbee0f35a4f3bae6091db917d84039312",
   "test_split_sha256": "b624326d72ef714169a42317e9473396c9281d1457f0af45d58a0df0d8da30ed",
   "corpus_passages": 5845,
@@ -11,7 +11,7 @@
       "source_row_id": "9",
       "expected_dataset_label": "SUPPORTED",
       "observed_pipeline_label": "SUPPORTED",
-      "confidence": 0.9146,
+      "confidence": 0.6966,
       "citation_ids": [
         "vifactcheck_00651_p004"
       ],
@@ -37,9 +37,9 @@
       "source_row_id": "28",
       "expected_dataset_label": "REFUTED",
       "observed_pipeline_label": "REFUTED",
-      "confidence": 0.6613,
+      "confidence": 0.6139,
       "citation_ids": [
-        "vifactcheck_00458_p001"
+        "vifactcheck_00458_p002"
       ],
       "retrieved": [
         {
@@ -62,10 +62,10 @@
     {
       "source_row_id": "25",
       "expected_dataset_label": "NOT_ENOUGH_INFO",
-      "observed_pipeline_label": "REFUTED",
-      "confidence": 0.6782,
+      "observed_pipeline_label": "NOT_ENOUGH_INFO",
+      "confidence": 0.7643,
       "citation_ids": [
-        "vifactcheck_00672_p004"
+        "vifactcheck_00672_p001"
       ],
       "retrieved": [
         {

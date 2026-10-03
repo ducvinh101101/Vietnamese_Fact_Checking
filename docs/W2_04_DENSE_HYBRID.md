@@ -57,7 +57,7 @@ Từ thư mục gốc repository, dùng Python 3.11 và môi trường đã khó
 .\.venv\Scripts\python.exe -m pip install -r requirements-retrieval.txt
 $env:HF_HOME = 'D:\Vietnamese_Fact_Checking\.cache\huggingface'
 .\.venv\Scripts\python.exe -c "from huggingface_hub import snapshot_download; print(snapshot_download('intfloat/multilingual-e5-small', revision='614241f622f53c4eeff9890bdc4f31cfecc418b3', allow_patterns=['*.json','model.safetensors','tokenizer.json'], cache_dir='.cache/huggingface/hub'))"
-.\.venv\Scripts\python.exe scripts/evaluate_dense_hybrid.py --model-path .cache/huggingface/hub/models--intfloat--multilingual-e5-small/snapshots/614241f622f53c4eeff9890bdc4f31cfecc418b3
+.\.venv\Scripts\python.exe scripts/evaluate_w2_04_dense_hybrid.py --model-path .cache/huggingface/hub/models--intfloat--multilingual-e5-small/snapshots/614241f622f53c4eeff9890bdc4f31cfecc418b3
 .\.venv\Scripts\python.exe -m pytest -q
 .\.venv\Scripts\python.exe scripts/verify_w2_04_results.py
 ```
@@ -70,6 +70,10 @@ Output `outputs/retrieval/w2_04/dev_metrics.json` ghi tham số, môi trường,
 corpus/split/model/script, metrics và điều kiện lựa chọn. `dev_predictions.jsonl`
 lưu top 5 passage IDs và latency cho từng query, từng phương pháp để tính lại metrics.
 Cache vector có khóa phụ thuộc nội dung corpus, model và preprocessing.
+
+Evaluator W2-04 được giữ riêng tại `scripts/evaluate_w2_04_dense_hybrid.py`.
+Script W5-01 có thêm reranker và không được dùng để kiểm chứng artifact lịch sử
+W2-04.
 
 ## Kiểm chứng
 

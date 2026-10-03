@@ -5,7 +5,7 @@ checkpoint hoặc pipeline.
 
 ## Artefact
 
-- `requirements.lock`: 79 dependency chính xác từ môi trường đã chạy test.
+- `requirements.lock`: 80 dependency chính xác từ môi trường đã chạy test.
 - `outputs/metrics/reproducibility_baseline.json`: commit Git, phiên bản Python,
   nền tảng và SHA-256 của config, corpus, checkpoint PhoBERT và VnCoreNLP.
 
@@ -26,7 +26,7 @@ VnCoreNLP ở `models/vncorenlp/` như cấu hình hiện tại.
 
 ## Kết quả baseline
 
-- `pytest -q`: 10 passed.
+- `pytest -q`: 102 passed.
 - Smoke test PhoBERT với kho evidence mẫu: trả về nhãn và ba evidence.
 - W1-07 không cài thêm dependency; mọi package dùng cho baseline đã được ghi
   vào `requirements.lock`.

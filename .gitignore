@@ -19,5 +19,7 @@ indexes/*
 !indexes/.gitkeep
 outputs/figures/*
 !outputs/figures/.gitkeep
+# Live web acceptance reports contain run-specific public metadata and stay local.
+outputs/web_retrieval/
 # Project-local runtime; downloaded automatically by scripts/download_portable_java.py.
 tools/java17/

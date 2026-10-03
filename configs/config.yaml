@@ -11,10 +11,17 @@ retrieval:
   top_k: 3
 
 verification:
+  # W5-05 (2026-09-30): khóa RT-V2 balanced — thắng RT-V1 ở F1 REFUTED (64,23 vs
+  # 61,40) và giảm lệch NEI (28,52% vs 40,93%) trên end-to-end dev. Dùng rank
+  # policy, KHÔNG dùng AGG-V1 (fit trên logits E2 cũ, không hợp checkpoint mới).
   engine: phobert
-  model_path: models/e2_phobert/best_model
+  model_path: models/rt_v2_balanced/best_model
   vncorenlp_dir: models/vncorenlp
   max_length: 256
+  temperature: 1.0
+  decisive_min_confidence: 0.5
+  retrieval_rank_bias: 1.0
+  aggregation_model_path: null
   support_threshold: 0.45
   refute_markers:
     - "không"

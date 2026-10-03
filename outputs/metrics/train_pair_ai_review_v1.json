@@ -1,0 +1,19 @@
+{
+  "source_sha256": "1e5f0f229d3edda5aa601ca63f5746e4bc1a4093c978bc56cdc4ae4db9697942",
+  "ledger_sha256": "de0ce93b2124b5f554b9f9c5572a7ab6e2bbda8d7dc27cfc4204731b5bee181d",
+  "output_sha256": "5380d4eb0158e568a6f0e30e12f6da833096324682ff52893d7e5ccc7c5779bb",
+  "reviewed_pairs": 540,
+  "claims": 180,
+  "status_counts": {
+    "ai_reviewed": 487,
+    "needs_human_review": 53
+  },
+  "ai_label_counts": {
+    "NOT_ENOUGH_INFO": 401,
+    "SUPPORTED": 44,
+    "REFUTED": 42
+  },
+  "human_gold": false,
+  "training_use": "Optional silver augmentation, exclude unresolved rows; evaluate before promotion",
+  "limitations": "Single AI reviewer; no human agreement score. Full claim must be supported by one passage; absent information is not refutation."
+}

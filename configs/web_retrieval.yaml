@@ -26,6 +26,9 @@ source_policy:
   revalidate_every_redirect: true
   reject_private_ips: true
   require_original_page_passage: true
+  obey_robots_txt: true
+  robots_failure: deny
+  max_robots_bytes: 262144
   allowlist:
     - host: baochinhphu.vn
       name: Báo Điện tử Chính phủ
@@ -48,6 +51,12 @@ cache:
   persist_page_content: false
   metadata_ttl_hours: 24
   commit_to_git: false
+extraction:
+  max_redirects: 3
+  max_page_bytes: 1000000
+  minimum_passage_chars: 120
+  maximum_passage_chars: 800
+  max_passages_per_page: 3
 secrets:
   log_key: false
   send_in_query_string: false

@@ -17,5 +17,13 @@
     "max_chars": 700,
     "schema_version": "1.0"
   },
+  "versioned_evidence_corpus": {
+    "path": "data/evidence/vifactcheck_passages_v2.jsonl",
+    "manifest": "data/evidence/vifactcheck_passages_v2_manifest.json",
+    "passages": 5844,
+    "urls": 1041,
+    "schema_version": "2.0",
+    "corpus_version": "v2.0.0"
+  },
   "contract": "docs/DATA_CONTRACT.md"
 }

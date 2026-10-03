@@ -38,6 +38,9 @@ class Evidence:
     content: str
     source: str = "Không rõ nguồn"
     url: str = ""
+    # Preserve the resolved hostname explicitly.  A web citation must not rely
+    # on consumers parsing it back out of the URL.
+    domain: str = ""
     article_id: str = ""
     title: str | None = None
     published_at: str | None = None

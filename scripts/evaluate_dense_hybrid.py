@@ -25,6 +25,8 @@ import pandas as pd
 
 from src.io_utils import load_evidence_jsonl
 from src.retriever import BM25Retriever
+from src.reranked_retriever import MetadataRerankedRetriever
+from scripts.ingest_versioned_evidence_corpus import canonicalize_url
 
 
 def sha256(path):
@@ -62,20 +64,23 @@ def main():
     parser.add_argument("--model-path", required=True, type=Path)
     parser.add_argument("--split", choices=["dev", "test"], default="dev")
     parser.add_argument("--threads", type=int, default=4)
+    parser.add_argument("--corpus", type=Path, default=ROOT / "data/evidence/vifactcheck_passages.jsonl")
+    parser.add_argument("--rerank-config", type=Path, default=ROOT / "configs/reranked_retrieval.yaml")
+    parser.add_argument("--output", type=Path, default=ROOT / "outputs/retrieval/w5_01")
     args = parser.parse_args()
     torch.set_num_threads(args.threads)
     faiss.omp_set_num_threads(args.threads)
     torch.manual_seed(0)
-    corpus = ROOT / "data/evidence/vifactcheck_passages.jsonl"
+    corpus = args.corpus
     split = ROOT / f"data/processed/vifactcheck_group_split/{args.split}.parquet"
-    output = ROOT / "outputs/retrieval/w2_04"
+    output = args.output
     output.mkdir(parents=True, exist_ok=True)
     items = load_evidence_jsonl(corpus)
     frame = pd.read_parquet(split)
     if frame.empty or frame[["Statement", "Url"]].isna().any().any():
         raise ValueError("Empty split or missing queries/gold URLs")
     urls = {item.url for item in items}
-    if not set(frame.Url).issubset(urls):
+    if not {canonicalize_url(url) for url in frame.Url}.issubset(urls):
         raise ValueError("Gold URL missing from corpus")
     ids = {item.passage_id: i for i, item in enumerate(items)}
     if len(ids) != len(items):
@@ -120,8 +125,11 @@ def main():
         expected = np.sort(vectors @ vectors[row])[-5:][::-1]
         np.testing.assert_allclose(distances[row], expected, atol=1e-5)
     bm25 = BM25Retriever(items)
+    import yaml
+    rerank_config = yaml.safe_load(args.rerank_config.read_text(encoding='utf-8'))
+    reranker = MetadataRerankedRetriever(bm25, rerank_config)
     encode(['query: khởi động'])  # excluded warm-up
-    ranks = {name: [] for name in ('bm25', 'dense', 'hybrid_rrf')}
+    ranks = {name: [] for name in ('bm25', 'dense', 'hybrid_rrf', 'reranker')}
     latencies = {name: [] for name in ranks}
     with (output / f'{args.split}_predictions.jsonl').open('w', encoding='utf-8') as handle:
         for number, row in enumerate(frame.itertuples()):
@@ -136,10 +144,15 @@ def main():
             start = time.perf_counter()
             hybrid = rrf(lexical, dense)
             hybrid_ms = lexical_ms + dense_ms + (time.perf_counter() - start) * 1000
-            record = {'query_id': str(row.Index), 'gold_url': str(row.Url), 'methods': {}}
-            for name, ranking, latency in [('bm25', lexical, lexical_ms), ('dense', dense, dense_ms), ('hybrid_rrf', hybrid, hybrid_ms)]:
+            start = time.perf_counter()
+            reranked_items = reranker.search(str(row.Statement), top_k=5)
+            reranker_ms = (time.perf_counter() - start) * 1000
+            reranked = [ids[item.evidence.passage_id] for item in reranked_items]
+            gold_url = canonicalize_url(str(row.Url))
+            record = {'query_id': str(row.Index), 'gold_url': gold_url, 'methods': {}}
+            for name, ranking, latency in [('bm25', lexical, lexical_ms), ('dense', dense, dense_ms), ('hybrid_rrf', hybrid, hybrid_ms), ('reranker', reranked, reranker_ms)]:
                 top = ranking[:5]
-                rank = next((i for i, idx in enumerate(top, 1) if items[idx].url == row.Url), 0)
+                rank = next((i for i, idx in enumerate(top, 1) if items[idx].url == gold_url), 0)
                 ranks[name].append(rank)
                 latencies[name].append(latency)
                 record['methods'][name] = {'first_relevant_rank_at_5': rank, 'latency_ms': latency,
@@ -162,9 +175,10 @@ def main():
         'passage_embedding_seconds': embedding_seconds, 'embedding_cache_used': cached,
         'latency_scope': 'Sequential warm CPU queries; dense includes encoding and FAISS search; hybrid includes BM25+dense+fusion; corpus encoding/index construction excluded',
         'metrics': {name: metrics(ranks[name], latencies[name]) for name in ranks},
+        'passage_ndcg_at_5': {'status': 'pending', 'reason': 'W2-10 passage qrels independent review is not available.'},
         'selection_rule': 'On dev only: replace BM25 only if Recall@5 and MRR@5 both strictly improve; otherwise retain BM25. Fixed parameters, no test tuning.',
     }
-    report['eligible_on_dev'] = [name for name in ('dense', 'hybrid_rrf')
+    report['eligible_on_dev'] = [name for name in ('dense', 'hybrid_rrf', 'reranker')
         if all(report['metrics'][name][m] > report['metrics']['bm25'][m] for m in ('recall_at_5', 'mrr_at_5'))] if args.split == 'dev' else None
     (output / f'{args.split}_metrics.json').write_text(json.dumps(report, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
     print(json.dumps(report['metrics'], indent=2), flush=True)

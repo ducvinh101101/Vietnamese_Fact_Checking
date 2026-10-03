@@ -1,0 +1,15 @@
+{
+  "purpose": "W3-03 JSON/citation/no-evidence technical smoke; not a quality benchmark.",
+  "config_sha256": "8e255f1cb3932326a3f48f99a28a2d9b9b559bb5f8cc2303d29bc14d4c073d41",
+  "corpus_sha256": "dc7e96cfb1b28e2e4a4a7c7ae521e44cbee0f35a4f3bae6091db917d84039312",
+  "claim_sha256": "4539308035ded5b4145d086671bbf5b4054d24831859f6b664092372a4503b51",
+  "schema_version": "w3-03/v1",
+  "verdict": {
+    "label": "NOT_ENOUGH_INFO",
+    "confidence": 0.0,
+    "explanation": "Không tìm thấy đoạn có điểm truy xuất dương trong kho hiện có; chưa đủ bằng chứng để kết luận."
+  },
+  "retrieved_count": 3,
+  "positive_score_count": 0,
+  "citation_count": 0
+}

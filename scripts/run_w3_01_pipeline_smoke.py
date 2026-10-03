@@ -62,6 +62,10 @@ def main() -> None:
         model_path=str(ROOT / config["verification"]["model_path"]),
         vncorenlp_dir=str(ROOT / config["verification"]["vncorenlp_dir"]),
         max_length=int(config["verification"]["max_length"]),
+        temperature=float(config["verification"].get("temperature", 1.0)),
+        decisive_min_confidence=float(config["verification"].get("decisive_min_confidence", 0.0)),
+        retrieval_rank_bias=float(config["verification"].get("retrieval_rank_bias", 0.0)),
+        aggregation_model_path=str(ROOT / config["verification"]["aggregation_model_path"]) if config["verification"].get("aggregation_model_path") else None,
     )
     runs = []
     for case in select_cases(frame):

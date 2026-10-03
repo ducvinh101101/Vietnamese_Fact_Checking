@@ -1,0 +1,28 @@
+{
+  "experiment": "RT-V1 AI-silver augmentation, not human-reviewed gold",
+  "source_train_sha256": "fb850bb7f910fdb44c2fa77407339b27e940bc74f4a8e2204a57b42dc371e3b5",
+  "silver_sha256": "bc93096f6362adbcc3793ea1eafa46bbbea5a7dff405463ff68c10026b214821",
+  "original_rows": 5076,
+  "deduplicated_gold_rows": 5075,
+  "added_silver_rows": 487,
+  "excluded_conflicting_silver_rows": 0,
+  "combined_rows": 5562,
+  "dev_rows": 1080,
+  "combined_label_counts": {
+    "0": 1817,
+    "1": 1703,
+    "2": 2042
+  },
+  "sample_weight": {
+    "original_gold_train": 1.0,
+    "ai_silver": 0.5
+  },
+  "heldout_url_check": "passed for claim and passage URLs; test URL column used only to exclude leakage",
+  "test_in_bundle": false,
+  "files": {
+    "gold_train.parquet": "24b40113a8e0d8c684883923e0348fe3cd471a48a9b1ed94139ad2ac98240c83",
+    "train.parquet": "5b6de1d025cb540b32a50c4cf2b2b7986325fb822f84094ab23ee169c59fb0f6",
+    "dev.parquet": "6a53e330b59aa7ae76933e3d57c25625185334e39e76275613572af6b40b8527",
+    "excluded_silver_conflicts.csv": "dd14e340cb3b394d650e13478dbe99b61e625fc2f4c5423929faed0cfc38ee60"
+  }
+}

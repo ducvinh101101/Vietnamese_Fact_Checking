@@ -1,0 +1,228 @@
+{
+  "analysis": "RT-V1 citation metric decomposition + error triage",
+  "date": "2026-09-12",
+  "scope": {
+    "split": "data/processed/vifactcheck_group_split/dev.parquet",
+    "queries": 1080,
+    "note": "Phan tich lai tren predictions da co. Khong chay lai model, khong dung test, khong sua retriever/corpus.",
+    "relevance": "URL-level proxy only."
+  },
+  "inputs": {
+    "e2_control": {
+      "file": "outputs/predictions/rt_v1_e2_control_e2e_dev.csv",
+      "sha256": "81898de2a9be0886570d349d9ece722090c3d9d5fc21e78d7f7383ee0ae72c68"
+    },
+    "rt_v1_silver": {
+      "file": "outputs/predictions/rt_v1_silver_e2e_dev.csv",
+      "sha256": "dbc6dd485821f8084cf737fe2355b9640230844be1cbff9e9d41a990ccc9c860"
+    },
+    "rt_v1_silver_tuned": {
+      "file": "outputs/predictions/rt_v1_silver_tuned_e2e_dev.csv",
+      "sha256": "f69c2215a38e911095c87f249ddc22e5f2e3568ddcdc72a9ac01bc5c02d3c2af"
+    }
+  },
+  "citation_metric_decomposition": {
+    "e2_control": {
+      "predicted_nei_rate": 0.302778,
+      "citation_url_match_all_claims": 0.675,
+      "citation_url_match_decisive_only": 0.968127,
+      "decisive_claims": 753,
+      "nei_predictions_with_citation": 0,
+      "decisive_predictions_without_citation": 0
+    },
+    "rt_v1_silver": {
+      "predicted_nei_rate": 0.438889,
+      "citation_url_match_all_claims": 0.547222,
+      "citation_url_match_decisive_only": 0.975248,
+      "decisive_claims": 606,
+      "nei_predictions_with_citation": 0,
+      "decisive_predictions_without_citation": 0
+    },
+    "rt_v1_silver_tuned": {
+      "predicted_nei_rate": 0.409259,
+      "citation_url_match_all_claims": 0.575926,
+      "citation_url_match_decisive_only": 0.974922,
+      "decisive_claims": 638,
+      "nei_predictions_with_citation": 0,
+      "decisive_predictions_without_citation": 0
+    },
+    "interpretation": "Chi so cu tinh moi du doan NEI (khong citation) la citation sai. Khi chi tinh tren cac ket luan quyet doan, citation URL-match KHONG giam: 96,81% -> 97,49%. Muc giam 67,50% -> 57,59% la he qua cua viec RT-V1 tra NEI nhieu hon, khong phai bang chung citation xau di. Van chua co bang chung passage duoc trich dan du de entail claim; do la viec cua audit thu cong."
+  },
+  "error_triage": {
+    "e2_control": {
+      "labels_order": [
+        "SUPPORTED",
+        "REFUTED",
+        "NOT_ENOUGH_INFO"
+      ],
+      "confusion_matrix_gold_rows": [
+        [
+          335,
+          7,
+          32
+        ],
+        [
+          138,
+          140,
+          75
+        ],
+        [
+          100,
+          33,
+          220
+        ]
+      ],
+      "total_errors": 385,
+      "triage_counts": {
+        "nei_decision": 235,
+        "verifier_with_gold_url": 142,
+        "retrieval_url_miss": 8
+      },
+      "gold_refuted_errors": 213,
+      "gold_refuted_to_nei": 75,
+      "gold_refuted_to_supported": 138
+    },
+    "rt_v1_silver": {
+      "labels_order": [
+        "SUPPORTED",
+        "REFUTED",
+        "NOT_ENOUGH_INFO"
+      ],
+      "confusion_matrix_gold_rows": [
+        [
+          298,
+          18,
+          58
+        ],
+        [
+          72,
+          168,
+          113
+        ],
+        [
+          25,
+          25,
+          303
+        ]
+      ],
+      "total_errors": 311,
+      "triage_counts": {
+        "nei_decision": 214,
+        "verifier_with_gold_url": 90,
+        "retrieval_url_miss": 7
+      },
+      "gold_refuted_errors": 185,
+      "gold_refuted_to_nei": 113,
+      "gold_refuted_to_supported": 72
+    },
+    "rt_v1_silver_tuned": {
+      "labels_order": [
+        "SUPPORTED",
+        "REFUTED",
+        "NOT_ENOUGH_INFO"
+      ],
+      "confusion_matrix_gold_rows": [
+        [
+          306,
+          21,
+          47
+        ],
+        [
+          77,
+          178,
+          98
+        ],
+        [
+          28,
+          28,
+          297
+        ]
+      ],
+      "total_errors": 299,
+      "triage_counts": {
+        "nei_decision": 195,
+        "verifier_with_gold_url": 97,
+        "retrieval_url_miss": 7
+      },
+      "gold_refuted_errors": 175,
+      "gold_refuted_to_nei": 98,
+      "gold_refuted_to_supported": 77
+    }
+  },
+  "paired_comparison": {
+    "baseline": "e2_control",
+    "candidate": "rt_v1_silver_tuned",
+    "fixed_by_candidate": 140,
+    "broken_by_candidate": 54,
+    "net": 86,
+    "top_shifts": [
+      {
+        "gold": "NOT_ENOUGH_INFO",
+        "e2": "SUPPORTED",
+        "rt_v1": "NOT_ENOUGH_INFO",
+        "n": 71
+      },
+      {
+        "gold": "REFUTED",
+        "e2": "SUPPORTED",
+        "rt_v1": "NOT_ENOUGH_INFO",
+        "n": 31
+      },
+      {
+        "gold": "REFUTED",
+        "e2": "SUPPORTED",
+        "rt_v1": "REFUTED",
+        "n": 30
+      },
+      {
+        "gold": "REFUTED",
+        "e2": "NOT_ENOUGH_INFO",
+        "rt_v1": "REFUTED",
+        "n": 22
+      },
+      {
+        "gold": "SUPPORTED",
+        "e2": "SUPPORTED",
+        "rt_v1": "NOT_ENOUGH_INFO",
+        "n": 21
+      },
+      {
+        "gold": "NOT_ENOUGH_INFO",
+        "e2": "REFUTED",
+        "rt_v1": "NOT_ENOUGH_INFO",
+        "n": 16
+      },
+      {
+        "gold": "REFUTED",
+        "e2": "REFUTED",
+        "rt_v1": "NOT_ENOUGH_INFO",
+        "n": 14
+      },
+      {
+        "gold": "SUPPORTED",
+        "e2": "SUPPORTED",
+        "rt_v1": "REFUTED",
+        "n": 9
+      },
+      {
+        "gold": "NOT_ENOUGH_INFO",
+        "e2": "NOT_ENOUGH_INFO",
+        "rt_v1": "REFUTED",
+        "n": 9
+      },
+      {
+        "gold": "SUPPORTED",
+        "e2": "NOT_ENOUGH_INFO",
+        "rt_v1": "REFUTED",
+        "n": 7
+      }
+    ],
+    "note": "Dev da duoc dung de chon nguong 0,5 nen day khong phai do doc lap."
+  },
+  "refuted_to_nei_probe": {
+    "n": 98,
+    "gold_url_in_top_k_rate": 0.969388,
+    "mean_nei_confidence": 0.870213,
+    "reading": "Model tu tin chon NEI (conf tb 0,87) khi URL vang da nam trong top-k (96,9%). Ha nguong quyet doan khong sua duoc nhom nay; day la van de verifier/du lieu, khong phai retrieval hay threshold."
+  }
+}

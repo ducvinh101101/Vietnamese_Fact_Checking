@@ -23,6 +23,7 @@ def load_evidence_jsonl(path: str | Path) -> list[Evidence]:
                     content=str(raw["content"]),
                     source=str(raw.get("source", "Không rõ nguồn")),
                     url=str(raw.get("url", "")),
+                    domain=str(raw.get("domain", "")),
                     article_id=str(raw.get("article_id", raw["document_id"])),
                     title=_optional_text(raw.get("title")),
                     published_at=_optional_text(raw.get("published_at")),

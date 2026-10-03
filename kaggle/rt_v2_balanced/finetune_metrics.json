@@ -1,0 +1,98 @@
+{
+  "experiment": "RT-V2-balanced",
+  "train_file": "train.parquet",
+  "smoke_only": false,
+  "train_rows": 5201,
+  "dev_rows": 1080,
+  "before_dev": {
+    "before_dev_loss": 0.4457227885723114,
+    "before_dev_model_preparation_time": 0.0028,
+    "before_dev_accuracy": 0.8518518518518519,
+    "before_dev_macro_f1": 0.8501398677001254,
+    "before_dev_runtime": 2.6665,
+    "before_dev_samples_per_second": 405.019,
+    "before_dev_steps_per_second": 25.501
+  },
+  "after_dev": {
+    "dev_loss": 0.563940703868866,
+    "dev_model_preparation_time": 0.0028,
+    "dev_accuracy": 0.8518518518518519,
+    "dev_macro_f1": 0.850770341296764,
+    "dev_runtime": 2.0985,
+    "dev_samples_per_second": 514.662,
+    "dev_steps_per_second": 32.405
+  },
+  "dev_per_label": {
+    "SUPPORTED": {
+      "precision": 0.8663101604278075,
+      "recall": 0.8663101604278075,
+      "f1-score": 0.8663101604278075,
+      "support": 374.0
+    },
+    "REFUTED": {
+      "precision": 0.8283132530120482,
+      "recall": 0.7790368271954674,
+      "f1-score": 0.8029197080291971,
+      "support": 353.0
+    },
+    "NOT_ENOUGH_INFO": {
+      "precision": 0.8582887700534759,
+      "recall": 0.9093484419263456,
+      "f1-score": 0.8830811554332875,
+      "support": 353.0
+    },
+    "accuracy": 0.8518518518518519,
+    "macro avg": {
+      "precision": 0.8509707278311106,
+      "recall": 0.8515651431832069,
+      "f1-score": 0.850770341296764,
+      "support": 1080.0
+    },
+    "weighted avg": {
+      "precision": 0.8512689945760464,
+      "recall": 0.8518518518518519,
+      "f1-score": 0.8510725044465344,
+      "support": 1080.0
+    }
+  },
+  "truncated_pairs": {
+    "train": 1,
+    "dev": 0
+  },
+  "selection": "gold-evidence DEV Macro-F1; end-to-end promotion NOT evaluated",
+  "training": {
+    "lr": 1e-05,
+    "epochs_max": 5,
+    "batch": 8,
+    "gradient_accumulation": 2,
+    "max_length": 256,
+    "seed": 42,
+    "ai_weight": 0.5
+  },
+  "versions": {
+    "torch": "2.10.0+cu128",
+    "transformers": "4.46.3"
+  },
+  "bundle_manifest_sha256": "1dab0d19a12950b2caa9c577d3b2ba47430c0ab77eccfcfaf14441858f453ca5",
+  "initial_model_files": {
+    "added_tokens.json": "956163bbe8b0625fcc779207447308285eab218ffe0551d3e0deeae5538da326",
+    "bpe.codes": "9dfe53fb8abbddd3387da99641c36e00bee757a3679aad9cf0a7cdc4b30f6ef8",
+    "config.json": "4eecd2fb03890355684934ed7653e8e190f75670791bd2f64ee07652d28da5fc",
+    "model.safetensors": "a9d8858e368dea42ec6e12e1bafa2b53a4328f91a910a130d680524a534b3b56",
+    "special_tokens_map.json": "d05497f1da52c5e09554c0cd874037a083e1dc1b9cfd48034d1c717f1afc07a7",
+    "tokenizer_config.json": "15db45a3ad36b4bfb361f11f4c8689775d3068495c2c32bccd5c7f76bad7dc00",
+    "training_args.bin": "9bc8fec055eb70795d9b845d099b5bf9d0fa5ced83697a5c150c6fc337aeba8a",
+    "vocab.txt": "dffd7543c401fb6567253ae7c3313004532c33d062525250049c616544bad777"
+  },
+  "best_model_files": {
+    "special_tokens_map.json": "38d989b0fdad0fec0c67c14b1f3c8b68184022cf6d4adc5444526ced8653f738",
+    "tokenizer_config.json": "15db45a3ad36b4bfb361f11f4c8689775d3068495c2c32bccd5c7f76bad7dc00",
+    "model.safetensors": "c36c9f4d640d92aeddfd12d0002c33d7c2ee3ebf734d2a545b111e4c4e3978bf",
+    "added_tokens.json": "956163bbe8b0625fcc779207447308285eab218ffe0551d3e0deeae5538da326",
+    "config.json": "a366600e0b0394de1d1c2b2aff8023cc4c9e415724ca450cb45c8de1e2dcc90f",
+    "training_args.bin": "2990c4b2ae3ccec7d9f67bd8a999b2f9e8740b744d1d6cb71b0419a35c672948",
+    "bpe.codes": "9dfe53fb8abbddd3387da99641c36e00bee757a3679aad9cf0a7cdc4b30f6ef8",
+    "vocab.txt": "dffd7543c401fb6567253ae7c3313004532c33d062525250049c616544bad777"
+  },
+  "warning": "AI silver is not human gold; no test read, no claim of real-world 80%; recalibrate and rebuild aggregator for new logits"
+}
