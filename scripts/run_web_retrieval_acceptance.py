@@ -26,9 +26,20 @@ from src.web_retriever import WebRetriever
 
 
 DEFAULT_QUERIES = (
-    "thông tin chính thức của Chính phủ Việt Nam",
-    "World Health Organization Vietnam health guidance",
-    "tin tức Việt Nam VnExpress",
+    "site:baochinhphu.vn thông tin chính thức Chính phủ Việt Nam",
+    "site:moh.gov.vn hướng dẫn Bộ Y tế Việt Nam",
+    "site:mofa.gov.vn thông tin Bộ Ngoại giao Việt Nam",
+    "site:www.who.int Vietnam health guidance",
+    "site:vnanet.vn Thông tấn xã Việt Nam",
+    "site:vov.vn Đài Tiếng nói Việt Nam",
+)
+DEFAULT_TARGET_HOSTS = (
+    "baochinhphu.vn",
+    "moh.gov.vn",
+    "mofa.gov.vn",
+    "www.who.int",
+    "vnanet.vn",
+    "vov.vn",
 )
 
 
@@ -49,17 +60,31 @@ def load_config() -> tuple[dict[str, object], str]:
     return config, digest(raw.decode("utf-8"))
 
 
-def report_for_queries(queries: list[str], top_k: int) -> tuple[dict[str, object], bool]:
+def report_for_queries(
+    queries: list[str], top_k: int, target_hosts: list[str] | None = None,
+) -> tuple[dict[str, object], bool]:
     config, config_sha256 = load_config()
-    retriever = WebRetriever(config)
     allowed_domains = sorted(entry["host"] for entry in config["source_policy"]["allowlist"])
+    target_hosts = target_hosts or [None] * len(queries)
+    if len(target_hosts) != len(queries):
+        raise ValueError("Số --host phải bằng số --query")
+    if any(host is not None and host not in allowed_domains for host in target_hosts):
+        raise ValueError("--host phải là một domain trong allowlist")
     runs: list[dict[str, object]] = []
     domains: set[str] = set()
     all_queries_returned_evidence = True
+    successful_query_count = 0
     seen_content_by_url: dict[str, set[str]] = {}
     duplicate_content = False
 
-    for query in queries:
+    for query, target_host in zip(queries, target_hosts):
+        request_config = deepcopy(config)
+        if target_host:
+            request_config["source_policy"] = dict(config["source_policy"])
+            request_config["source_policy"]["allowlist"] = [
+                entry for entry in config["source_policy"]["allowlist"] if entry["host"] == target_host
+            ]
+        retriever = WebRetriever(request_config)
         evidence = retriever.search(query, top_k=top_k)
         items = []
         for item in evidence:
@@ -81,12 +106,13 @@ def report_for_queries(queries: list[str], top_k: int) -> tuple[dict[str, object
                 "content_chars": len(source.content),
             })
         all_queries_returned_evidence = all_queries_returned_evidence and bool(items)
-        runs.append({"query_sha256": digest(query), "status": retriever.last_status, "evidence": items})
+        successful_query_count += bool(items)
+        runs.append({"query_sha256": digest(query), "target_host": target_host, "status": retriever.last_status, "evidence": items})
 
     policy_ok = (
-        len(queries) >= 3
-        and all_queries_returned_evidence
-        and len(domains) >= 2
+        len(queries) >= 4
+        and successful_query_count >= 4
+        and len(domains) >= 4
         and domains.issubset(set(allowed_domains))
         and not duplicate_content
     )
@@ -97,9 +123,11 @@ def report_for_queries(queries: list[str], top_k: int) -> tuple[dict[str, object
         "allowed_domains": allowed_domains,
         "queries": runs,
         "acceptance": {
-            "minimum_queries": 3,
+            "minimum_queries": 4,
+            "minimum_successful_queries": 4,
+            "successful_query_count": successful_query_count,
             "each_query_has_evidence": all_queries_returned_evidence,
-            "minimum_distinct_domains": 2,
+            "minimum_distinct_domains": 4,
             "distinct_domains": sorted(domains),
             "all_domains_allowlisted": domains.issubset(set(allowed_domains)),
             "no_duplicate_content_per_url": not duplicate_content,
@@ -111,16 +139,18 @@ def report_for_queries(queries: list[str], top_k: int) -> tuple[dict[str, object
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--query", action="append", help="Query to validate; repeat at least three times.")
+    parser.add_argument("--query", action="append", help="Query to validate; repeat at least four times.")
+    parser.add_argument("--host", action="append", help="Allowlisted host corresponding to each --query.")
     parser.add_argument("--top-k", type=int, default=3)
     parser.add_argument("--output", type=Path, default=ROOT / "outputs" / "web_retrieval" / "acceptance_report.json")
     args = parser.parse_args()
     if args.top_k < 1:
         parser.error("--top-k phải lớn hơn 0")
     queries = args.query or list(DEFAULT_QUERIES)
-    if len(queries) < 3:
-        parser.error("Cần ít nhất ba --query để nghiệm thu W3-05")
-    report, passed = report_for_queries(queries, args.top_k)
+    target_hosts = args.host or (list(DEFAULT_TARGET_HOSTS) if args.query is None else None)
+    if len(queries) < 4:
+        parser.error("Cần ít nhất bốn --query để nghiệm thu W3-05")
+    report, passed = report_for_queries(queries, args.top_k, target_hosts)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"Wrote sanitized acceptance report: {args.output}")

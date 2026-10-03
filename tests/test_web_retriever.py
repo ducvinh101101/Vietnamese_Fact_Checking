@@ -18,7 +18,10 @@ def config(tmp_path):
 def test_web_retriever_filters_allowlist_and_records_required_metadata(tmp_path):
     def provider(payload, key, timeout):
         assert key == "secret-not-logged"
-        assert payload["include_domains"] == ["baochinhphu.vn", "vnexpress.net", "www.who.int"]
+        assert payload["include_domains"] == [
+            "baochinhphu.vn", "mofa.gov.vn", "moh.gov.vn", "vnanet.vn",
+            "vnexpress.net", "vov.vn", "www.who.int",
+        ]
         return {"results": [
             {"url": "https://evil.example/claim", "score": 0.99},
             {"url": "https://vnexpress.net/test", "score": 0.8, "title": "Search title"},
@@ -41,7 +44,8 @@ def test_web_retriever_filters_allowlist_and_records_required_metadata(tmp_path)
     assert all(item.evidence.authority_score == 0.7 for item in results)
 
 
-def test_web_retriever_falls_back_without_key_or_enablement(tmp_path):
+def test_web_retriever_falls_back_without_key_or_enablement(tmp_path, monkeypatch):
+    monkeypatch.delenv("TAVILY_API_KEY", raising=False)
     disabled = config(tmp_path)
     disabled["enabled"] = False
     retriever = WebRetriever(disabled, api_key="key")

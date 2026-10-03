@@ -12,7 +12,7 @@ def config():
 
 
 def test_contract():
-    assert len(validate(config())) == 3
+    assert len(validate(config())) == 7
 
 
 @pytest.mark.parametrize('url', [

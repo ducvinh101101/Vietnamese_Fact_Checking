@@ -35,6 +35,16 @@ source_policy:
       category: government
       scope: Thông tin, chính sách và thông báo của Chính phủ
       reference: https://baochinhphu.vn/
+    - host: moh.gov.vn
+      name: Bộ Y tế
+      category: government
+      scope: Chính sách, hướng dẫn và thông báo y tế chính thức
+      reference: https://moh.gov.vn/
+    - host: mofa.gov.vn
+      name: Bộ Ngoại giao
+      category: government
+      scope: Thông cáo, bảo hộ công dân và thông tin đối ngoại chính thức
+      reference: https://mofa.gov.vn/
     - host: www.who.int
       name: World Health Organization
       category: international
@@ -45,6 +55,16 @@ source_policy:
       category: press
       scope: Tin tức tổng hợp; cần kiểm tra tác giả, thời gian và nguồn gốc
       reference: https://vnexpress.net/
+    - host: vnanet.vn
+      name: Thông tấn xã Việt Nam
+      category: press
+      scope: Thông tấn nhà nước; tin thời sự, chính sách và dữ liệu công bố
+      reference: https://vnanet.vn/
+    - host: vov.vn
+      name: Đài Tiếng nói Việt Nam
+      category: press
+      scope: Tin thời sự và chương trình phát thanh của cơ quan báo chí quốc gia
+      reference: https://vov.vn/
 cache:
   directory: .cache/web_retrieval
   persist_provider_responses: false
