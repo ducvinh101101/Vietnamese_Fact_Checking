@@ -36,6 +36,16 @@ source_policy:
       category: government
       scope: Thông tin, chính sách và thông báo của Chính phủ
       reference: https://baochinhphu.vn/
+    - host: moh.gov.vn
+      name: Bộ Y tế
+      category: government
+      scope: Chính sách, hướng dẫn và thông báo y tế chính thức
+      reference: https://moh.gov.vn/
+    - host: mofa.gov.vn
+      name: Bộ Ngoại giao
+      category: government
+      scope: Thông cáo, bảo hộ công dân và thông tin đối ngoại chính thức
+      reference: https://mofa.gov.vn/
     - host: www.who.int
       name: World Health Organization
       category: international
@@ -46,6 +56,16 @@ source_policy:
       category: press
       scope: Tin tức tổng hợp; cần kiểm tra tác giả, thời gian và nguồn gốc
       reference: https://vnexpress.net/
+    - host: vnanet.vn
+      name: Thông tấn xã Việt Nam
+      category: press
+      scope: Thông tấn nhà nước; tin thời sự, chính sách và dữ liệu công bố
+      reference: https://vnanet.vn/
+    - host: vov.vn
+      name: Đài Tiếng nói Việt Nam
+      category: press
+      scope: Tin thời sự và chương trình phát thanh của cơ quan báo chí quốc gia
+      reference: https://vov.vn/
     # --- Mở rộng allowlist 2026-10-03: thêm nguồn uy tín. Khớp hostname CHÍNH XÁC,
     # không wildcard; nhiều báo phục vụ cả apex và www nên liệt kê cả hai biến thể
     # để tránh bị loại sau redirect. Nguồn press có authority thấp hơn gov/quốc tế;
@@ -66,11 +86,11 @@ source_policy:
       category: government
       scope: Tỷ giá, lãi suất, chính sách tiền tệ
       reference: https://www.sbv.gov.vn/
-    - host: moh.gov.vn
-      name: Bộ Y tế
+    - host: www.sbv.gov.vn
+      name: Ngân hàng Nhà nước Việt Nam
       category: government
-      scope: Y tế, dịch bệnh, thuốc
-      reference: https://moh.gov.vn/
+      scope: Tỷ giá, lãi suất, chính sách tiền tệ
+      reference: https://www.sbv.gov.vn/
     # Báo chính thống lớn (apex + www)
     - host: tuoitre.vn
       name: Tuổi Trẻ
@@ -137,6 +157,11 @@ source_policy:
       category: press
       scope: Tin chính thống TTXVN; kiểm tác giả/thời gian/nguồn
       reference: https://www.vietnamplus.vn/
+    - host: www.vietnamplus.vn
+      name: VietnamPlus (TTXVN)
+      category: press
+      scope: Tin chính thống TTXVN; kiểm tác giả/thời gian/nguồn
+      reference: https://www.vietnamplus.vn/
     # Báo kinh tế — mạnh về giá xăng dầu, tài chính, điều hành
     - host: congthuong.vn
       name: Báo Công Thương
@@ -165,6 +190,11 @@ source_policy:
       reference: https://thoibaotaichinhvietnam.vn/
     # Báo chính thống lớn khác
     - host: sggp.org.vn
+      name: Sài Gòn Giải Phóng
+      category: press
+      scope: Tin tức tổng hợp; kiểm tác giả/thời gian/nguồn
+      reference: https://www.sggp.org.vn/
+    - host: www.sggp.org.vn
       name: Sài Gòn Giải Phóng
       category: press
       scope: Tin tức tổng hợp; kiểm tác giả/thời gian/nguồn
