@@ -22,6 +22,11 @@ verification:
   decisive_min_confidence: 0.5
   retrieval_rank_bias: 1.0
   aggregation_model_path: null
+  # Mở rộng sau RT-V2 (2026-10-04), chọn trên DEV có nhãn người (docs/BAO_CAO_LOI_TU_TEST_DOI_KHANG.md 6.8-6.9).
+  # Các script đánh giá khóa (evaluate_local_end_to_end.py) bỏ qua ba khóa này trừ khi có --use-final-config.
+  evidence_view: ensemble   # trung bình xác suất 3 cách dựng evidence; dev: Macro-F1 +2,6 [+0,9; +4,2]
+  minimal_pair: true        # luật cặp-tối-thiểu; dev: trung tính (+0,0), sửa ca đổi số/chiều/phủ định
+  guard: false              # hạ nhầm verdict đúng trên dev ở mọi ngưỡng thử -> TẮT
   support_threshold: 0.45
   refute_markers:
     - "không"

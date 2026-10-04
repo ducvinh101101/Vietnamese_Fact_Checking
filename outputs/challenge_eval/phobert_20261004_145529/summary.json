@@ -1,0 +1,186 @@
+{
+  "engine": "phobert",
+  "n_claims": 380,
+  "n_errors": 0,
+  "overall_raw": {
+    "SUPPORTED": {
+      "precision": 0.6477272727272727,
+      "recall": 0.95,
+      "f1": 0.7702702702702702,
+      "support": 120
+    },
+    "REFUTED": {
+      "precision": 0.9117647058823529,
+      "recall": 0.6888888888888889,
+      "f1": 0.7848101265822784,
+      "support": 180
+    },
+    "NOT_ENOUGH_INFO": {
+      "precision": 0.9117647058823529,
+      "recall": 0.775,
+      "f1": 0.8378378378378379,
+      "support": 80
+    },
+    "macro_f1": 0.7976394115634622,
+    "accuracy": 0.7894736842105263
+  },
+  "overall_guarded": {
+    "SUPPORTED": {
+      "precision": 0.8248175182481752,
+      "recall": 0.9416666666666667,
+      "f1": 0.8793774319066148,
+      "support": 120
+    },
+    "REFUTED": {
+      "precision": 0.9672131147540983,
+      "recall": 0.6555555555555556,
+      "f1": 0.7814569536423842,
+      "support": 180
+    },
+    "NOT_ENOUGH_INFO": {
+      "precision": 0.6611570247933884,
+      "recall": 1.0,
+      "f1": 0.7960199004975125,
+      "support": 80
+    },
+    "macro_f1": 0.8189514286821705,
+    "accuracy": 0.8184210526315789
+  },
+  "confusion_raw": {
+    "SUPPORTED": {
+      "SUPPORTED": 114,
+      "REFUTED": 4,
+      "NOT_ENOUGH_INFO": 2
+    },
+    "REFUTED": {
+      "SUPPORTED": 52,
+      "REFUTED": 124,
+      "NOT_ENOUGH_INFO": 4
+    },
+    "NOT_ENOUGH_INFO": {
+      "SUPPORTED": 10,
+      "REFUTED": 8,
+      "NOT_ENOUGH_INFO": 62
+    }
+  },
+  "confusion_guarded": {
+    "SUPPORTED": {
+      "SUPPORTED": 113,
+      "REFUTED": 4,
+      "NOT_ENOUGH_INFO": 3
+    },
+    "REFUTED": {
+      "SUPPORTED": 24,
+      "REFUTED": 118,
+      "NOT_ENOUGH_INFO": 38
+    },
+    "NOT_ENOUGH_INFO": {
+      "SUPPORTED": 0,
+      "REFUTED": 0,
+      "NOT_ENOUGH_INFO": 80
+    }
+  },
+  "per_category": {
+    "SUP_VERBATIM": {
+      "n": 60,
+      "accuracy": 0.9333333333333333,
+      "accuracy_guarded": 0.9333333333333333,
+      "pred_distribution": {
+        "SUP": 56,
+        "REF": 4
+      },
+      "retrieval_hit_rate": 1.0,
+      "accuracy_when_source_retrieved": 0.9333333333333333,
+      "accuracy_when_source_missed": null,
+      "false_supported_rate": null
+    },
+    "SUP_FORMAT": {
+      "n": 60,
+      "accuracy": 0.9666666666666667,
+      "accuracy_guarded": 0.95,
+      "pred_distribution": {
+        "SUP": 58,
+        "NEI": 2
+      },
+      "retrieval_hit_rate": 1.0,
+      "accuracy_when_source_retrieved": 0.9666666666666667,
+      "accuracy_when_source_missed": null,
+      "false_supported_rate": null
+    },
+    "REF_NUMBER": {
+      "n": 60,
+      "accuracy": 0.95,
+      "accuracy_guarded": 0.9166666666666666,
+      "pred_distribution": {
+        "REF": 57,
+        "SUP": 2,
+        "NEI": 1
+      },
+      "retrieval_hit_rate": 1.0,
+      "accuracy_when_source_retrieved": 0.95,
+      "accuracy_when_source_missed": null,
+      "false_supported_rate": 0.03333333333333333
+    },
+    "REF_DIRECTION": {
+      "n": 60,
+      "accuracy": 0.48333333333333334,
+      "accuracy_guarded": 0.45,
+      "pred_distribution": {
+        "REF": 29,
+        "NEI": 3,
+        "SUP": 28
+      },
+      "retrieval_hit_rate": 1.0,
+      "accuracy_when_source_retrieved": 0.48333333333333334,
+      "accuracy_when_source_missed": null,
+      "false_supported_rate": 0.4666666666666667
+    },
+    "REF_NEGATION": {
+      "n": 60,
+      "accuracy": 0.6333333333333333,
+      "accuracy_guarded": 0.6,
+      "pred_distribution": {
+        "SUP": 22,
+        "REF": 38
+      },
+      "retrieval_hit_rate": 1.0,
+      "accuracy_when_source_retrieved": 0.6333333333333333,
+      "accuracy_when_source_missed": null,
+      "false_supported_rate": 0.36666666666666664
+    },
+    "NEI_PARTIAL": {
+      "n": 60,
+      "accuracy": 1.0,
+      "accuracy_guarded": 1.0,
+      "pred_distribution": {
+        "NEI": 60
+      },
+      "retrieval_hit_rate": 1.0,
+      "accuracy_when_source_retrieved": 1.0,
+      "accuracy_when_source_missed": null,
+      "false_supported_rate": 0.0
+    },
+    "NEI_FICTIONAL": {
+      "n": 20,
+      "accuracy": 0.1,
+      "accuracy_guarded": 1.0,
+      "pred_distribution": {
+        "REF": 8,
+        "SUP": 10,
+        "NEI": 2
+      },
+      "retrieval_hit_rate": null,
+      "accuracy_when_source_retrieved": null,
+      "accuracy_when_source_missed": null,
+      "false_supported_rate": 0.5
+    }
+  },
+  "guard_effect": {
+    "wrong_decisive_blocked": 46,
+    "correct_decisive_lost": 7
+  },
+  "latency_seconds": {
+    "p50": 0.569,
+    "p95": 0.723
+  }
+}

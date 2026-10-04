@@ -26,6 +26,12 @@ def get_pipeline() -> tuple[FactCheckingPipeline, str | None]:
         decisive_min_confidence=verification.get("decisive_min_confidence", 0.0),
         retrieval_rank_bias=verification.get("retrieval_rank_bias", 0.0),
         aggregation_model_path=str(ROOT / verification["aggregation_model_path"]) if verification.get("aggregation_model_path") else None,
+        evidence_view=verification.get("evidence_view", "passage"),
+        # minimal_pair trung tính trên dev (Δ Macro-F1 +0.1, CI [-0.2, +0.5]) và sửa các ca claim
+        # chỉ khác một số/chiều/phủ định so với nguồn. guard hạ nhầm verdict đúng trên dev
+        # (Δ Macro-F1 -10) nên mặc định TẮT ở đây; bật bằng verification.guard nếu cần.
+        guard=verification.get("guard", False),
+        minimal_pair=verification.get("minimal_pair", True),
     )
     try:
         return FactCheckingPipeline(**pipeline_options), None

@@ -67,7 +67,8 @@ def _focus_coverage(focus: set[str], sentence: str) -> int:
     return len(focus & set(_WORDS.findall(sentence.casefold())))
 
 
-def _has_direct_subject_support(claim: str, passage: str, direction: str | None = None) -> bool:
+def _has_direct_subject_support(claim: str, passage: str, direction: str | None = None,
+                                coverage: float = 0.6) -> bool:
     """Require one sentence to cover the claim subject and, when present, direction.
 
     This intentionally prefers abstention over treating loose lexical similarity
@@ -75,7 +76,7 @@ def _has_direct_subject_support(claim: str, passage: str, direction: str | None 
     "giá" while discussing another entity or a speculative outcome.
     """
     focus = _focus_terms(claim)
-    required = max(1, math.ceil(len(focus) * 0.6)) if focus else 0
+    required = max(1, math.ceil(len(focus) * coverage)) if focus else 0
     for sentence in _SENTENCES.split(passage.casefold()):
         if required and _focus_coverage(focus, sentence) < required:
             continue
@@ -116,7 +117,7 @@ def _has_direct_retail_fuel_support(claim: str, passage: str, direction: str) ->
 
 def guard_reason(claim: str, result: VerificationResult,
                  evidence_items: list[RetrievedEvidence],
-                 min_relevance: float = 0.0) -> str | None:
+                 min_relevance: float = 0.0, focus_coverage: float = 0.6) -> str | None:
     """Trả lý do cần hạ xuống NEI, hoặc None nếu verdict giữ nguyên."""
     if result.label not in _DECISIVE:
         return None
@@ -130,7 +131,7 @@ def guard_reason(claim: str, result: VerificationResult,
     best_rel = max(relevance(claim, e.content) for e in cited)
     if best_rel <= min_relevance:
         return "bằng chứng trích dẫn không khớp chủ đề của claim"
-    if not any(_has_direct_subject_support(claim, e.content) for e in cited):
+    if not any(_has_direct_subject_support(claim, e.content, coverage=focus_coverage) for e in cited):
         return "bằng chứng không nêu trực tiếp chủ đề trọng tâm của claim"
 
     # (2) Ngược chiều / mơ hồ — chỉ với SUPPORTED.
@@ -138,7 +139,7 @@ def guard_reason(claim: str, result: VerificationResult,
         direction = _claim_direction(claim)
         if direction is not None:
             text = " ".join(e.content for e in cited).casefold()
-            if not any(_has_direct_subject_support(claim, e.content, direction) for e in cited):
+            if not any(_has_direct_subject_support(claim, e.content, direction, focus_coverage) for e in cited):
                 return f"bằng chứng không khẳng định trực tiếp chiều '{direction}' của claim"
             if not any(_has_direct_retail_fuel_support(claim, e.content, direction) for e in cited):
                 return (
@@ -157,10 +158,12 @@ class GuardedVerifier:
     """Bọc một Verifier: giữ verify() nhưng hạ verdict xuống NEI khi guard phát hiện
     bằng chứng không vững. Bọc trong suốt — pipeline dùng như verifier thường."""
 
-    def __init__(self, inner: Verifier, enabled: bool = True, min_relevance: float = 0.0) -> None:
+    def __init__(self, inner: Verifier, enabled: bool = True, min_relevance: float = 0.0,
+                 focus_coverage: float = 0.6) -> None:
         self.inner = inner
         self.enabled = enabled
         self.min_relevance = min_relevance
+        self.focus_coverage = focus_coverage
         self.last_downgraded = False
         self.last_reason: str | None = None
 
@@ -170,7 +173,7 @@ class GuardedVerifier:
         self.last_reason = None
         if not self.enabled:
             return result
-        reason = guard_reason(claim, result, evidence_items, self.min_relevance)
+        reason = guard_reason(claim, result, evidence_items, self.min_relevance, self.focus_coverage)
         if reason is None:
             return result
         self.last_downgraded = True

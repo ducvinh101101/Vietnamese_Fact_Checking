@@ -13,6 +13,15 @@ from src.runtime_config import load_runtime_config
 ROOT = Path(__file__).resolve().parents[1]
 _PIPELINE: FactCheckingPipeline | None = None
 _INIT_ERROR: Exception | None = None
+# Engine THỰC SỰ đang chạy sau khi dựng pipeline ("phobert" | "rule_based" | None).
+# Quan trọng để test không "xanh giả": nếu yêu cầu phobert mà bị fallback rule_based
+# thì phải lộ ra (xem tests/test_engine_integrity.py), thay vì âm thầm kiểm nhầm engine.
+ACTIVE_ENGINE: str | None = None
+
+
+def active_engine() -> str | None:
+    """Engine thực sự của pipeline hiện tại (None nếu chưa dựng được)."""
+    return ACTIVE_ENGINE
 
 
 def _configure_utf8_console() -> None:
@@ -32,7 +41,7 @@ def load_config():
 
 
 def get_pipeline() -> FactCheckingPipeline:
-    global _PIPELINE, _INIT_ERROR
+    global _PIPELINE, _INIT_ERROR, ACTIVE_ENGINE
     if _PIPELINE is not None:
         return _PIPELINE
     if _INIT_ERROR is not None:
@@ -65,6 +74,7 @@ def get_pipeline() -> FactCheckingPipeline:
                 retrieval_rank_bias=float(verification.get("retrieval_rank_bias", 0.0)),
                 aggregation_model_path=str(ROOT / verification["aggregation_model_path"]) if verification.get("aggregation_model_path") else None,
             )
+            ACTIVE_ENGINE = "phobert"
         else:
             _PIPELINE = FactCheckingPipeline(
                 evidence_path=evidence_path,
@@ -73,6 +83,7 @@ def get_pipeline() -> FactCheckingPipeline:
                 refute_markers=refute_markers,
                 engine="rule_based",
             )
+            ACTIVE_ENGINE = "rule_based"
         return _PIPELINE
     except Exception as exc:
         # If PhoBERT fails due to system DLL policy / missing Java and fallback allowed:
@@ -85,6 +96,7 @@ def get_pipeline() -> FactCheckingPipeline:
                 refute_markers=refute_markers,
                 engine="rule_based",
             )
+            ACTIVE_ENGINE = "rule_based"
             return _PIPELINE
         _INIT_ERROR = exc
         raise exc

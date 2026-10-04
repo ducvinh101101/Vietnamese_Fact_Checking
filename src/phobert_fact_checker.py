@@ -10,6 +10,7 @@ import sys
 from math import isfinite
 
 from src.decision_policy import DecisionPolicy
+from src.evidence_focus import SINGLE_VIEWS, VIEWS, average_probabilities, ensemble_texts, focus_text
 from src.retrieval_aware_policy import decide_rank_aware
 from src.learned_evidence_policy import LearnedEvidencePolicy
 from src.schemas import RetrievedEvidence, VerificationResult
@@ -47,7 +48,10 @@ class PhoBERTFactChecker:
 
     def __init__(self, model_path: str | Path, vncorenlp_dir: str | Path, max_length: int = 256,
                  temperature: float = 1.0, decisive_min_confidence: float = 0.0,
-                 retrieval_rank_bias: float = 0.0, aggregation_model_path: str | Path | None = None) -> None:
+                 retrieval_rank_bias: float = 0.0, aggregation_model_path: str | Path | None = None,
+                 evidence_view: str = "passage") -> None:
+        if evidence_view not in VIEWS:
+            raise ValueError(f"evidence_view không hợp lệ: {evidence_view!r}; chọn một trong {VIEWS}")
         model_dir = Path(model_path)
         segmenter_dir = Path(vncorenlp_dir)
         if not model_dir.is_dir():
@@ -75,6 +79,7 @@ class PhoBERTFactChecker:
             raise RuntimeError("Không tìm thấy Java. Hãy cài Java 17 hoặc đặt JAVA_HOME trước khi chạy VnCoreNLP.")
         self.torch = torch
         self.max_length = max_length
+        self.evidence_view = evidence_view
         self.decision_policy = DecisionPolicy(temperature, decisive_min_confidence)
         self.retrieval_rank_bias = retrieval_rank_bias
         self.aggregation_policy = LearnedEvidencePolicy(aggregation_model_path) if aggregation_model_path else None
@@ -116,7 +121,14 @@ class PhoBERTFactChecker:
         evidence_items = [item for item in evidence_items if item.score > 0 and item.evidence.content.strip()]
         if not evidence_items:
             return VerificationResult("NOT_ENOUGH_INFO", 0.0, [], "Không tìm thấy đoạn có điểm truy xuất dương trong kho hiện có; chưa đủ bằng chứng để kết luận.")
-        probabilities = self.predict_probabilities_batch(claim, [item.evidence.content for item in evidence_items])
+        contents = [item.evidence.content for item in evidence_items]
+        if self.evidence_view == "ensemble":
+            # Một lần gọi mô hình cho mọi view, rồi lấy trung bình xác suất theo passage.
+            probabilities = average_probabilities(
+                self.predict_probabilities_batch(claim, ensemble_texts(claim, contents)), len(SINGLE_VIEWS))
+        else:
+            probabilities = self.predict_probabilities_batch(
+                claim, [focus_text(claim, content, self.evidence_view) for content in contents])
         if self.aggregation_policy is not None and len(evidence_items) == 3:
             decision = self.aggregation_policy.decide(probabilities, [item.score for item in evidence_items])
         else:

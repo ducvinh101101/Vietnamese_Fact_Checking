@@ -56,6 +56,9 @@ def main() -> None:
     parser.add_argument("--split", type=Path, default=DEFAULT_SPLIT)
     parser.add_argument("--metrics", type=Path, default=DEFAULT_METRICS)
     parser.add_argument("--predictions", type=Path, default=DEFAULT_PREDICTIONS)
+    parser.add_argument("--use-final-config", action="store_true",
+                        help="Áp verification.evidence_view / minimal_pair / guard trong config. Mặc định TẮT để "
+                             "tái lập đúng baseline RT-V2 đã khóa (W4-02). Chỉ dùng cho lần chạy cuối trên test.")
     args = parser.parse_args()
     args.split = args.split if args.split.is_absolute() else ROOT / args.split
     args.metrics = args.metrics if args.metrics.is_absolute() else ROOT / args.metrics
@@ -69,6 +72,7 @@ def main() -> None:
     if missing:
         raise ValueError(f"Test split thiếu cột: {sorted(missing)}")
 
+    final = config["verification"] if args.use_final_config else {}
     pipeline = FactCheckingPipeline(
         evidence_path=str(corpus_path),
         top_k=int(config["retrieval"]["top_k"]),
@@ -80,6 +84,9 @@ def main() -> None:
         decisive_min_confidence=float(config["verification"].get("decisive_min_confidence", 0.0)),
         retrieval_rank_bias=float(config["verification"].get("retrieval_rank_bias", 0.0)),
         aggregation_model_path=str(ROOT / config["verification"]["aggregation_model_path"]) if config["verification"].get("aggregation_model_path") else None,
+        evidence_view=final.get("evidence_view", "passage"),
+        minimal_pair=bool(final.get("minimal_pair", False)),
+        guard=bool(final.get("guard", False)),
     )
 
     records: list[dict[str, object]] = []
@@ -147,6 +154,10 @@ def main() -> None:
             "temperature": float(config["verification"].get("temperature", 1.0)),
             "decisive_min_confidence": float(config["verification"].get("decisive_min_confidence", 0.0)),
             "retrieval_rank_bias": float(config["verification"].get("retrieval_rank_bias", 0.0)),
+            "evidence_view": final.get("evidence_view", "passage"),
+            "minimal_pair": bool(final.get("minimal_pair", False)),
+            "guard": bool(final.get("guard", False)),
+            "use_final_config": args.use_final_config,
             "aggregation_model_path": config["verification"].get("aggregation_model_path"),
             "aggregation_model_sha256": sha256(ROOT / config["verification"]["aggregation_model_path"]) if config["verification"].get("aggregation_model_path") else None,
         },

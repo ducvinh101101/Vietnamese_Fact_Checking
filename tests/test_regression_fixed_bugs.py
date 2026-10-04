@@ -56,9 +56,11 @@ def test_regression_bug_02_windows_cp1252_encoding():
         env=env,
         capture_output=True,
         text=True,
+        encoding="utf-8",      # đọc output con bằng UTF-8 (không để parent tự chọn cp1252)
+        errors="replace",      # không cho thread đọc stdout của parent vỡ vì byte lạ
     )
 
-    err = proc.stderr
+    err = proc.stderr or ""
     assert "UnicodeEncodeError" not in err, f"BUG-02 VIOLATION: UnicodeEncodeError occurred:\n{err}"
     assert proc.returncode == 0, f"Process exited with non-zero code {proc.returncode}:\nStdout:\n{proc.stdout}\nStderr:\n{err}"
 
@@ -83,11 +85,34 @@ def test_regression_bug_03_04_missing_paths_error_message(tmp_path):
         )
 
 
-def test_regression_bug_04_config_missing_keys():
-    """BUG-04: Loading an empty config should fail with clear message mentioning missing key, not raw unhandled KeyError."""
+def test_regression_bug_04_config_missing_keys(tmp_path):
+    """BUG-04: Config thiếu khóa phải báo lỗi RÕ (nêu tên khóa), không phải KeyError thô.
+
+    Trước đây test này chỉ skip khi thiếu FC_LOAD_CONFIG_FN -> không assert gì (xanh giả).
+    Nay mặc định kiểm trực tiếp src.runtime_config.load_runtime_config; vẫn cho phép
+    thay loader khác qua FC_LOAD_CONFIG_FN ('module:func')."""
     load_cfg_fn = os.environ.get("FC_LOAD_CONFIG_FN")
-    if not load_cfg_fn:
-        pytest.skip("FC_LOAD_CONFIG_FN not defined; skipping config validation regression test.")
+    if load_cfg_fn:
+        import importlib
+        module_name, func_name = (
+            load_cfg_fn.split(":", 1) if ":" in load_cfg_fn else load_cfg_fn.rsplit(".", 1)
+        )
+        load_config = getattr(importlib.import_module(module_name), func_name)
+        expected_exc: type[Exception] = Exception
+    else:
+        from src.runtime_config import ConfigValidationError, load_runtime_config
+        load_config = load_runtime_config
+        expected_exc = ConfigValidationError
+
+    bad_config = tmp_path / "config.yaml"
+    bad_config.write_text("paths: {}\nretrieval: {}\nverification: {}\n", encoding="utf-8")
+
+    with pytest.raises(expected_exc) as excinfo:
+        load_config(bad_config)
+    message = str(excinfo.value).lower()
+    assert any(k in message for k in ("evidence_path", "thiếu", "missing", "bắt buộc")), (
+        f"BUG-04 VIOLATION: lỗi không nêu rõ khóa thiếu. Raised: {type(excinfo.value).__name__}: {excinfo.value}"
+    )
 
 
 def test_regression_bug_05_streamlit_ui():
