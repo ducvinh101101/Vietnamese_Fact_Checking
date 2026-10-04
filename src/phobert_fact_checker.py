@@ -45,6 +45,7 @@ def prepare_java_runtime() -> None:
 
 class PhoBERTFactChecker:
     label_map = {0: "SUPPORTED", 1: "REFUTED", 2: "NOT_ENOUGH_INFO"}
+    evidence_view = "passage"   # mặc định cấp lớp: object dựng bằng __new__ (test) vẫn chạy được
 
     def __init__(self, model_path: str | Path, vncorenlp_dir: str | Path, max_length: int = 256,
                  temperature: float = 1.0, decisive_min_confidence: float = 0.0,

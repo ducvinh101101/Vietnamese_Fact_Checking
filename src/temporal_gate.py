@@ -28,6 +28,9 @@ from src.contracts import Retriever
 from src.query_enrichment import recency_class
 from src.schemas import RetrievedEvidence
 
+# Lệch múi giờ: bài đăng 'ngày mai' theo UTC vẫn là hôm nay ở VN; chỉ loại khi vượt hẳn.
+FUTURE_TOLERANCE_DAYS = 1
+
 
 def _published_date(value: str | None) -> date | None:
     """Đọc phần NGÀY từ published_at ISO; trả None nếu thiếu/không hợp lệ."""
@@ -74,6 +77,7 @@ class TemporalGateRetriever:
         self.last_dropped = 0          # tổng số bị loại
         self.last_dropped_stale = 0    # có ngày nhưng quá cũ
         self.last_dropped_undated = 0  # không rõ ngày đăng
+        self.last_dropped_future = 0   # đăng SAU ngày tham chiếu (rò rỉ tương lai)
         self.last_kept = 0
         # Danh sách (lý do, RetrievedEvidence) bị loại, để runner in chẩn đoán.
         self.last_dropped_items: list[tuple[str, RetrievedEvidence]] = []
@@ -88,6 +92,7 @@ class TemporalGateRetriever:
         self.last_dropped = 0
         self.last_dropped_stale = 0
         self.last_dropped_undated = 0
+        self.last_dropped_future = 0
         self.last_kept = 0
         self.last_dropped_items = []
 
@@ -116,12 +121,16 @@ class TemporalGateRetriever:
                     continue
                 kept.append(item)
                 continue
+            if published > reference + timedelta(days=FUTURE_TOLERANCE_DAYS):
+                self.last_dropped_future += 1
+                self.last_dropped_items.append(("sau ngày tham chiếu", item))
+                continue
             if published < cutoff:
                 self.last_dropped_stale += 1
                 self.last_dropped_items.append(("quá cũ", item))
                 continue
             kept.append(item)
-        self.last_dropped = self.last_dropped_stale + self.last_dropped_undated
+        self.last_dropped = self.last_dropped_stale + self.last_dropped_undated + self.last_dropped_future
         self.last_kept = len(kept)
         # Giữ nguyên thứ tự điểm của retriever bên trong (đã giảm dần).
         return kept[:top_k]

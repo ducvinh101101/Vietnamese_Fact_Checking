@@ -9,7 +9,8 @@ _INSTRUCTION_PATTERNS = (
     re.compile(r"\b(ignore|bypass)\b.{0,80}\b(instruction|instructions|previous)\b", re.IGNORECASE),
     re.compile(r"\b(system|assistant)\s*:\s*", re.IGNORECASE),
     re.compile(r"\b(output|conclude|label)\b.{0,50}\b(supported|refuted|nei)\b", re.IGNORECASE),
-    re.compile(r"\bbỏ\s+qua\b.{0,80}\b(hướng\s+dẫn|dữ\s+liệu|đối\s+chiếu)\b", re.IGNORECASE),
+    # Không chặn câu phủ định/khuyến cáo kiểu "không bỏ qua hướng dẫn tiêm chủng".
+    re.compile(r"(?<!không\s)(?<!được\s)(?<!đừng\s)(?<!chớ\s)(?<!hề\s)(?<!chẳng\s)\bbỏ\s+qua\b.{0,80}\b(hướng\s+dẫn|dữ\s+liệu|đối\s+chiếu)\b", re.IGNORECASE),
     re.compile(r"\b(kết\s+luận|gán\s+nhãn)\b.{0,50}\b(supported|refuted|nei)\b", re.IGNORECASE),
 )
 

@@ -66,7 +66,8 @@ class _PageTextParser(HTMLParser):
                 self.meta.setdefault(key.lower().strip(), content.strip())
         if tag == "time":
             attr = {k.lower(): (v or "") for k, v in attrs}
-            if attr.get("datetime"):
+            # Bỏ <time> trong header/nav/footer/aside: đó là đồng hồ 'hôm nay' của trang, không phải ngày bài.
+            if attr.get("datetime") and self._skip_depth == 0:
                 self.time_values.append(attr["datetime"].strip())
         if tag == "script":
             attr = {k.lower(): (v or "") for k, v in attrs}

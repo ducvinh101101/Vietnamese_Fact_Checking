@@ -46,7 +46,13 @@ _HISTORICAL_ROLE_MARKERS = ("cựu ", "từng ", "đã từng", "trước đây"
 _RELATIVE_MARKERS = _TODAY_MARKERS + _CURRENT_MARKERS
 # Nếu claim đã có ngày tuyệt đối (13/3, 13-3-2023, ngày 5 tháng 10...) thì KHÔNG
 # cần chèn — nó đã có mốc.
-_ABSOLUTE_DATE = re.compile(r"\b\d{1,2}[/-]\d{1,2}([/-]\d{2,4})?\b|ngày\s+\d{1,2}\b")
+# Năm cụ thể ("năm 2020") và tháng/năm ("tháng 3/2023", "3/2023") cũng là mốc tuyệt đối.
+_ABSOLUTE_DATE = re.compile(
+    r"\b\d{1,2}[/-]\d{1,2}([/-]\d{2,4})?\b|ngày\s+\d{1,2}\b"
+    r"|\bnăm\s+(?:19|20)\d{2}\b"
+    r"|\btháng\s+\d{1,2}\s*(?:[/-]|năm\s+)\s*(?:19|20)\d{2}\b"
+    r"|\b\d{1,2}[/-](?:19|20)\d{2}\b"
+)
 
 
 def recency_class(claim: str) -> str | None:

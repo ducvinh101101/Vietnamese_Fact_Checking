@@ -31,7 +31,11 @@ from src.topical_rerank import _RETAIL_HINTS, relevance
 
 _DECISIVE = ("SUPPORTED", "REFUTED")
 _OPPOSITE = {"tăng": "giảm", "giảm": "tăng"}
-_SENTENCES = re.compile(r"[.!?;]+")
+# Không cắt ở dấu '.' nằm giữa hai chữ số (số kiểu Việt '1.500', thập phân '2.5').
+_SENTENCES = re.compile(r"(?<!\d)[.!?;]+|[.!?;]+(?!\d)")
+_NEG_DIRECTION = re.compile(r"\b(?:không|chưa|chẳng|chả)\s+(?:hề\s+|được\s+|có\s+)?(tăng|giảm)\b")
+_NEG_WORDS = ("không", "chưa", "chẳng", "chả")
+_NUMBER = re.compile(r"\d+(?:[.,]\d+)*")
 _WORDS = re.compile(r"\w+", re.UNICODE)
 _HEDGED_PRICE_WORDS = ("dự báo", "có thể", "khả năng", "ước tính", "kỳ vọng")
 _RELATIVE_TIME_WORDS = ("hôm nay", "chiều nay", "sáng nay", "tối nay", "ngày mai")
@@ -46,13 +50,53 @@ _FOCUS_STOPWORDS = frozenset(
 
 def _claim_direction(claim: str) -> str | None:
     """Claim khẳng định chiều gì? 'tăng'/'giảm'/None (None nếu có cả hai/không có)."""
-    text = claim.casefold()
+    text = _NEG_DIRECTION.sub(" ", claim.casefold())     # 'không tăng' không khẳng định 'tăng'
     has_up, has_down = "tăng" in text, "giảm" in text
     if has_up and not has_down:
         return "tăng"
     if has_down and not has_up:
         return "giảm"
     return None
+
+
+def _negated_direction(claim: str) -> str | None:
+    """Chiều bị PHỦ ĐỊNH trong claim ('không tăng' -> 'tăng'), hoặc None."""
+    found = {m.group(1) for m in _NEG_DIRECTION.finditer(claim.casefold())}
+    return found.pop() if len(found) == 1 else None
+
+
+def _canon_number(token: str) -> str:
+    low = token.replace(".", "") if re.fullmatch(r"\d{1,3}(?:\.\d{3})+", token) else token.replace(",", ".")
+    try:
+        return f"{float(low):g}"
+    except ValueError:
+        return low
+
+
+def _numbers(text: str) -> set[str]:
+    return {_canon_number(t) for t in _NUMBER.findall(text)}
+
+
+def _numbers_contradict(claim: str, cited_texts: list[str], coverage: float) -> bool:
+    """Số trong claim vắng ở bằng chứng VÀ câu bằng chứng khớp chủ đề nhất mang số khác.
+
+    Thiếu số (bằng chứng không nhắc năm) không phải mâu thuẫn; chỉ coi là mâu thuẫn khi
+    có phép THAY số: claim 500 vs câu nguồn nói 300 về cùng chủ đề."""
+    claim_numbers = _numbers(claim)
+    if not claim_numbers:
+        return False
+    focus = _focus_terms(claim)
+    all_numbers = set().union(*(_numbers(t) for t in cited_texts)) if cited_texts else set()
+    missing = claim_numbers - all_numbers
+    if not missing:
+        return False
+    best_sentence, best_cover = "", -1
+    for text in cited_texts:
+        for sentence in _SENTENCES.split(text.casefold()):
+            cover = _focus_coverage(focus, sentence)
+            if cover > best_cover:
+                best_sentence, best_cover = sentence, cover
+    return bool(_numbers(best_sentence) - claim_numbers) and best_cover >= max(1, math.ceil(len(focus) * coverage))
 
 
 def _focus_terms(claim: str) -> set[str]:
@@ -136,6 +180,15 @@ def guard_reason(claim: str, result: VerificationResult,
 
     # (2) Ngược chiều / mơ hồ — chỉ với SUPPORTED.
     if result.label == "SUPPORTED":
+        negated = _negated_direction(claim)
+        if negated is not None:
+            for e in cited:
+                for sentence in _SENTENCES.split(e.content.casefold()):
+                    if negated in sentence and not any(w in sentence for w in _NEG_WORDS) \
+                            and _OPPOSITE[negated] not in sentence:
+                        return f"claim phủ định '{negated}' nhưng bằng chứng khẳng định '{negated}'"
+        if _numbers_contradict(claim, [e.content for e in cited], focus_coverage):
+            return "số liệu trong claim khác với số liệu trong bằng chứng"
         direction = _claim_direction(claim)
         if direction is not None:
             text = " ".join(e.content for e in cited).casefold()
