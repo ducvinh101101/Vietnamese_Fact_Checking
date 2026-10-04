@@ -3,8 +3,15 @@
 Lớp này sẽ được thay bằng verifier PhoBERT/XLM-R đã fine-tune.
 """
 
+import re
+
 from src.preprocessing import tokenize_for_retrieval
 from src.schemas import RetrievedEvidence, VerificationResult
+
+
+def _numbers(text: str) -> set[str]:
+    """Extract digit groups so a changed date, percentage, or quantity is not ignored."""
+    return set(re.findall(r"\d+(?:[.,]\d+)?", text))
 
 
 class RuleBasedFactChecker:
@@ -24,10 +31,17 @@ class RuleBasedFactChecker:
         evidence_terms = set(tokenize_for_retrieval(best.evidence.content))
         overlap = len(claim_terms & evidence_terms) / max(1, len(claim_terms))
         negation_conflict = bool((claim_terms ^ evidence_terms) & self.refute_markers)
+        claim_numbers = _numbers(claim)
+        evidence_numbers = _numbers(best.evidence.content)
+        number_conflict = bool(claim_numbers and evidence_numbers and not claim_numbers.issubset(evidence_numbers))
 
-        if overlap >= self.support_threshold and negation_conflict:
+        if overlap >= self.support_threshold and (negation_conflict or number_conflict):
             label = "REFUTED"
-            explanation = "Bằng chứng được truy xuất có dấu hiệu phủ định hoặc mâu thuẫn với phát biểu."
+            explanation = (
+                "Bằng chứng được truy xuất có số liệu không khớp với phát biểu."
+                if number_conflict else
+                "Bằng chứng được truy xuất có dấu hiệu phủ định hoặc mâu thuẫn với phát biểu."
+            )
         elif overlap >= self.support_threshold:
             label = "SUPPORTED"
             explanation = "Bằng chứng được truy xuất có nhiều thông tin trùng khớp với phát biểu."

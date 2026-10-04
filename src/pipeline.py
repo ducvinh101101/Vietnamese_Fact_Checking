@@ -1,5 +1,6 @@
 from src.fact_checker import RuleBasedFactChecker
 from src.contracts import Retriever, Verifier
+from src.input_guard import is_instruction_like_claim
 from src.io_utils import load_evidence_jsonl
 from src.phobert_fact_checker import PhoBERTFactChecker
 from src.pipeline_output import build_pipeline_output
@@ -47,6 +48,13 @@ class FactCheckingPipeline:
         cleaned_claim = normalize_text(claim)
         if not cleaned_claim:
             raise ValueError("Phát biểu không được để trống")
+        if is_instruction_like_claim(cleaned_claim):
+            return VerificationResult(
+                label="NOT_ENOUGH_INFO",
+                confidence=1.0,
+                evidence_ids=[],
+                explanation="Đầu vào chứa chỉ dẫn can thiệp vào quy trình kiểm chứng, không phải phát biểu cần kiểm tra.",
+            ), []
         retrieved = self.retriever.search(cleaned_claim, self.top_k)
         if len(retrieved) > self.top_k:
             raise RuntimeError("Retriever trả về nhiều evidence hơn top_k")
