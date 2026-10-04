@@ -22,6 +22,18 @@ from pathlib import Path
 
 import yaml
 
+
+def _configure_utf8_console() -> None:
+    """Avoid cp1252/legacy Windows console crashes when printing Vietnamese."""
+    if sys.platform == "win32":
+        for stream in (sys.stdout, sys.stderr):
+            reconfigure = getattr(stream, "reconfigure", None)
+            if reconfigure is not None:
+                reconfigure(encoding="utf-8", errors="replace")
+
+
+_configure_utf8_console()
+
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))

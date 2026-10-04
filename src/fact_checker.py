@@ -36,6 +36,9 @@ class RuleBasedFactChecker:
             explanation = "Các bằng chứng truy xuất chưa đủ liên quan để đưa ra kết luận chắc chắn."
 
         confidence = round(min(0.95, max(0.35, overlap)), 2)
+        # NEI means the retrieved passage was insufficient to decide. It must not
+        # be displayed as a decisive citation.
+        evidence_ids = [] if label == "NOT_ENOUGH_INFO" else [best.evidence.passage_id]
         return VerificationResult(
-            label=label, confidence=confidence, evidence_ids=[best.evidence.passage_id], explanation=explanation
+            label=label, confidence=confidence, evidence_ids=evidence_ids, explanation=explanation
         )

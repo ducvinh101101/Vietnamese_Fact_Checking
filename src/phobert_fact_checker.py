@@ -5,6 +5,7 @@ from __future__ import annotations
 from functools import lru_cache
 from pathlib import Path
 import os
+import shutil
 import sys
 from math import isfinite
 
@@ -47,24 +48,41 @@ class PhoBERTFactChecker:
     def __init__(self, model_path: str | Path, vncorenlp_dir: str | Path, max_length: int = 256,
                  temperature: float = 1.0, decisive_min_confidence: float = 0.0,
                  retrieval_rank_bias: float = 0.0, aggregation_model_path: str | Path | None = None) -> None:
+        model_dir = Path(model_path)
+        segmenter_dir = Path(vncorenlp_dir)
+        if not model_dir.is_dir():
+            raise RuntimeError(f"Không tìm thấy thư mục model PhoBERT: {model_dir}")
+        if not segmenter_dir.is_dir():
+            raise RuntimeError(f"Không tìm thấy thư mục VnCoreNLP: {segmenter_dir}")
         try:
             prepare_torch_dll_path()
             prepare_java_runtime()
             import py_vncorenlp
             import torch
             from transformers import AutoModelForSequenceClassification, AutoTokenizer
+        except ModuleNotFoundError as error:
+            raise RuntimeError(
+                f"Thiếu thư viện Python '{error.name}'. Cần cài torch, transformers và py_vncorenlp để chạy PhoBERT."
+            ) from error
         except ImportError as error:
-            raise RuntimeError("Cần cài torch, transformers và py_vncorenlp để chạy PhoBERT.") from error
+            raise RuntimeError(f"Không thể khởi tạo thư viện PhoBERT: {error}") from error
+        except OSError as error:
+            raise RuntimeError(
+                "Không thể nạp thư viện native của PhoBERT/Torch. Hãy kiểm tra DLL Microsoft Visual C++ "
+                f"hoặc Windows Application Control. Chi tiết: {error}"
+            ) from error
+        if shutil.which("java") is None:
+            raise RuntimeError("Không tìm thấy Java. Hãy cài Java 17 hoặc đặt JAVA_HOME trước khi chạy VnCoreNLP.")
         self.torch = torch
         self.max_length = max_length
         self.decision_policy = DecisionPolicy(temperature, decisive_min_confidence)
         self.retrieval_rank_bias = retrieval_rank_bias
         self.aggregation_policy = LearnedEvidencePolicy(aggregation_model_path) if aggregation_model_path else None
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.tokenizer = AutoTokenizer.from_pretrained(str(model_path), use_fast=False)
-        self.model = AutoModelForSequenceClassification.from_pretrained(str(model_path)).to(self.device)
+        self.tokenizer = AutoTokenizer.from_pretrained(str(model_dir), use_fast=False)
+        self.model = AutoModelForSequenceClassification.from_pretrained(str(model_dir)).to(self.device)
         self.model.eval()
-        self.segmenter = py_vncorenlp.VnCoreNLP(annotators=["wseg"], save_dir=str(Path(vncorenlp_dir).resolve()))
+        self.segmenter = py_vncorenlp.VnCoreNLP(annotators=["wseg"], save_dir=str(segmenter_dir.resolve()))
 
     @lru_cache(maxsize=2_048)
     def _segment(self, text: str) -> str:

@@ -4,6 +4,8 @@ Nền tảng cộng tác cho dự án đánh giá độ tin cậy và kiểm ch�
 
 `claim → truy xuất evidence → kết luận có trích dẫn`
 
+Người mới có thể đọc [giới thiệu tổng quan dự án](docs/GIOI_THIEU_DU_AN.md) trước khi đi vào phần cài đặt và tài liệu kỹ thuật.
+
 Nhánh phân loại nội dung được giữ tách biệt để phát triển sau; nó không quyết định nhãn đúng/sai cuối cùng.
 
 ## Bắt đầu nhanh
