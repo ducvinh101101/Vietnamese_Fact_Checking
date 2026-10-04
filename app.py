@@ -10,10 +10,10 @@ ROOT = Path(__file__).parent
 
 
 @st.cache_resource
-def get_pipeline() -> FactCheckingPipeline:
+def get_pipeline() -> tuple[FactCheckingPipeline, str | None]:
     config = load_runtime_config(ROOT / "configs" / "config.yaml")
     verification = config["verification"]
-    return FactCheckingPipeline(
+    pipeline_options = dict(
         evidence_path=str(ROOT / config["paths"]["evidence_path"]),
         top_k=config["retrieval"]["top_k"],
         support_threshold=verification["support_threshold"],
@@ -27,12 +27,28 @@ def get_pipeline() -> FactCheckingPipeline:
         retrieval_rank_bias=verification.get("retrieval_rank_bias", 0.0),
         aggregation_model_path=str(ROOT / verification["aggregation_model_path"]) if verification.get("aggregation_model_path") else None,
     )
+    try:
+        return FactCheckingPipeline(**pipeline_options), None
+    except RuntimeError as error:
+        # Keep the UI usable on managed Windows machines where Application Control
+        # blocks torch's native extension. Never hide the degraded mode from users.
+        if verification["engine"] != "phobert" or "Application Control policy has blocked" not in str(error):
+            raise
+        fallback = FactCheckingPipeline(
+            evidence_path=pipeline_options["evidence_path"],
+            top_k=pipeline_options["top_k"],
+            support_threshold=pipeline_options["support_threshold"],
+            refute_markers=pipeline_options["refute_markers"],
+            engine="rule_based",
+        )
+        return fallback, str(error)
 
 
 @st.cache_data(show_spinner=False)
 def run_cached(claim: str) -> dict[str, object]:
     """Cache a JSON-safe response; the model resource remains cached separately."""
-    return get_pipeline().run_json(claim)
+    pipeline, _ = get_pipeline()
+    return pipeline.run_json(claim)
 
 
 st.set_page_config(page_title="Kiểm chứng thông tin tiếng Việt", page_icon="🔎")
@@ -46,6 +62,12 @@ if st.button("Kiểm chứng", type="primary"):
         st.warning("Vui lòng nhập phát biểu cần kiểm chứng.")
     else:
         try:
+            _, fallback_reason = get_pipeline()
+            if fallback_reason:
+                st.warning(
+                    "PhoBERT hiện bị Windows Application Control chặn; hệ thống đang chạy chế độ "
+                    "demo rule-based. Kết quả chỉ dùng để kiểm tra luồng, không dùng để đánh giá chất lượng mô hình."
+                )
             response = run_cached(claim)
             verdict = response["verdict"]
             retrieval = response["retrieval"]

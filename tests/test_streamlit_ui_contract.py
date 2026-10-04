@@ -10,3 +10,4 @@ def test_streamlit_ui_exposes_cached_branches_and_source_links():
     assert "st.link_button" in app
     assert "not claim.strip()" in app
     assert "chưa xác nhận 80% ngoài thực tế" in app
+    assert "demo rule-based" in app

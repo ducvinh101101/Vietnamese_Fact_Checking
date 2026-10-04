@@ -60,6 +60,7 @@ def load_dotenv(path: Path) -> None:
 load_dotenv(ROOT / ".env")
 
 from src.fusion_retriever import FusionRetriever
+from src.fact_checker import RuleBasedFactChecker
 from src.io_utils import load_evidence_jsonl
 from src.phobert_fact_checker import PhoBERTFactChecker
 from src.pipeline import FactCheckingPipeline
@@ -109,6 +110,8 @@ def main() -> None:
                         help="Tắt gộp theo URL + xếp theo độ khớp chủ đề (ưu tiên bài giá bán lẻ)")
     parser.add_argument("--no-guard", action="store_true",
                         help="Tắt guard hạ SUPPORTED/REFUTED xuống NEI khi bằng chứng không vững")
+    parser.add_argument("--require-phobert", action="store_true",
+                        help="Không fallback khi Windows chặn Torch; dừng với lỗi để chẩn đoán runtime PhoBERT")
     args = parser.parse_args()
 
     from datetime import date
@@ -155,18 +158,34 @@ def main() -> None:
     retriever = TopicalRerankRetriever(
         gate, candidate_k=args.candidate_k, enabled=not args.no_topical_rerank,
     )
-    checker = PhoBERTFactChecker(
-        str(ROOT / v["model_path"]), str(ROOT / v["vncorenlp_dir"]),
-        int(v["max_length"]), float(v.get("temperature", 1.0)),
-        float(v.get("decisive_min_confidence", 0.0)), float(v.get("retrieval_rank_bias", 0.0)),
-        aggregation_model_path=str(ROOT / v["aggregation_model_path"]) if v.get("aggregation_model_path") else None,
-    )
+    fallback_reason = None
+    try:
+        checker = PhoBERTFactChecker(
+            str(ROOT / v["model_path"]), str(ROOT / v["vncorenlp_dir"]),
+            int(v["max_length"]), float(v.get("temperature", 1.0)),
+            float(v.get("decisive_min_confidence", 0.0)), float(v.get("retrieval_rank_bias", 0.0)),
+            aggregation_model_path=str(ROOT / v["aggregation_model_path"]) if v.get("aggregation_model_path") else None,
+        )
+    except RuntimeError as error:
+        if args.require_phobert or "Application Control policy has blocked" not in str(error):
+            raise
+        fallback_reason = str(error)
+        checker = RuleBasedFactChecker(
+            support_threshold=float(v.get("support_threshold", 0.45)),
+            refute_markers=v.get("refute_markers"),
+        )
     # Guard an toàn: hạ SUPPORTED/REFUTED xuống NEI khi bằng chứng trích dẫn lạc chủ
     # đề hoặc ngược chiều (chống false positive). Bọc trong suốt quanh verifier.
     guard = GuardedVerifier(checker, enabled=not args.no_guard)
     pipeline = FactCheckingPipeline(retriever=retriever, checker=guard, top_k=args.top_k)
 
     result, retrieved = pipeline.run(args.claim)
+    if fallback_reason:
+        print(
+            "[runtime] PhoBERT bị Windows Application Control chặn; đang dùng rule-based fallback. "
+            "Kết quả chỉ dùng để kiểm tra retrieval/luồng CLI, không dùng để đánh giá chất lượng mô hình.",
+            file=sys.stderr,
+        )
     cited = {e for e in result.evidence_ids}
     if web_layer is not None and web_layer.last_enriched_query:
         print(f"[web] Claim thời sự — truy vấn web đã chèn ngày: {web_layer.last_enriched_query!r}", file=sys.stderr)
