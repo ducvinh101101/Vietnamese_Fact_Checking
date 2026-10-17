@@ -25,11 +25,13 @@ import yaml
 
 def _configure_utf8_console() -> None:
     """Avoid cp1252/legacy Windows console crashes when printing Vietnamese."""
-    if sys.platform == "win32":
-        for stream in (sys.stdout, sys.stderr):
-            reconfigure = getattr(stream, "reconfigure", None)
-            if reconfigure is not None:
-                reconfigure(encoding="utf-8", errors="replace")
+    # Không chỉ Windows: mọi console/pipe có encoding khác UTF-8 (vd PYTHONIOENCODING=cp1252,
+    # locale C/POSIX trên Linux) đều làm print tiếng Việt văng UnicodeEncodeError.
+    for stream in (sys.stdout, sys.stderr):
+        encoding = (getattr(stream, "encoding", None) or "").replace("-", "").lower()
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is not None and encoding != "utf8":
+            reconfigure(encoding="utf-8", errors="replace")
 
 
 _configure_utf8_console()

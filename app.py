@@ -1,105 +1,151 @@
+"""Giao diện Streamlit kiểm chứng thông tin tiếng Việt.
+
+    py -3.13 -m streamlit run app.py
+
+Hai chế độ (dựng chung bởi src/system_builder.py, giống hệt CLI):
+* Kho local — pipeline đã đánh giá trên test (BM25 -> PhoBERT RT-V2 ensemble + minimal-pair).
+* Local + web — thêm Tavily qua allowlist, neo thời gian cho claim thời sự, gộp URL, guard.
+"""
+
+from datetime import date
 from pathlib import Path
 
 import streamlit as st
 
-from src.pipeline import FactCheckingPipeline
+from src.demo_cases import DEMO_CASES
 from src.runtime_config import ConfigValidationError, load_runtime_config
+from src.system_builder import FactCheckSystem, SystemOptions, build_system, load_dotenv
 
 
 ROOT = Path(__file__).parent
+load_dotenv(ROOT / ".env")   # TAVILY_API_KEY đặt trong .env được nhận mà không cần set tay
+
+MODE_LABELS = {
+    "local": "Kho local (đã đánh giá)",
+    "hybrid": "Local + web (Tavily, allowlist)",
+}
+EXAMPLES = {"— Chọn ví dụ —": ""} | {
+    f"{case['id']} · {case['title']} (kỳ vọng {case['expected']}{', chế độ web' if case['mode'] == 'hybrid' else ''})":
+        case["claim"]
+    for case in DEMO_CASES
+}
+LABEL_STYLE = {
+    "SUPPORTED": ("✅", "success", "Bằng chứng ỦNG HỘ phát biểu"),
+    "REFUTED": ("❌", "error", "Bằng chứng BÁC BỎ phát biểu"),
+    "NOT_ENOUGH_INFO": ("❔", "info", "CHƯA ĐỦ bằng chứng để kết luận"),
+}
 
 
-@st.cache_resource
-def get_pipeline() -> tuple[FactCheckingPipeline, str | None]:
+@st.cache_resource(show_spinner="Đang nạp mô hình và kho bằng chứng…")
+def get_system(mode: str, as_of: date | None = None) -> FactCheckSystem:
     config = load_runtime_config(ROOT / "configs" / "config.yaml")
-    verification = config["verification"]
-    pipeline_options = dict(
-        evidence_path=str(ROOT / config["paths"]["evidence_path"]),
-        top_k=config["retrieval"]["top_k"],
-        support_threshold=verification["support_threshold"],
-        refute_markers=verification["refute_markers"],
-        engine=verification["engine"],
-        model_path=str(ROOT / verification["model_path"]),
-        vncorenlp_dir=str(ROOT / verification["vncorenlp_dir"]),
-        max_length=verification["max_length"],
-        temperature=verification.get("temperature", 1.0),
-        decisive_min_confidence=verification.get("decisive_min_confidence", 0.0),
-        retrieval_rank_bias=verification.get("retrieval_rank_bias", 0.0),
-        aggregation_model_path=str(ROOT / verification["aggregation_model_path"]) if verification.get("aggregation_model_path") else None,
-        evidence_view=verification.get("evidence_view", "passage"),
-        # minimal_pair trung tính trên dev (Δ Macro-F1 +0.1, CI [-0.2, +0.5]) và sửa các ca claim
-        # chỉ khác một số/chiều/phủ định so với nguồn. guard hạ nhầm verdict đúng trên dev
-        # (Δ Macro-F1 -10) nên mặc định TẮT ở đây; bật bằng verification.guard nếu cần.
-        guard=verification.get("guard", False),
-        minimal_pair=verification.get("minimal_pair", True),
+    return build_system(SystemOptions(mode=mode, as_of=as_of), config=config, root=ROOT)
+
+
+@st.cache_data(show_spinner=False, ttl=900)
+def run_cached(mode: str, claim: str, as_of: date | None = None) -> dict[str, object]:
+    """Cache response JSON-safe theo (chế độ, claim); model được cache riêng. Web: hết hạn 15 phút."""
+    return get_system(mode, as_of).check(claim)
+
+
+def show_evidence(item: dict, key_prefix: str) -> None:
+    origin = "🌐 web" if item.get("origin") == "web" else "🗂️ local"
+    st.markdown(f"{origin} · `{item['passage_id']}` · điểm `{float(item['score']):.2f}`")
+    st.write(str(item["content"]))
+    st.caption(
+        f"{item['source']} · {item.get('domain') or 'domain không rõ'} · {item.get('source_type')} · "
+        f"xuất bản: {item.get('published_at') or 'không rõ'} · truy xuất: {item.get('retrieved_at') or 'không rõ'}"
     )
-    try:
-        return FactCheckingPipeline(**pipeline_options), None
-    except RuntimeError as error:
-        # Keep the UI usable on managed Windows machines where Application Control
-        # blocks torch's native extension. Never hide the degraded mode from users.
-        if verification["engine"] != "phobert" or "Application Control policy has blocked" not in str(error):
-            raise
-        fallback = FactCheckingPipeline(
-            evidence_path=pipeline_options["evidence_path"],
-            top_k=pipeline_options["top_k"],
-            support_threshold=pipeline_options["support_threshold"],
-            refute_markers=pipeline_options["refute_markers"],
-            engine="rule_based",
-        )
-        return fallback, str(error)
+    if item["url"]:
+        st.link_button("Mở URL nguồn", str(item["url"]), key=f"{key_prefix}-{item['passage_id']}")
 
 
-@st.cache_data(show_spinner=False)
-def run_cached(claim: str) -> dict[str, object]:
-    """Cache a JSON-safe response; the model resource remains cached separately."""
-    pipeline, _ = get_pipeline()
-    return pipeline.run_json(claim)
-
-
-st.set_page_config(page_title="Kiểm chứng thông tin tiếng Việt", page_icon="🔎")
+st.set_page_config(page_title="Kiểm chứng thông tin tiếng Việt", page_icon="🔎", layout="wide")
 st.title("🔎 Kiểm chứng thông tin tiếng Việt")
 st.caption("Retrieval → verifier → citation. Kết quả là hỗ trợ tham khảo; luôn mở nguồn gốc để kiểm tra.")
 st.warning("⚠️ Bản thử nghiệm nghiên cứu, chưa xác nhận 80% ngoài thực tế. Luôn kiểm tra đối chiếu nguồn gốc trích dẫn.")
 
-claim = st.text_area("Phát biểu cần kiểm chứng", placeholder="Nhập một phát biểu tiếng Việt…", max_chars=2000)
+with st.sidebar:
+    st.header("Cấu hình")
+    mode = st.radio("Nguồn bằng chứng", list(MODE_LABELS), format_func=MODE_LABELS.get)
+    as_of = None
+    if mode == "hybrid":
+        if st.checkbox("Đặt ngày tham chiếu (mặc định: hôm nay)"):
+            as_of = st.date_input("Ngày tham chiếu", value=date.today())
+        st.caption("Claim thời sự (hôm nay, hiện nay, chức danh đương nhiệm…) chỉ nhận bằng chứng "
+                   "đủ mới: theo ngày ≤ 10 ngày, hiện tại ≤ 365 ngày. Không rõ ngày đăng → bị loại.")
+    st.divider()
+    st.markdown(
+        "**Chế độ kho local** là cấu hình đã đo trên test ViFactCheck: Macro-F1 **72,3%** "
+        "(1.076 claim; test đã dùng nhiều lần nên là số tham khảo).\n\n"
+        "**Chế độ web** chưa có phép đo trên tập có nhãn; dùng để minh họa claim thời sự."
+    )
+    st.caption("Đổi config/model: menu ⋮ → Clear cache (phím C), rồi chạy lại.")
+
+example = st.selectbox("Ví dụ nhanh", list(EXAMPLES))
+claim = st.text_area("Phát biểu cần kiểm chứng", value=EXAMPLES[example],
+                     placeholder="Nhập một phát biểu tiếng Việt…", max_chars=2000)
 if st.button("Kiểm chứng", type="primary"):
     if not claim.strip():
         st.warning("Vui lòng nhập phát biểu cần kiểm chứng.")
     else:
         try:
-            _, fallback_reason = get_pipeline()
-            if fallback_reason:
+            system = get_system(mode, as_of)
+            if system.fallback_reason:
                 st.warning(
                     "PhoBERT hiện bị Windows Application Control chặn; hệ thống đang chạy chế độ "
                     "demo rule-based. Kết quả chỉ dùng để kiểm tra luồng, không dùng để đánh giá chất lượng mô hình."
                 )
-            response = run_cached(claim)
+            if mode == "hybrid" and system.web_status:
+                (st.info if system.settings.get("web") else st.warning)(system.web_status)
+            with st.spinner("Đang truy xuất bằng chứng và kiểm chứng…"):
+                response = run_cached(mode, claim, as_of)
             verdict = response["verdict"]
             retrieval = response["retrieval"]
             citations = response["citations"]
-            st.subheader(str(verdict["label"]))
-            st.metric("Điểm mô hình", f"{float(verdict['confidence']):.2f}")
+            diagnostics = response.get("diagnostics", {})
+            icon, kind, meaning = LABEL_STYLE.get(str(verdict["label"]), ("", "info", ""))
+            getattr(st, kind)(f"{icon} **{verdict['label']}** — {meaning}")
+            col_score, col_mode = st.columns(2)
+            col_score.metric("Điểm mô hình", f"{float(verdict['confidence']):.2f}")
+            col_mode.metric("Chế độ", MODE_LABELS[mode])
             st.caption("Điểm mô hình không phải xác suất thông tin đúng trong thực tế.")
             st.write(str(verdict["explanation"]))
+            if diagnostics.get("minimal_pair_reason"):
+                st.info(f"Luật cặp-tối-thiểu đã điều chỉnh verdict ({diagnostics['minimal_pair_reason']}): "
+                        "phát biểu gần trùng một câu trong nguồn nhưng khác số/chiều/phủ định, hoặc trùng nguyên văn.")
+            if diagnostics.get("guard_reason"):
+                st.info(f"Guard đã hạ verdict xuống NEI: {diagnostics['guard_reason']}.")
+            gate = diagnostics.get("temporal_gate")
+            if gate:
+                st.info(
+                    f"Claim thời sự ({'theo ngày' if gate['recency_class'] == 'today' else 'hiện tại'}): chỉ nhận "
+                    f"bằng chứng từ {gate['cutoff']} (cửa sổ {gate['window_days']} ngày). Giữ {gate['kept']}; "
+                    f"loại {gate['dropped_stale']} quá cũ, {gate['dropped_undated']} không rõ ngày, "
+                    f"{gate['dropped_future']} sau ngày tham chiếu."
+                )
+            if diagnostics.get("web_error"):
+                st.warning(f"Nhánh web lỗi, đã lùi về kho local: {diagnostics['web_error']}")
+
             st.subheader("Nhánh verifier: citation dùng cho kết luận")
             if not citations:
                 st.info("Chưa có đoạn được dùng để xác nhận hoặc bác bỏ phát biểu.")
-            cited_ids = {str(item["passage_id"]) for item in citations}
             for item in citations:
-                st.markdown(f"**{item['passage_id']}** · điểm retrieval: `{float(item['score']):.2f}`")
-                st.write(str(item["content"]))
-                st.caption(f"{item['source']} · {item.get('domain') or 'domain không rõ'} · truy xuất: {item.get('retrieved_at') or 'không rõ'}")
-                if item["url"]:
-                    st.link_button("Mở nguồn", str(item["url"]))
+                show_evidence(item, "cite")
+            cited_ids = {str(item["passage_id"]) for item in citations}
             with st.expander(f"Nhánh retrieval: {retrieval['retrieved_count']} passage đã tìm thấy"):
                 for item in retrieval["evidence"]:
                     marker = "Được verifier trích dẫn" if item["passage_id"] in cited_ids else "Candidate, chưa được trích dẫn"
-                    st.markdown(f"**{marker}** · `{item['passage_id']}` · score `{float(item['score']):.2f}`")
-                    st.write(str(item["content"]))
-                    st.caption(f"{item['source']} · {item.get('source_type')} · xuất bản: {item.get('published_at') or 'không rõ'}")
-                    if item["url"]:
-                        st.link_button("Mở URL nguồn", str(item["url"]), key=f"url-{item['passage_id']}")
+                    st.markdown(f"**{marker}**")
+                    show_evidence(item, "url")
+            if gate and gate["dropped"]:
+                with st.expander(f"Bằng chứng bị neo thời gian loại ({len(gate['dropped'])})"):
+                    for row in gate["dropped"]:
+                        st.caption(f"[{row['reason']}] ({row['origin']}) {row['source']} · "
+                                   f"{(row['published_at'] or 'không rõ')[:10]} · {row['url']}")
+            with st.expander("Chi tiết kỹ thuật (để báo cáo/gỡ lỗi)"):
+                st.json({"settings": diagnostics.get("settings"), "web_enriched_query": diagnostics.get("web_enriched_query"),
+                         "schema_version": response.get("schema_version")})
             st.caption("Pipeline và kết quả claim được cache trong phiên Streamlit; sửa config/model cần bấm Clear cache rồi chạy lại.")
         except (RuntimeError, ValueError, ConfigValidationError) as error:
             st.error(str(error))

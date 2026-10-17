@@ -14,23 +14,44 @@ Nhánh phân loại nội dung được giữ tách biệt để phát triển s
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-streamlit run app.py
+py -3.13 scripts/check_release.py          # kiểm tra máy: thư viện, model, Java, hash dữ liệu
+py -3.13 app_gradio.py                     # giao diện Gradio (khuyên dùng) -> http://127.0.0.1:7860
+py -3.13 -m streamlit run app.py           # giao diện Streamlit (bản cũ, cùng kết quả)
 ```
 
-Config hiện tại (`configs/config.yaml`) dùng corpus `data/evidence/vifactcheck_passages.jsonl`, checkpoint verifier tại `models/rt_v2_balanced/best_model` (RT-V2, đã khóa runtime), VnCoreNLP tại `models/vncorenlp`, và chính sách quyết định theo hạng (rank policy, không dùng AGG-V1). Cần chuẩn bị model và Java trước khi kiểm chứng; chỉ cài requirements chưa đủ. Xem [hướng dẫn tái lập](docs/REPRODUCIBILITY_BASELINE.md).
+Cần chuẩn bị checkpoint verifier `models/rt_v2_balanced/best_model` (RT-V2), VnCoreNLP tại `models/vncorenlp` và Java; chỉ cài requirements là chưa đủ. Xem [hướng dẫn tái lập](docs/REPRODUCIBILITY_BASELINE.md). Nếu Windows Application Control chặn torch, giao diện tự chuyển sang chế độ demo rule-based và báo rõ.
 
-Đây là bản thử nghiệm với kho bằng chứng cục bộ, **chưa được xác nhận đạt accuracy 80% ngoài thực tế**. Xem [tiến độ ưu tiên](docs/PRIORITY_READINESS_PROGRESS.md) và [báo cáo kết quả đầy đủ](docs/BAO_CAO_KET_QUA_GIOI_HAN.md).
+### Hai chế độ (chọn trong giao diện)
 
-## Kết quả chính (dev/test, dữ liệu ViFactCheck)
+| Chế độ | Bằng chứng | Khi nào dùng | Đã đo? |
+|---|---|---|---|
+| **Kho local** | BM25 trên 5.845 đoạn ViFactCheck | Báo cáo, so sánh, demo có kỳ vọng | Có — test Macro-F1 **72,3%** |
+| **Local + web** | + Tavily qua 33 nguồn allowlist, neo thời gian, gộp URL, guard | Claim thời sự ("hôm nay", "hiện nay") | Chưa có tập có nhãn |
+
+Web cần `TAVILY_API_KEY` (đặt trong `.env`, xem `.env.example`). Thiếu key thì tự chạy chỉ với kho local.
+
+### Lệnh thường dùng
+
+```powershell
+py -3.13 scripts/run_web_fact_check.py --claim "Giá xăng tăng từ chiều nay"      # CLI (local + web)
+py -3.13 scripts/run_web_fact_check.py --claim "..." --local-only
+py -3.13 scripts/run_demo_cases.py [--with-web]        # demo 6 ca có kỳ vọng -> outputs/demo/demo_cases.md
+py -3.13 scripts/compare_final_vs_baselines.py         # bảng so sánh + khoảng tin cậy (không chạy model)
+py -3.13 -m pytest -q --basetemp=.pytest_tmp           # ~300 test, không cần GPU
+```
+
+Đây là bản thử nghiệm, **chưa được xác nhận đạt 80% ngoài thực tế**. Xem [báo cáo tổng kết](docs/BAO_CAO_TONG_KET.md).
+
+## Kết quả chính (dữ liệu ViFactCheck)
 
 | Phép đo | Macro-F1 | Ghi chú |
 |---|---:|---|
-| Verifier oracle (E2, gold evidence) | 81,07% | Trần verifier, không phải năng lực hệ thống |
-| End-to-end BM25-local (test) | 62,94% | Tự đi tìm bằng chứng |
-| End-to-end Reranked-local (test) | **69,92%** | Rerank W3-08, +6,98 điểm |
-| Verifier RT-V2 balanced (end-to-end dev) | 70,75% | Đã khóa; F1 REFUTED 64,23%, giảm lệch NEI |
+| Verifier oracle (E2, bằng chứng vàng) | 81,07% | Trần của verifier, không phải năng lực hệ thống |
+| End-to-end baseline W4-02 (test) | 59,49% | BM25 → E2 |
+| End-to-end rerank W4-05 (test) | 69,92% | E2 + rerank metadata |
+| **End-to-end cấu hình cuối (test, chạy một lần)** | **72,31%** | RT-V2 + ensemble + cặp-tối-thiểu; **+12,8 [+10,0; +15,6]** so với W4-02 |
 
-Mọi con số trên là dev/test đã xem nhiều lần, **không phải bằng chứng độc lập**. Chi tiết, ablation và giới hạn: [báo cáo kết quả](docs/BAO_CAO_KET_QUA_GIOI_HAN.md).
+Mọi lựa chọn cấu hình đều làm trên dev có nhãn người. Test đã được dùng cho các lượt trước nên đây là **so sánh tương đối, không phải bằng chứng độc lập**. Chi tiết: [báo cáo tổng kết](docs/BAO_CAO_TONG_KET.md) · [kết quả & giới hạn](docs/BAO_CAO_KET_QUA_GIOI_HAN.md) · [lỗi & challenge set](docs/BAO_CAO_LOI_TU_TEST_DOI_KHANG.md) · [việc còn lại cần người/GPU](docs/HUONG_DAN_VIEC_CON_LAI.md).
 
 ## Cấu trúc
 
@@ -65,7 +86,7 @@ Kế hoạch triển khai hiện hành nằm trong [workbook phân công Vinh–
 
 ## Web retrieval và rerank
 
-Web retriever qua allowlist (`src/web_retriever.py`), corpus v2 có metadata nguồn/thời gian, và rerank theo nguồn/authority (`src/reranked_retriever.py`, W3-08) **đã được hiện thực và test riêng**. Pipeline chạy mặc định vẫn dùng kho cục bộ + rerank; bước **hợp nhất local + web (fusion) chưa triển khai**, nên tầng hybrid end-to-end chưa đo được. Xem [kế hoạch web retrieval](docs/WEB_RETRIEVAL_PLAN.md).
+Web retriever qua allowlist (`src/web_retriever.py`), corpus v2 có metadata, rerank theo nguồn (W3-08), fusion RRF local + web (`src/fusion_retriever.py`), neo thời gian (`src/temporal_gate.py`) và gộp URL (`src/topical_rerank.py`) đều được dựng chung tại `src/system_builder.py` cho cả giao diện lẫn CLI. Tầng hybrid **chưa có số đo định lượng** vì chưa có tập claim thời sự có nhãn. Xem [hướng dẫn test web](docs/HUONG_DAN_TEST_WEB_END_TO_END.md).
 
 ## Kế hoạch phạm vi đầy đủ
 

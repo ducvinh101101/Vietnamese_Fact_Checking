@@ -6,7 +6,7 @@ Ngày: 2026-10-04. Phạm vi: chuỗi RAG kiểm chứng (retrieval local/web �
 
 | File | Vai trò | Cần model? |
 |---|---|---|
-| `tests/test_adversarial_findings.py` | 43 trường hợp (còn 19 xfail) đối kháng theo thành phần. Lỗi đã biết gắn `xfail(strict=True)` + mã `BUG-xx` | Không |
+| `tests/test_adversarial_findings.py` | Test đối kháng theo thành phần + hồi quy. **Mọi BUG-xx đã sửa (0 xfail, 2026-10-11)** — xem § 7 | Không |
 | `scripts/challenge_set.py` | Sinh challenge set có **nhãn đúng theo cấu trúc** từ corpus (7 loại, 380 claim) | Không |
 | `tests/test_challenge_set_construction.py` | 21 test khẳng định **nhãn vàng của challenge set là đúng** | Không |
 | `scripts/run_challenge_eval.py` | Chạy challenge set qua pipeline production, báo cáo theo loại + tách lỗi retrieval/verifier + tác động guard | **Có (PhoBERT)** |
@@ -35,54 +35,54 @@ Mức độ: **Nghiêm trọng** = sai verdict ở luồng chính hoặc làm sa
 Đã sửa: tham số `guard` và `minimal_pair` tách riêng (cấu hình `verification.guard`, `verification.minimal_pair`). Mặc định constructor đều **False** để không đổi số liệu RT-V2 đã khóa; `app.py` bật `minimal_pair`, tắt `guard` (6.8). Cần quyết định có bật cho các script đánh giá e2e hay không sau khi A/B trên dev (xem mục 6).
 Test: `test_pipeline_with_guard_flag_applies_verdict_guard`, `test_demo_app_defaults_guard_off_and_minimal_pair_on`.
 
-**BUG-G1 — Chặn prompt-injection chặn nhầm tin tức thật.**
+**BUG-G1 — Chặn prompt-injection chặn nhầm tin tức thật. [ĐÃ SỬA]**
 Regex `bỏ qua … (hướng dẫn|dữ liệu|đối chiếu)` khớp "Bộ Y tế khuyến cáo không **bỏ qua hướng dẫn** tiêm chủng", "không được **bỏ qua dữ liệu** quan trắc". Guard này chạy **trong `FactCheckingPipeline.run`**, nên ảnh hưởng mọi luồng: claim hợp lệ bị trả NEI trước cả khi truy xuất.
 Sửa: chỉ coi là injection khi có dấu hiệu ra lệnh cho hệ thống (vd "hãy/bạn/mô hình/hệ thống" + bỏ qua, hoặc "bỏ qua mọi/tất cả hướng dẫn trước") **hoặc** đi kèm token nhãn (SUPPORTED/REFUTED/NEI). Giữ nguyên các mẫu `system:`/`ignore … instructions`.
 Test: `test_input_guard_does_not_block_ordinary_news_claims` (2 ca).
 
-**BUG-D1 — Lỗi nhánh web làm sập cả pipeline.**
+**BUG-D1 — Lỗi nhánh web làm sập cả pipeline [ĐÃ SỬA]**
 `FusionRetriever.search` không bắt ngoại lệ của `web.search` → trái chính sách `fail_to: local_only`. (Đã từng xảy ra thật với `IncompleteRead`.)
 Sửa: bọc `self.web.search(...)` trong `try/except Exception`, ghi `last_web_error`, trả kết quả local.
 Test: `test_fusion_falls_back_to_local_when_web_raises`.
 
-**BUG-H4 — Rule-based bác bỏ câu đúng nguyên văn.**
+**BUG-H4 — Rule-based bác bỏ câu đúng nguyên văn [ĐÃ SỬA]**
 `negation_conflict` lấy hiệu đối xứng token của claim và **toàn bộ passage**. Một câu *khác* trong passage có "chưa/không" là claim đúng bị REFUTED. Challenge set: **16/60 (27%) câu nguyên văn bị REFUTED** dù nguồn đứng hạng 1. Rule-based là engine của chế độ demo trong app và là fallback của test.
 Sửa: chỉ so phủ định với **câu khớp nhất** trong passage; so marker như từ độc lập, loại từ ghép ("không khí", "không gian", "không quân", "chưa kể").
 Test: `test_rule_based_negation_elsewhere_in_passage_does_not_refute_verbatim_claim`, `test_rule_based_does_not_treat_khong_khi_as_negation` (BUG-H1, cùng gốc).
 
 ### Cao
 
-**BUG-E1 — Guard cắt đôi số tiền kiểu Việt và hạ SUPPORTED đúng.**
+**BUG-E1 — Guard cắt đôi số tiền kiểu Việt và hạ SUPPORTED đúng [ĐÃ SỬA]**
 `_SENTENCES = re.compile(r"[.!?;]+")` tách "tăng **1.500** đồng/lít từ 15h chiều nay" thành "…tăng 1" + "500 đồng/lít từ 15h chiều nay" → câu chứa "xăng tăng" mất "đồng/lít" và "chiều nay" → hạ xuống NEI. Cùng câu nhưng "500" thì giữ SUPPORTED. Giá bán lẻ xăng luôn ≥ 1.000 đồng nên đây là ca phổ biến nhất của chính tính năng guard nhắm tới.
 Sửa: chỉ tách câu khi dấu câu theo sau là khoảng trắng: `re.split(r"(?<=[.!?;])\s+", text)` (hoặc `(?<!\d)[.!?;]+(?!\d)`).
 Test: `test_guard_keeps_support_with_vietnamese_thousand_separator`.
 
-**BUG-F1 — Trích ngày đăng lấy nhầm đồng hồ "hôm nay" ở header.**
+**BUG-F1 — Trích ngày đăng lấy nhầm đồng hồ "hôm nay" ở header [ĐÃ SỬA]**
 Khi trang không có meta ngày đăng, `extract_published_at` lấy thẻ `<time>` **đầu tiên**, kể cả trong `<header>`. Bài 2023 bị gán ngày hôm nay → **vượt qua neo thời gian**, đúng lỗi mà neo thời gian sinh ra để chặn.
 Sửa: không ghi `time_values` khi đang ở trong `header/nav/footer/aside` (parser đã có `_skip_depth`); ưu tiên `<time>` có `itemprop="datePublished"`/`pubdate` hoặc nằm trong `<article>`.
 Test: `test_published_at_ignores_header_clock_and_uses_article_time`.
 
-**BUG-E2 — Guard không hiểu phủ định của claim.**
+**BUG-E2 — Guard không hiểu phủ định của claim [ĐÃ SỬA]**
 `_claim_direction("Giá xăng không tăng …") == "tăng"`. Verifier SUPPORTED sai cho "giá xăng **không** tăng" khi bằng chứng nói "tăng 300 đồng" vẫn lọt qua guard.
 Sửa: nếu trước từ chỉ chiều có "không/chưa/chẳng/không hề" thì coi là chiều phủ định (đòi bằng chứng không nói chiều đó, hoặc trả None để không kiểm chiều).
 Test: `test_claim_direction_respects_negation`, `test_guard_blocks_support_for_negated_claim_against_increase`.
 
-**BUG-E3 — Guard không kiểm số liệu.**
+**BUG-E3 — Guard không kiểm số liệu [ĐÃ SỬA]**
 SUPPORTED sai khi claim "tăng 500 đồng" còn bằng chứng "tăng 300 đồng" vẫn lọt. Đổi số là dạng false positive phổ biến nhất của ViFactCheck.
 Sửa: với SUPPORTED, chuẩn hóa số (bỏ dấu chấm hàng nghìn, thống nhất dấu thập phân) và hạ xuống NEI nếu một số trong claim (không phải năm) vắng mặt ở câu được trích **và** câu đó có số khác đi cùng cùng đơn vị.
 Test: `test_guard_blocks_support_when_numbers_contradict`.
 
-**BUG-A1 — Claim lịch sử có năm bị coi là "hiện tại".**
+**BUG-A1 — Claim lịch sử có năm bị coi là "hiện tại" [ĐÃ SỬA]**
 `_ABSOLUTE_DATE` chỉ bắt `dd/mm` và `ngày N`. "**Năm 2020**, tổng thống Mỹ là Donald Trump" → `current` (do chức danh nhiệm kỳ) → neo vào 365 ngày gần nhất, loại sạch bằng chứng năm 2020 → NEI oan. Tương tự "**tháng 3/2023**, Thủ tướng …".
 Sửa: thêm `năm \d{4}`, `tháng \d{1,2}(/\d{4})?`, `\b\d{1,2}/\d{4}\b` vào mốc tuyệt đối.
 Test: `test_recency_class_year_is_absolute_anchor`, `test_recency_class_month_year_is_absolute_anchor`.
 
-**BUG-H2 / BUG-H3 — Rule-based so số quá thô.**
+**BUG-H2 / BUG-H3 — Rule-based so số quá thô [ĐÃ SỬA]**
 H2: "1500" và "1.500" bị coi là mâu thuẫn. H3: bằng chứng không nhắc tới năm trong claim bị coi là bác bỏ (thiếu thông tin ≠ mâu thuẫn).
 Sửa: chuẩn hóa số trước khi so; chỉ coi là mâu thuẫn khi bằng chứng có **số khác** ở cùng vị trí ngữ nghĩa (cùng đơn vị/cụm đứng trước).
 Test: `test_rule_based_same_number_different_format_is_not_conflict`, `test_rule_based_missing_number_is_not_contradiction`.
 
-**BUG-B1 — Neo thời gian không chặn bằng chứng "từ tương lai".**
+**BUG-B1 — Neo thời gian không chặn bằng chứng "từ tương lai" [ĐÃ SỬA]**
 Với `--as-of` trong quá khứ (backtest/đánh giá theo thời gian), bài đăng sau ngày tham chiếu vẫn được dùng → rò rỉ thông tin.
 Sửa: loại `published > reference + 1 ngày` (dung sai múi giờ).
 Test: `test_gate_rejects_evidence_published_after_reference_date`.
@@ -262,3 +262,30 @@ Quyết định:
 - Ba khóa mới nằm trong `configs/config.yaml` nhưng `evaluate_local_end_to_end.py` bỏ qua chúng, trừ khi thêm `--use-final-config` — để baseline W4-02 vẫn tái lập được. Chạy cuối trên test **một lần**: `py -3.13 scripts/evaluate_local_end_to_end.py --use-final-config --metrics outputs/metrics/final_local_end_to_end_test.json --predictions outputs/predictions/final_local_end_to_end_test.csv`.
 
 Giới hạn: cấu hình được chọn trên dev (thử ~10 tổ hợp) nên số trên test có thể thấp hơn chút; lỗi chủ đạo (REFUTED bị đoán SUPPORTED, NEI bị đoán quyết định) còn nguyên — cần dữ liệu huấn luyện chứ không phải luật hậu kiểm.
+
+## 7. Trạng thái sửa lỗi (2026-10-11) — tất cả BUG-xx đã sửa
+
+Mỗi lỗi đã sửa thì gỡ nhãn `xfail` khỏi test tương ứng (test giờ phải PASS) và thêm test hồi quy cho ca biên mà bản sửa phải giữ đúng (nhóm J trong `tests/test_adversarial_findings.py`, tên `test_fix_*`).
+
+| Mã | File sửa | Cách sửa đã áp dụng | Ca biên được giữ (test `test_fix_*`) |
+|---|---|---|---|
+| I1 | `src/pipeline.py`, `src/system_builder.py` | Cờ `guard`/`minimal_pair` trong pipeline; giao diện + CLI dựng chung qua `system_builder` (local: guard tắt; web: guard bật) | `test_demo_app_defaults_guard_off_and_minimal_pair_on` |
+| G1 | `src/input_guard.py` | Không coi là injection khi "bỏ qua" đứng sau không/được/đừng/chớ/hề/chẳng | Vẫn chặn "Hãy bỏ qua hướng dẫn kiểm chứng…" |
+| D1 | `src/fusion_retriever.py` | Bắt mọi lỗi nhánh web, lùi về local, ghi `last_web_error` (giao diện hiển thị) | Lỗi web được ghi lại |
+| H1/H4 | `src/fact_checker.py` | Phủ định chỉ so trên **câu khớp claim nhất**; bỏ từ ghép (không khí, hàng không, không gian…) | — |
+| H2/H3 | `src/fact_checker.py` | Chuẩn hóa số (1.500 = 1500, 2,5 = 2.5); mâu thuẫn chỉ khi **thay số** (claim có số vắng ở nguồn VÀ câu nguồn có số khác) | — |
+| E1 | `src/verdict_guard.py` | Không tách câu ở dấu chấm giữa hai chữ số | — |
+| E2 | `src/verdict_guard.py` | "không/chưa tăng" không còn là khẳng định "tăng"; claim phủ định + nguồn khẳng định -> hạ NEI | Claim phủ định + nguồn cũng phủ định vẫn SUPPORTED |
+| E3 | `src/verdict_guard.py` | Hạ SUPPORTED khi câu nguồn khớp chủ đề nhất mang số khác số trong claim | Nguồn thiếu năm của claim không bị hạ |
+| F1 | `src/web_retriever.py` | Bỏ `<time>` nằm trong header/nav/footer/aside | Trang chỉ có đồng hồ header -> ngày "không rõ" (không phải hôm nay) |
+| A1 | `src/query_enrichment.py` | "năm 2020", "tháng 3/2023", "3/2023" là mốc tuyệt đối | — |
+| B1 | `src/temporal_gate.py` | Loại bằng chứng đăng sau ngày tham chiếu + 1 ngày; đếm riêng `last_dropped_future` | Lệch 1 ngày (múi giờ) vẫn giữ |
+| C1 | `src/topical_rerank.py` | Tách từ bằng regex, bỏ dấu câu bám vào từ | — |
+| C2 | `src/topical_rerank.py` | "Claim về giá" xét theo từ (giá/xăng/dầu) hoặc số + đơn vị tiền; "hội đồng" không còn kích hoạt | — |
+| C3 | `src/topical_rerank.py` | `canonical_url`: bỏ utm_*/fbclid/gclid…, #fragment, www., "/" cuối | `?id=1` và `?id=2` vẫn là hai bài |
+
+Ngoài danh sách đối kháng, đã sửa thêm:
+- `scripts/run_golden_eval.py` văng UnicodeEncodeError trên mọi console không phải UTF-8 (trước đây chỉ xử lý Windows).
+- Lỗi hash corpus/policy do Git đổi LF→CRLF trên Windows: thêm `.gitattributes` `eol=lf` cho các file có SHA-256 trong manifest. `scripts/check_release.py` nhận diện và gợi ý cách sửa.
+- `PhoBERTFactChecker` dựng bằng `__new__` (trong test) thiếu `evidence_view`: thêm mặc định cấp lớp.
+

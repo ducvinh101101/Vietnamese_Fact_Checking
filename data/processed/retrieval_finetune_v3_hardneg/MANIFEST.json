@@ -1,0 +1,32 @@
+{
+  "experiment": "RT-V3 hard negatives (synthetic minimal-pair REFUTED + other-article NEI)",
+  "base_bundle": "retrieval_finetune_v2_balanced",
+  "base_manifest_sha256": "1dab0d19a12950b2caa9c577d3b2ba47430c0ab77eccfcfaf14441858f453ca5",
+  "source_train_sha256": "fb850bb7f910fdb44c2fa77407339b27e940bc74f4a8e2204a57b42dc371e3b5",
+  "seed": 42,
+  "synthetic_counts": {
+    "hard_nei_other_article": 450,
+    "synthetic_refuted_number": 150,
+    "synthetic_refuted_direction": 150,
+    "synthetic_refuted_negation": 150
+  },
+  "combined_rows": 6101,
+  "combined_label_counts": {
+    "0": 1815,
+    "1": 2153,
+    "2": 2133
+  },
+  "sample_weight": {
+    "original_gold_train": 1.0,
+    "ai_silver": 0.5,
+    "synthetic": 0.5
+  },
+  "validation": "Mỗi REFUTED tổng hợp là đúng một lật nghĩa theo src/minimal_pair.analyse; NEI dùng bài URL khác, phủ claim < 0,55",
+  "heldout_url_check": "passed; dev/test URLs không có trong train hay evidence tổng hợp",
+  "test_in_bundle": false,
+  "files": {
+    "gold_train.parquet": "24b40113a8e0d8c684883923e0348fe3cd471a48a9b1ed94139ad2ac98240c83",
+    "train.parquet": "69f05781a21d69f0d9b630c6431da7014fbe37bf206f0ce0483c7c98bbeb3c05",
+    "dev.parquet": "6a53e330b59aa7ae76933e3d57c25625185334e39e76275613572af6b40b8527"
+  }
+}

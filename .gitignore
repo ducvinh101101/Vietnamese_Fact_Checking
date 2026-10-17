@@ -28,3 +28,6 @@ TEST_EVALUATION_REPORT_v2.md
 outputs/TEST_EVALUATION_REPORT_v2.md
 # Project-local runtime; downloaded automatically by scripts/download_portable_java.py.
 tools/java17/
+
+# Thư mục tạm của pytest khi chạy với --basetemp=.pytest_tmp (Windows chặn %TEMP%)
+.pytest_tmp/

@@ -1,0 +1,35 @@
+# RT-V3 (hard negative) — CHỈ dùng sau khi train trên Kaggle với
+# kaggle/retrieval_finetune_v3_hardneg.zip và chép best_model về models/rt_v3_hardneg/.
+# Đánh giá trên DEV trước (docs/HUONG_DAN_CHAY_GPU.md); chỉ thay configs/config.yaml nếu dev
+# tốt hơn RT-V2 có ý nghĩa thống kê. KHÔNG chạy lại test để chọn.
+project:
+  name: vietnamese-fact-checking-mvp
+  seed: 42
+
+paths:
+  evidence_path: data/evidence/vifactcheck_passages.jsonl
+  outputs_dir: outputs
+
+retrieval:
+  method: bm25
+  top_k: 3
+
+verification:
+  engine: phobert
+  model_path: models/rt_v3_hardneg/best_model
+  vncorenlp_dir: models/vncorenlp
+  max_length: 256
+  temperature: 1.0
+  decisive_min_confidence: 0.5
+  retrieval_rank_bias: 1.0
+  aggregation_model_path: null
+  evidence_view: ensemble
+  minimal_pair: true
+  guard: false
+  support_threshold: 0.45
+  refute_markers:
+    - "không"
+    - "chưa"
+    - "sai"
+    - "bác bỏ"
+    - "trái ngược"

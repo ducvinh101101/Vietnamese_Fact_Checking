@@ -321,10 +321,17 @@ def test_pipeline_with_guard_flag_applies_verdict_guard():
 
 
 def test_demo_app_defaults_guard_off_and_minimal_pair_on():
+    """app.py và CLI dựng hệ thống qua src/system_builder.py: chế độ local theo config
+    (guard TẮT, minimal_pair BẬT); nhánh web (hybrid) bật guard cho claim thời sự."""
     from pathlib import Path
+    from src.system_builder import SystemOptions, build_system
     source = (Path(__file__).resolve().parents[1] / "app.py").read_text(encoding="utf-8")
-    assert 'guard=verification.get("guard", False)' in source
-    assert 'minimal_pair=verification.get("minimal_pair", True)' in source
+    assert "build_system(" in source
+    local = build_system(SystemOptions(mode="local", engine="rule_based"))
+    assert local.settings["guard"] is False and local.guard is None
+    assert local.settings["minimal_pair"] is True and local.minimal_pair is not None
+    hybrid = build_system(SystemOptions(mode="hybrid", engine="rule_based", use_web=False))
+    assert hybrid.guard is not None and hybrid.minimal_pair is not None
 
 
 def test_pipeline_blocks_injection_before_retrieval():

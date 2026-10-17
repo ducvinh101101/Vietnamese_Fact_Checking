@@ -1,5 +1,7 @@
 # Hướng dẫn test end-to-end CÓ web retrieval
 
+> **Cập nhật 2026-10-11.** Web đã có trong giao diện (`streamlit run app.py` → thanh bên chọn "Local + web"). CLI và giao diện dựng chung qua `src/system_builder.py`, nên CLI giờ cũng dùng verifier theo config (RT-V2 ensemble + cặp-tối-thiểu). Allowlist hiện có 33 host (xem `configs/web_retrieval.yaml`), không còn 3 host như mô tả bên dưới. Key có thể đặt trong `.env` (`TAVILY_API_KEY=...`).
+
 Ngày: 2026-10-03. Cho phép gõ một claim và xem verdict dựa trên bằng chứng **local + web hợp nhất**.
 
 ## Thành phần mới
@@ -44,7 +46,7 @@ py -3.13 scripts/run_web_fact_check.py --claim "..." --local-only
 - **Allowlist chặt:** web chỉ nhận đúng 3 host trên. Claim về chủ đề ngoài 3 nguồn này thường sẽ không có bằng chứng web → verdict dựa vào local, hoặc NEI. Muốn thêm nguồn: sửa `source_policy.allowlist` trong `configs/web_retrieval.yaml` (có review nguồn).
 - **Thiếu key:** script in cảnh báo `[web] Thiếu biến môi trường TAVILY_API_KEY` và chạy local-only — vẫn ra verdict.
 - **Verifier:** dùng đúng checkpoint đang khóa trong `configs/config.yaml` (RT-V2).
-- Đây là **fusion cấp claim**. Luồng cả bài viết (tách claim → fusion từng claim → tổng hợp) + hiển thị trên Streamlit là phần UI còn lại (W4-01, phối hợp Quang).
+- Đây là **fusion cấp claim**, đã hiển thị trên Streamlit (chế độ "Local + web"). Luồng cả bài viết (tách claim → fusion từng claim → tổng hợp) vẫn chỉ có ở mức API (`src/article_pipeline.py`).
 
 ## Nếu lỗi
 
