@@ -1,0 +1,30 @@
+{
+  "dataset_version": "vi-evidence-gold-v1",
+  "authored_on": "2026-10-26",
+  "as_of": "2026-10-01",
+  "case_count": 84,
+  "label_counts": {
+    "NOT_ENOUGH_INFO": 28,
+    "REFUTED": 28,
+    "SUPPORTED": 28
+  },
+  "category_counts": {
+    "entity_scope": 12,
+    "evidence_quality": 12,
+    "language_negation": 12,
+    "logic_quantifiers": 12,
+    "multi_evidence": 12,
+    "numbers_units": 12,
+    "time_scope": 12
+  },
+  "ordering_seed": 726104,
+  "external_fact_sources_used": false,
+  "project_model_outputs_used": false,
+  "second_annotator_reviewed": false,
+  "sha256": {
+    "gold.jsonl": "e6488804ce16e62dad35c77ff0d5d32630048bf0fe9d89287391d583f81b1668",
+    "inputs.jsonl": "1f4681e45ed481915fe86e4b4b5338a54910497266608965bf497c26c6b28e2a",
+    "PROTOCOL.md": "6137b30288275cd7747a197bda74bd7df3ed4c9866cfd4be0fc54140eb583a2c",
+    "build_dataset.py": "cfafa6e48e66fb6c35b438f85fd1ad4c724bb6198150364d66d6d49d69c9319d"
+  }
+}
