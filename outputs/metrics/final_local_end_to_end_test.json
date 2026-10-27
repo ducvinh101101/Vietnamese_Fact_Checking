@@ -1,0 +1,90 @@
+{
+  "benchmark": "Local end-to-end BM25 -> PhoBERT",
+  "purpose": "Evaluation of the explicitly selected split/config. If this is dev or a previously inspected test, it is NOT independent quality evidence. No gold labels/evidence are passed to the pipeline.",
+  "scope": {
+    "pipeline": "normalized claim -> local BM25 top-k -> PhoBERT per retrieved passage -> calibrated three-way decision -> cited passage",
+    "retrieval_relevance": "URL-level only: a retrieved passage is relevant when its URL equals the annotated ViFactCheck evidence URL.",
+    "not_measured": "Web retrieval, hybrid retrieval, passage-level relevance, human factual correctness beyond dataset labels."
+  },
+  "artifacts": {
+    "config_sha256": "deb6c2c011f78191664e1dbe6ea102b6205298b4198de4892f1017fe0a92cdce",
+    "corpus_sha256": "87f796008119cadf1b26f573b05e32e2a252c4cabb62a15be944b65f0d0f2d26",
+    "test_split_sha256": "b624326d72ef714169a42317e9473396c9281d1457f0af45d58a0df0d8da30ed",
+    "predictions": "outputs\\predictions\\final_local_end_to_end_test.csv"
+  },
+  "configuration": {
+    "retriever": "bm25",
+    "top_k": 3,
+    "engine": "phobert",
+    "temperature": 1.0,
+    "decisive_min_confidence": 0.5,
+    "retrieval_rank_bias": 1.0,
+    "evidence_view": "ensemble",
+    "minimal_pair": true,
+    "guard": false,
+    "use_final_config": true,
+    "aggregation_model_path": null,
+    "aggregation_model_sha256": null
+  },
+  "evaluation_split": {
+    "path": "data\\processed\\vifactcheck_group_split\\test.parquet",
+    "queries": 1076
+  },
+  "classification": {
+    "accuracy": 0.727695,
+    "macro_f1": 0.723127,
+    "per_label": {
+      "SUPPORTED": {
+        "precision": 0.696429,
+        "recall": 0.847826,
+        "f1-score": 0.764706,
+        "support": 368.0
+      },
+      "REFUTED": {
+        "precision": 0.774436,
+        "recall": 0.578652,
+        "f1-score": 0.662379,
+        "support": 356.0
+      },
+      "NOT_ENOUGH_INFO": {
+        "precision": 0.732044,
+        "recall": 0.752841,
+        "f1-score": 0.742297,
+        "support": 352.0
+      }
+    },
+    "confusion_matrix_rows_gold_columns_predicted": [
+      [
+        312,
+        21,
+        35
+      ],
+      [
+        88,
+        206,
+        62
+      ],
+      [
+        48,
+        39,
+        265
+      ]
+    ],
+    "label_order": [
+      "SUPPORTED",
+      "REFUTED",
+      "NOT_ENOUGH_INFO"
+    ]
+  },
+  "retrieval_and_citation": {
+    "gold_url_recall_at_top_k": 0.981413,
+    "citation_url_matches_gold_rate": 0.6329,
+    "note": "These are URL-level proxy metrics, not proof that the cited passage entails the claim."
+  },
+  "latency_ms": {
+    "mean": 1572.7643,
+    "p50": 1550.6064,
+    "p95": 1998.2721,
+    "total_wall_seconds": 1692.4841
+  }
+}

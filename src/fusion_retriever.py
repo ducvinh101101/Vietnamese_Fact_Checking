@@ -43,12 +43,19 @@ class FusionRetriever:
         self.web = web
         self.rrf_k = rrf_k
         self.candidate_k = candidate_k
+        self.last_web_error: str | None = None
 
     def search(self, claim: str, top_k: int = 3) -> list[RetrievedEvidence]:
         if top_k < 1:
             raise ValueError("top_k phải lớn hơn 0")
         local_hits = self.local.search(claim, self.candidate_k)
-        web_hits = self.web.search(claim, self.candidate_k) if self.web is not None else []
+        self.last_web_error = None
+        web_hits: list[RetrievedEvidence] = []
+        if self.web is not None:
+            try:
+                web_hits = self.web.search(claim, self.candidate_k)
+            except Exception as error:  # noqa: BLE001 - fail_to: local_only, mọi lỗi nhánh web
+                self.last_web_error = f"{type(error).__name__}: {error}"
 
         fused: dict[tuple[str, str], float] = {}
         chosen: dict[tuple[str, str], RetrievedEvidence] = {}

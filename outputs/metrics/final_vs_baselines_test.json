@@ -1,0 +1,61 @@
+{
+  "n_claims": 1076,
+  "bootstrap_rounds": 2000,
+  "seed": 42,
+  "note": "Test split đã xem nhiều lần; so sánh tương đối, không phải ước lượng độc lập.",
+  "configs": {
+    "w4_02_bm25_e2": {
+      "macro_f1": 0.594921,
+      "accuracy": 0.614312,
+      "decisive_predictions": 760,
+      "citation_url_matches_gold_among_decisive": 0.869737
+    },
+    "e11_rank_aware": {
+      "macro_f1": 0.629389,
+      "accuracy": 0.649628,
+      "decisive_predictions": 709,
+      "citation_url_matches_gold_among_decisive": 0.963329
+    },
+    "w4_05_reranked": {
+      "macro_f1": 0.699159,
+      "accuracy": 0.70539,
+      "decisive_predictions": 643,
+      "citation_url_matches_gold_among_decisive": 0.926905
+    },
+    "final_rtv2_ensemble_mp": {
+      "macro_f1": 0.723127,
+      "accuracy": 0.727695,
+      "decisive_predictions": 714,
+      "citation_url_matches_gold_among_decisive": 0.953782
+    }
+  },
+  "final_vs": {
+    "w4_02_bm25_e2": {
+      "delta_macro_f1": 0.128206,
+      "ci95": [
+        0.100403,
+        0.156284
+      ],
+      "fixed": 177,
+      "broken": 55
+    },
+    "e11_rank_aware": {
+      "delta_macro_f1": 0.093739,
+      "ci95": [
+        0.068924,
+        0.119624
+      ],
+      "fixed": 126,
+      "broken": 42
+    },
+    "w4_05_reranked": {
+      "delta_macro_f1": 0.023968,
+      "ci95": [
+        0.000694,
+        0.046749
+      ],
+      "fixed": 89,
+      "broken": 65
+    }
+  }
+}

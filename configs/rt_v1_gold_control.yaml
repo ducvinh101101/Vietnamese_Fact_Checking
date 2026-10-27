@@ -19,6 +19,10 @@ verification:
   decisive_min_confidence: 0.5
   retrieval_rank_bias: 1.0
   aggregation_model_path: null
+  # Chỉ có hiệu lực với --use-final-config: so với RT-V2 trong CÙNG cấu hình cuối.
+  evidence_view: ensemble
+  minimal_pair: true
+  guard: false
   support_threshold: 0.45
   refute_markers:
     - "không"

@@ -1,0 +1,160 @@
+{
+  "analysis": "W5-03b source/temporal held-out external validity",
+  "source": "outputs/predictions/final_local_end_to_end_test.csv",
+  "overall": {
+    "n": 1076,
+    "accuracy": 0.7277,
+    "macro_f1": 0.7231,
+    "f1_per_label": {
+      "SUPPORTED": 0.7647,
+      "REFUTED": 0.6624,
+      "NOT_ENOUGH_INFO": 0.7423
+    },
+    "gold_label_counts": {
+      "SUPPORTED": 368,
+      "REFUTED": 356,
+      "NOT_ENOUGH_INFO": 352
+    }
+  },
+  "by_source": {
+    "baochinhphu.vn": {
+      "n": 184,
+      "accuracy": 0.7283,
+      "macro_f1": 0.7231,
+      "f1_per_label": {
+        "SUPPORTED": 0.7671,
+        "REFUTED": 0.6796,
+        "NOT_ENOUGH_INFO": 0.7227
+      },
+      "gold_label_counts": {
+        "SUPPORTED": 64,
+        "REFUTED": 60,
+        "NOT_ENOUGH_INFO": 60
+      }
+    },
+    "tuoitre.vn": {
+      "n": 128,
+      "accuracy": 0.7656,
+      "macro_f1": 0.7623,
+      "f1_per_label": {
+        "SUPPORTED": 0.766,
+        "REFUTED": 0.6933,
+        "NOT_ENOUGH_INFO": 0.8276
+      },
+      "gold_label_counts": {
+        "SUPPORTED": 44,
+        "REFUTED": 42,
+        "NOT_ENOUGH_INFO": 42
+      }
+    },
+    "dantri.com.vn": {
+      "n": 127,
+      "accuracy": 0.685,
+      "macro_f1": 0.6765,
+      "f1_per_label": {
+        "SUPPORTED": 0.7755,
+        "REFUTED": 0.6176,
+        "NOT_ENOUGH_INFO": 0.6364
+      },
+      "gold_label_counts": {
+        "SUPPORTED": 44,
+        "REFUTED": 42,
+        "NOT_ENOUGH_INFO": 41
+      }
+    },
+    "tienphong.vn": {
+      "n": 119,
+      "accuracy": 0.6555,
+      "macro_f1": 0.6577,
+      "f1_per_label": {
+        "SUPPORTED": 0.6222,
+        "REFUTED": 0.6575,
+        "NOT_ENOUGH_INFO": 0.6933
+      },
+      "gold_label_counts": {
+        "SUPPORTED": 40,
+        "REFUTED": 40,
+        "NOT_ENOUGH_INFO": 39
+      }
+    },
+    "nld.com.vn": {
+      "n": 116,
+      "accuracy": 0.7069,
+      "macro_f1": 0.6931,
+      "f1_per_label": {
+        "SUPPORTED": 0.7527,
+        "REFUTED": 0.5574,
+        "NOT_ENOUGH_INFO": 0.7692
+      },
+      "gold_label_counts": {
+        "SUPPORTED": 40,
+        "REFUTED": 38,
+        "NOT_ENOUGH_INFO": 38
+      }
+    },
+    "vnexpress.net": {
+      "n": 114,
+      "accuracy": 0.7018,
+      "macro_f1": 0.6916,
+      "f1_per_label": {
+        "SUPPORTED": 0.7529,
+        "REFUTED": 0.5625,
+        "NOT_ENOUGH_INFO": 0.7595
+      },
+      "gold_label_counts": {
+        "SUPPORTED": 38,
+        "REFUTED": 38,
+        "NOT_ENOUGH_INFO": 38
+      }
+    },
+    "baotintuc.vn": {
+      "n": 102,
+      "accuracy": 0.7941,
+      "macro_f1": 0.7895,
+      "f1_per_label": {
+        "SUPPORTED": 0.8684,
+        "REFUTED": 0.7812,
+        "NOT_ENOUGH_INFO": 0.7188
+      },
+      "gold_label_counts": {
+        "SUPPORTED": 34,
+        "REFUTED": 34,
+        "NOT_ENOUGH_INFO": 34
+      }
+    },
+    "plo.vn": {
+      "n": 95,
+      "accuracy": 0.7158,
+      "macro_f1": 0.7138,
+      "f1_per_label": {
+        "SUPPORTED": 0.7463,
+        "REFUTED": 0.6333,
+        "NOT_ENOUGH_INFO": 0.7619
+      },
+      "gold_label_counts": {
+        "SUPPORTED": 32,
+        "REFUTED": 32,
+        "NOT_ENOUGH_INFO": 31
+      }
+    },
+    "thanhnien.vn": {
+      "n": 91,
+      "accuracy": 0.8242,
+      "macro_f1": 0.821,
+      "f1_per_label": {
+        "SUPPORTED": 0.8657,
+        "REFUTED": 0.7778,
+        "NOT_ENOUGH_INFO": 0.8197
+      },
+      "gold_label_counts": {
+        "SUPPORTED": 32,
+        "REFUTED": 30,
+        "NOT_ENOUGH_INFO": 29
+      }
+    }
+  },
+  "note": "Source-held-out: mỗi nhóm là các claim có gold_url cùng domain. Chênh lệch Macro-F1 giữa domain lớn cho biết model phụ thuộc nguồn tới đâu. Domain nhỏ (<15 claim) được gộp. Đây vẫn là dữ liệu ViFactCheck, không phải held-out thời sự thật ngoài đời.",
+  "by_time": {
+    "note": "Không có cột thời gian trong predictions; bỏ qua phần temporal."
+  }
+}

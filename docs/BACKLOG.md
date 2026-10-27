@@ -20,7 +20,7 @@
 | W3-02 / E6 | Calibration PhoBERT và chính sách NEI | Vinh | Hoàn thành (oracle) | Dev gold-evidence OOF: temperature 1,140542; ECE 3,74% → 2,91%; Brier 0,2398 → 0,2376. Không có threshold decisive nào cải thiện Macro-F1; retrieval gating chờ E2E |
 | P1 | Tích hợp kỹ thuật verifier PhoBERT | Vinh | Hoàn thành | Pipeline dùng `VerificationResult` không đổi; smoke test đạt |
 | W2-05 | Chốt interface Retriever và Verifier; review chung | Vinh + Quang | Hoàn thành | `src/contracts.py`, dependency injection trong pipeline, integration contract và test bàn giao |
-| U1 | Hoàn thiện Streamlit | Quang | To do | Hiển thị label, confidence, evidence và URL |
+| U1 | Hoàn thiện Streamlit | Quang + Vinh | Hoàn thành (2026-10-11) | Label, điểm, trích dẫn, URL; chọn chế độ local / local+web; ví dụ nhanh; hiển thị lý do cặp-tối-thiểu/guard/neo thời gian (`app.py`, `src/system_builder.py`) |
 | Q1 | Phân tích lỗi + báo cáo | Vinh + Quang | Hoàn thành phần local của Vinh | W3-04 audit 10/415 lỗi local; web/hybrid error analysis chờ Quang |
 | V3 | Bộ 18 claim kiểm thử thủ công + script tái lập | Vinh | Hoàn thành | Có nhãn kỳ vọng, kết quả và ghi rõ giới hạn retrieval mẫu |
 | V4 | Đọc thủ công 10 lỗi E2 và phân loại nguyên nhân | Vinh | Hoàn thành | Review tại `REVIEW_10_LOI_E2.md`; không bao gồm retrieval |
@@ -28,7 +28,7 @@
 
 | R3 | Chốt search provider, allowlist nguồn web và chính sách API key | Quang | Hoàn thành | W2-07: Tavily basic, allowlist 3 host, YAML + chính sách key/quota; validator và test offline. Live retrieval thuộc W3-05 |
 | R4 | Web retrieval: lọc domain, trích passage, metadata URL/thời điểm | Quang | Hoàn thành | W3-05: 100% evidence qua allowlist; timeout/cache, metadata và acceptance test |
-| R5 | Đánh giá retrieval web/cục bộ/hợp nhất và end-to-end | Vinh + Quang | Hoàn thành local; web/hợp nhất chờ Quang | Local E11: Macro-F1 62,94%, URL Recall@3 98,14%, p95 948,77 ms; web/hybrid chưa đo |
+| R5 | Đánh giá retrieval web/cục bộ/hợp nhất và end-to-end | Vinh + Quang | Hoàn thành local; hợp nhất đã chạy, chưa đo | Local cuối: test Macro-F1 72,31% (+12,8 [+10,0; +15,6] so với W4-02). Fusion web đã nối vào UI/CLI; chưa có tập có nhãn để đo hybrid |
 ## Mở rộng phạm vi đề tài — roadmap 6 tuần
 
 | P2 | Đánh giá pipeline PhoBERT trên retrieved evidence thật | Vinh + Quang | Hoàn thành local; mở rộng chờ Quang | E11 local BM25→PhoBERT trên 1.076 test; Macro-F1 62,94%, 377 lỗi; chưa có web/hybrid/citation audit thủ công |
@@ -37,8 +37,8 @@
 | C3 | Content-risk PhoBERT/XLM-R | Vinh | Hoàn thành | E10 PhoBERT nested source-domain OOF: Macro-F1 48,59%; ROC-AUC 70,20%; xác minh không rò rỉ domain. Kém E9 nên giữ E9 làm baseline triển khai |
 | C4 | Claim decomposition và tổng hợp cấp bài | Vinh | Hoàn thành phần Vinh | Article→claim→claim verdict→aggregation đã chạy qua contract; chờ Quang nối UI/retrieval benchmark để chạy E11 end-to-end |
 | C5 | Corpus ingestion, query generation, time/source filter và reranker | Quang | Hoàn thành | W3-07 corpus v2 metadata/dedup; W3-08 filter/reranker/dedup; W5-01 benchmark frozen, giữ BM25 |
-| C6 | Temporal/source-held-out test, joint score và citation faithfulness audit | Vinh + Quang | Chưa bắt đầu | Báo cáo oracle/retrieval/E2E; 50 citation review; calibration |
-| C7 | Reproducible release | Quang | Chưa bắt đầu | Cài từ đầu, pytest chạy, manifest/hash và demo offline |
+| C6 | Temporal/source-held-out test, joint score và citation faithfulness audit | Vinh + Quang | Đang làm | Theo nguồn: xong (`final_source_breakdown_test.json`); 50 citation review chờ người đọc (W5-03a) |
+| C7 | Reproducible release | Quang + Vinh | Hoàn thành phần tự động | `scripts/check_release.py` (thư viện, model, Java, SHA-256 dữ liệu, key web), `.gitattributes` eol=lf cho file có hash, pytest ~300 test không cần GPU, demo `scripts/run_demo_cases.py` |
 
 ## Hạng mục Vinh bổ sung 2026-09-12
 
@@ -47,8 +47,21 @@ Giữ nguyên mã W{tuần}-{thứ tự} của workbook. Chỉ phần Vinh; khô
 | ID | Việc cần làm | Người phụ trách | Trạng thái | Điều kiện hoàn thành |
 |---|---|---|---|---|
 | W4-07 | Fine-tune RT-V1: tiếp tục E2 trên gold train + 487 cặp AI silver (trọng số 0,5) | Vinh | Hoàn thành | Checkpoint `models/rt_v1_silver/best_model`; dev end-to-end acc 72,31%, Macro-F1 71,35% ở ngưỡng 0,5; sửa đúng 140, làm sai 54, ròng +86 claim |
-| W5-04 | Chạy đối chứng gold-only và RT-V2 balanced; chọn checkpoint trên dev | Vinh | Chưa bắt đầu | Hai checkpoint đối chứng cùng seed/cấu hình; bảng so dev tách được cải thiện do nhãn silver. Cần GPU |
-| W5-05 | Hiệu chỉnh lại temperature/ngưỡng, fit lại aggregator và khóa config | Vinh | Chưa bắt đầu | Cache dev mới, aggregator fit lại từ logits mới, `configs/config.yaml` đã khóa |
-| W5-06 | Phân xử 53 cặp `needs_human_review` và spot-check 50 cặp silver | Vinh | Chưa bắt đầu | CSV v2 có nhãn người, tên và lý do; có tỷ lệ đồng thuận người–AI theo từng nhãn |
+| W5-04 | Chạy đối chứng gold-only và RT-V2 balanced; chọn checkpoint trên dev | Vinh | RT-V2 xong; gold-only chờ GPU | Hai checkpoint đối chứng cùng seed/cấu hình; bảng so dev tách được cải thiện do nhãn silver. Cần GPU |
+| W5-05 | Hiệu chỉnh lại temperature/ngưỡng, fit lại aggregator và khóa config | Vinh | Hoàn thành | Cache dev mới, aggregator fit lại từ logits mới, `configs/config.yaml` đã khóa |
+| W5-06 | Phân xử 53 cặp `needs_human_review` và spot-check 50 cặp silver | Vinh | Chờ người đọc (worksheet sẵn) | CSV v2 có nhãn người, tên và lý do; có tỷ lệ đồng thuận người–AI theo từng nhãn |
 
 Phần phân tích lỗi và phân rã chỉ số citation của RT-V1 không mở mã mới — nó nằm trong Q1/W3-04 và được ghi tại [RT_V1_ERROR_CITATION_ANALYSIS.md](RT_V1_ERROR_CITATION_ANALYSIS.md). Audit citation 50 mẫu thuộc W5-03, temporal/source held-out thuộc W5-03 và C6, ablation claim decomposition thuộc E11 — đều đã có mã, không tạo thêm.
+
+## Hạng mục bổ sung 2026-10-04 → 2026-10-11
+
+| ID | Việc cần làm | Người phụ trách | Trạng thái | Điều kiện hoàn thành |
+|---|---|---|---|---|
+| T1 | Challenge set + test đối kháng; sửa mọi BUG-xx | Vinh | Hoàn thành | 380 claim có nhãn cấu trúc; 20 lỗi đã sửa, 0 xfail ([báo cáo](BAO_CAO_LOI_TU_TEST_DOI_KHANG.md) § 7) |
+| T2 | Chọn cách dựng bằng chứng + lớp hậu kiểm trên dev | Vinh | Hoàn thành | Ensemble +2,6 [+0,9; +4,2]; cặp-tối-thiểu trung tính, bật; guard tắt ở local |
+| T3 | Chạy test một lần cho cấu hình cuối | Vinh | Hoàn thành | Macro-F1 72,31%; so sánh bootstrap `final_vs_baselines_test.json` |
+| W4-04 | Demo các ca có kỳ vọng | Vinh | Hoàn thành | `src/demo_cases.py`, `scripts/run_demo_cases.py`, ví dụ nhanh trong UI |
+| W6-01 | Kiểm tra release tái lập | Vinh | Hoàn thành | `scripts/check_release.py [--smoke]` |
+| RT-V3 | Hard negative từ train split, huấn luyện, so dev | Vinh | Bundle xong; chờ người spot-check 60 cặp + GPU | `kaggle/retrieval_finetune_v3_hardneg.zip`; quy tắc chọn ở [hướng dẫn](HUONG_DAN_VIEC_CON_LAI.md) § 2.3 |
+| W6-02 | Báo cáo tổng kết | Vinh | Hoàn thành (điền tiếp khi có số người/GPU) | [BAO_CAO_TONG_KET.md](BAO_CAO_TONG_KET.md) |
+

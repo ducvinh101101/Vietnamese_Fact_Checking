@@ -20,11 +20,15 @@ Lớp này chỉ XẾP LẠI + GỘP; không tạo/sửa nội dung bằng chứ
 from __future__ import annotations
 
 import re
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 from src.contracts import Retriever
 from src.schemas import RetrievedEvidence
 
 _SPACE = re.compile(r"\s+")
+_TERM = re.compile(r"\d+(?:[.,]\d+)*|\w+", re.UNICODE)
+_MONEY_CLAIM = re.compile(r"\d\s*(?:đồng|vnd|vnđ|nghìn|ngàn|triệu|tỷ)\b")
+_TRACKING_PARAMS = ("utm_", "fbclid", "gclid", "zarsrc", "ref", "source", "mc_", "igshid")
 
 # Stopword tiếng Việt tối thiểu (từ chức năng + mốc thời gian tương đối) để độ khớp
 # phản ánh từ NỘI DUNG, không bị nhiễu bởi "từ, các, đã, chiều, nay"...
@@ -46,15 +50,22 @@ _WORLD_HINTS = (
     "wti", "brent", "usd/thùng", "usd một thùng", "thị trường thế giới",
     "dầu thô", "opec",
 )
-# Claim có nói về giá không? (để bật phần phụ)
-_PRICE_CLAIM = ("giá", "xăng", "dầu", "tăng", "giảm", "đồng")
+# Claim có nói về giá không? (để bật phần phụ). So khớp THEO TỪ, không theo chuỗi con
+# ('đồng' trong 'hội đồng' không phải tiền); tiền tệ chỉ tính khi đứng sau con số.
+_PRICE_WORDS = frozenset({"giá", "xăng", "dầu"})
 
 _RETAIL_BONUS = 0.6   # nhỏ: chỉ nghiêng khi độ khớp xấp xỉ
 _WORLD_PENALTY = 0.6
 
 
 def _tokens(text: str) -> set[str]:
-    return {t for t in _SPACE.sub(" ", text.casefold()).split() if t and t not in _STOPWORDS}
+    """Từ nội dung (bỏ dấu câu bám vào từ: 'tăng.' == 'tăng', 'xăng,' == 'xăng')."""
+    return {t for t in _TERM.findall(text.casefold()) if t not in _STOPWORDS}
+
+
+def _is_price_claim(claim: str) -> bool:
+    low = claim.casefold()
+    return bool(_PRICE_WORDS & set(_TERM.findall(low))) or _MONEY_CLAIM.search(low) is not None
 
 
 def _hint_count(text: str, hints: tuple[str, ...]) -> int:
@@ -70,11 +81,25 @@ def relevance(claim: str, passage: str) -> float:
     overlap = len(claim_terms & _tokens(passage))
     score = float(overlap)
     # Phần phụ chỉ áp dụng cho claim về giá cả.
-    if any(k in claim.casefold() for k in _PRICE_CLAIM):
+    if _is_price_claim(claim):
         retail = min(_hint_count(passage, _RETAIL_HINTS), 3)
         world = min(_hint_count(passage, _WORLD_HINTS), 3)
         score += _RETAIL_BONUS * retail - _WORLD_PENALTY * world
     return score
+
+
+def canonical_url(url: str) -> str:
+    """Chuẩn hóa URL để gộp CÙNG một bài: bỏ #fragment, tham số theo dõi (utm_*, fbclid...),
+    'www.' và '/' cuối. Tham số khác (vd ?id=123) được giữ vì có thể định danh bài."""
+    url = url.strip()
+    if not url:
+        return ""
+    parts = urlsplit(url)
+    kept = [(k, v) for k, v in parse_qsl(parts.query, keep_blank_values=True)
+            if not k.casefold().startswith(_TRACKING_PARAMS)]
+    host = parts.netloc.casefold().removeprefix("www.")
+    path = parts.path.rstrip("/")
+    return urlunsplit((parts.scheme.casefold(), host, path, urlencode(sorted(kept)), "")).casefold()
 
 
 class TopicalRerankRetriever:
@@ -92,7 +117,7 @@ class TopicalRerankRetriever:
         self.enabled = enabled
 
     def _url_key(self, item: RetrievedEvidence) -> str:
-        url = (item.evidence.url or "").strip().casefold()
+        url = canonical_url(item.evidence.url or "")
         return url or f"doc::{item.evidence.document_id}"
 
     def search(self, claim: str, top_k: int = 3) -> list[RetrievedEvidence]:

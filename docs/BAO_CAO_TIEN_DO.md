@@ -1,5 +1,26 @@
 # Báo cáo tiến độ — Dự án XLNNTN
 
+Cập nhật: 2026-10-11. Báo cáo kết quả để trình bày: [BAO_CAO_TONG_KET.md](BAO_CAO_TONG_KET.md).
+
+## Trạng thái 2026-10-11
+
+- **Phần code đã hoàn thiện.**
+  - Giao diện có hai chế độ: kho local (đã đo) và local + web (neo thời gian).
+  - CLI dựng chung với giao diện.
+  - 20 lỗi đối kháng đã sửa.
+  - Có release check và demo W4-04.
+- **Số cuối (test, chạy một lần):** Macro-F1 **72,31%**, hơn baseline W4-02 **+12,8 điểm [+10,0; +15,6]**. Mọi lựa chọn đều làm trên dev.
+- **Còn lại chỉ là việc cần người hoặc GPU** ([hướng dẫn](HUONG_DAN_VIEC_CON_LAI.md)):
+  - đọc tay W5-06 và W5-03a;
+  - spot-check hard negative RT-V3;
+  - chạy gold-only control và RT-V3 trên GPU;
+  - bộ gold thực tế ≥ 300 claim.
+
+---
+
+## Lịch sử: bản 2026-09-30
+
+
 Cập nhật: 2026-09-30. Nguồn: `KE_HOACH_TRIEN_KHAI_2_NGUOI.xlsx` (đối chiếu bằng chứng thật trong repo).
 
 ## Tổng quan

@@ -21,5 +21,15 @@ outputs/figures/*
 !outputs/figures/.gitkeep
 # Live web acceptance reports contain run-specific public metadata and stay local.
 outputs/web_retrieval/
+# Local-only artefacts from the extended test run. They contain machine-specific
+# paths and are regenerated whenever the test runbook is executed.
+AGENT_TEST_RUNBOOK.md
+TEST_EVALUATION_REPORT_v2.md
+outputs/TEST_EVALUATION_REPORT_v2.md
 # Project-local runtime; downloaded automatically by scripts/download_portable_java.py.
 tools/java17/
+# py_vncorenlp may produce temporary annotation files here.
+models/vncorenlp/outputs/
+
+# Thư mục tạm của pytest khi chạy với --basetemp=.pytest_tmp (Windows chặn %TEMP%)
+.pytest_tmp/

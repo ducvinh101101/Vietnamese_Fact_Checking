@@ -1,4 +1,5 @@
 from copy import deepcopy
+from datetime import date
 import gzip
 from pathlib import Path
 
@@ -53,6 +54,25 @@ def test_web_retriever_falls_back_without_key_or_enablement(tmp_path, monkeypatc
     enabled = WebRetriever(config(tmp_path), api_key=None)
     assert enabled.search("claim") == []
     assert enabled.last_status == "missing_api_key"
+
+
+def test_time_window_uses_news_and_server_side_date_filter(tmp_path):
+    seen = {}
+
+    def provider(payload, *_):
+        seen.update(payload)
+        return {"results": []}
+
+    retriever = WebRetriever(config(tmp_path), api_key="key", provider_request=provider)
+    assert retriever.search_time_window(
+        "claim", 3, date(2026, 9, 23), date(2026, 10, 3), language="vi",
+    ) == []
+    assert seen["topic"] == "news"
+    assert seen["start_date"] == "2026-09-23"
+    assert seen["end_date"] == "2026-10-03"
+    assert seen["filter_by_published_date"] is True
+    assert seen["language"] == "vi"
+    assert seen["filter_by_language"] is True
 
 
 def test_usage_budget_is_persisted_without_claim_or_page_content(tmp_path):

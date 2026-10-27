@@ -6,6 +6,7 @@ import unicodedata
 
 URL_PATTERN = re.compile(r"https?://\S+|www\.\S+", re.IGNORECASE)
 WHITESPACE_PATTERN = re.compile(r"\s+")
+INVISIBLE_CONTROL_PATTERN = re.compile(r"[\u200B-\u200D\uFEFF]|[\x00-\x08\x0B\x0C\x0E-\x1F]")
 
 
 def normalize_text(text: str) -> str:
@@ -13,6 +14,7 @@ def normalize_text(text: str) -> str:
     if not isinstance(text, str):
         raise TypeError("text phải là chuỗi")
     text = unicodedata.normalize("NFC", html.unescape(text))
+    text = INVISIBLE_CONTROL_PATTERN.sub("", text)
     text = URL_PATTERN.sub(" ", text)
     return WHITESPACE_PATTERN.sub(" ", text).strip()
 

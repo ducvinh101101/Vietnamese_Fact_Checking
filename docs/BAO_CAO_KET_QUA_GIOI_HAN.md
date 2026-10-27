@@ -1,6 +1,6 @@
 # Báo cáo kết quả, ablation và giới hạn khoa học (W6-02)
 
-Ngày: 2026-09-29. Phạm vi: tổng hợp toàn bộ thí nghiệm đã chạy, các quyết định thiết kế có căn cứ số liệu, phân tích lỗi và giới hạn. Đây là bản báo cáo phương pháp/kết quả cho phần của Vinh; phần retrieval/UI/release do Quang bổ sung.
+Ngày: 2026-09-29, cập nhật 2026-10-11 (kết quả cấu hình cuối — xem [báo cáo tổng kết](BAO_CAO_TONG_KET.md)). Phạm vi: tổng hợp toàn bộ thí nghiệm đã chạy, các quyết định thiết kế có căn cứ số liệu, phân tích lỗi và giới hạn. Đây là bản báo cáo phương pháp/kết quả cho phần của Vinh; phần retrieval/UI/release do Quang bổ sung.
 
 Nguyên tắc xuyên suốt: **mọi con số được ghi kèm điều kiện đo**. Không trộn metric khác giao thức, không trình bày số dev như accuracy thực tế, không coi proxy URL-level là bằng chứng passage đủ entail.
 
@@ -36,8 +36,10 @@ E2 hơn E1 **40,92 điểm** — khoảng cách giữa "đếm trùng lặp từ
 | Oracle E2 (gold evidence), test | 81,13% | 81,07% | Trần verifier |
 | BM25-local E2E, test 1.076 | 64,96% | 62,94% | E11 rank-aware policy |
 | BM25-local E2E, test (baseline W4-02 max-conf) | 61,43% | 59,49% | Trước rank policy |
+| Reranked-local E2E, test (W4-05) | 70,54% | 69,92% | E2 + rerank metadata W3-08 |
+| **Cấu hình cuối, test (2026-10-04, chạy một lần)** | **72,77%** | **72,31%** | RT-V2 + ensemble 3 view + cặp-tối-thiểu, BM25; +12,8 [+10,0; +15,6] so với W4-02 |
 
-**Khoảng cách oracle → end-to-end là 18,13 điểm Macro-F1.** Đây là phát hiện trung tâm: retrieval gần như luôn tìm đúng bài (URL Recall@3 = 98,14%), nên khoảng cách nằm ở bước *đọc hiểu đoạn đã truy xuất*, không ở bước tìm.
+**Khoảng cách oracle → end-to-end ban đầu là 18,13 điểm Macro-F1** (còn ~8,8 điểm với cấu hình cuối). Đây là phát hiện trung tâm: retrieval gần như luôn tìm đúng bài (URL Recall@3 = 98,14%), nên khoảng cách nằm ở bước *đọc hiểu đoạn đã truy xuất*, không ở bước tìm.
 
 ### 2.3 Nhánh content-risk — baseline, không phải bộ phát hiện tin giả
 
@@ -199,7 +201,7 @@ Con số gộp giảm 67,50% → 57,59% ban đầu bị hiểu nhầm là đánh
 
 4. **Chưa có phép đo độc lập.** Tập test đã bị xem nhiều lần (phân tích lỗi, so sánh). Mục tiêu ≥80% thực tế chưa đạt và chưa đo được; cần bộ gold mới ≥300 claim, hai reviewer độc lập, khóa SHA-256 trước khi chạy (W5-03/C6/E13).
 
-5. **Web/fusion chưa hợp nhất.** Web retriever và rerank đã hiện thực và test riêng, nhưng chưa có bước fusion local+web, nên tầng hybrid end-to-end chưa đo được.
+5. **Web/fusion đã hợp nhất nhưng chưa đo.** Fusion RRF local+web, neo thời gian và gộp URL đã chạy trong giao diện và CLI (`src/system_builder.py`), có test giả lập web và golden test. Chưa có tập có nhãn cho claim thời sự nên tầng hybrid end-to-end **chưa có số đo định lượng**.
 
 6. **Bốn lớp policy chồng trên cùng một tập dev** (xem 3.2) — rủi ro overfitting dev, đã ghi nhận.
 
@@ -209,6 +211,8 @@ Con số gộp giảm 67,50% → 57,59% ban đầu bị hiểu nhầm là đánh
 
 **Đã có bằng chứng số:** E1, E2, E6, E7, E9, E10, BM25/dense/RRF retrieval, rank-aware policy, AGG-V1, RT-V1, phân tích lỗi W3-04, phân rã citation. Pipeline end-to-end local chạy được và đã đo.
 
-**Chưa đóng (phần Vinh):** đối chứng gold-only + RT-V2 (W5-04), khóa config sau re-calibrate (W5-05), phân xử/spot-check nhãn silver (W5-06), audit citation passage-level và temporal/source held-out (W5-03), đo reranked-local end-to-end (W4-05/W5-02), fit + nối content-risk (W4-06), bộ gold thực tế (C6/E13).
+**Đã đóng sau 2026-09-29:** khóa RT-V2 (W5-05); đo reranked-local (W4-05); phân tích theo nguồn (W5-03b); challenge set + 20 lỗi đối kháng đã sửa; chọn ensemble/cặp-tối-thiểu trên dev; chạy test một lần cho cấu hình cuối (72,31%); hợp nhất web vào giao diện; release check; demo W4-04; bundle hard negative RT-V3.
 
-**Kết luận trung thực:** giá trị nghiên cứu của dự án nằm ở việc **định lượng khoảng cách oracle → end-to-end (18 điểm) và truy ra nguyên nhân là verifier/dữ liệu chứ không phải retrieval**, cùng kỷ luật đo tách bạch. Con số accuracy tốt nhất hiện có (RT-V1 dev 71,35%) là số phát triển, chưa phải bằng chứng độc lập, và chưa đạt mục tiêu 80% ngoài thực tế.
+**Chưa đóng (cần người/GPU — [hướng dẫn](HUONG_DAN_VIEC_CON_LAI.md)):** đối chứng gold-only (W5-04), phân xử/spot-check nhãn silver (W5-06), audit citation mức đoạn (W5-03a), huấn luyện RT-V3, bộ gold thực tế (C6/E13).
+
+**Kết luận trung thực:** giá trị nghiên cứu của dự án nằm ở việc **định lượng khoảng cách oracle → end-to-end (18 điểm) và truy ra nguyên nhân là verifier/dữ liệu chứ không phải retrieval**, cùng kỷ luật đo tách bạch. Con số tốt nhất hiện có (cấu hình cuối, test Macro-F1 72,31%) là so sánh tương đối trên test đã dùng nhiều lần, chưa phải bằng chứng độc lập, và chưa đạt mục tiêu 80% ngoài thực tế.

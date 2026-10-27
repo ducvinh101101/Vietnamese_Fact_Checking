@@ -14,7 +14,7 @@ Nguyên tắc quan trọng — chỉ sửa truy vấn, KHÔNG sửa claim gửi 
 
 from __future__ import annotations
 
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 import re
 
 from src.contracts import Retriever
@@ -33,23 +33,45 @@ _CURRENT_MARKERS = (
     "vừa qua", "vừa mới", "tuần này", "tháng này", "năm nay",
     "sắp tới", "tới đây", "đương nhiệm",
 )
+# Chức danh có nhiệm kỳ là một dạng claim "hiện tại" ngầm. Ví dụ "Donald Trump
+# là tổng thống Mỹ" không có từ "hiện nay", nhưng nếu không neo thời gian thì
+# retriever có thể dùng bài viết về một nhiệm kỳ cũ để kết luận sai ở hiện tại.
+# Danh sách này cố ý chỉ gồm vai trò thay đổi theo thời gian, không gồm các nghề
+# nghiệp chung như "bác sĩ" hoặc "ca sĩ".
+_CURRENT_ROLE_MARKERS = (
+    "tổng thống", "thủ tướng", "chủ tịch nước", "bộ trưởng", "thống đốc",
+    "ceo", "giám đốc điều hành", "quốc vương", "thị trưởng",
+)
+_HISTORICAL_ROLE_MARKERS = ("cựu ", "từng ", "đã từng", "trước đây", "sẽ ", "dự kiến")
 _RELATIVE_MARKERS = _TODAY_MARKERS + _CURRENT_MARKERS
 # Nếu claim đã có ngày tuyệt đối (13/3, 13-3-2023, ngày 5 tháng 10...) thì KHÔNG
 # cần chèn — nó đã có mốc.
-_ABSOLUTE_DATE = re.compile(r"\b\d{1,2}[/-]\d{1,2}([/-]\d{2,4})?\b|ngày\s+\d{1,2}\b")
+# Năm cụ thể ("năm 2020") và tháng/năm ("tháng 3/2023", "3/2023") cũng là mốc tuyệt đối.
+_ABSOLUTE_DATE = re.compile(
+    r"\b\d{1,2}[/-]\d{1,2}([/-]\d{2,4})?\b|ngày\s+\d{1,2}\b"
+    r"|\bnăm\s+(?:19|20)\d{2}\b"
+    r"|\btháng\s+\d{1,2}\s*(?:[/-]|năm\s+)\s*(?:19|20)\d{2}\b"
+    r"|\b\d{1,2}[/-](?:19|20)\d{2}\b"
+)
 
 
 def recency_class(claim: str) -> str | None:
     """Trả 'today' | 'current' | None theo loại mốc thời gian của claim.
 
     None nếu claim không thời sự (hoặc đã có ngày tuyệt đối). 'today' ưu tiên hơn
-    'current' khi có cả hai (mốc chặt hơn thì an toàn hơn)."""
+    'current' khi có cả hai (mốc chặt hơn thì an toàn hơn). Chức danh nhiệm kỳ
+    không có dấu hiệu quá khứ cũng được coi là 'current' ngầm."""
     text = claim.casefold()
     if _ABSOLUTE_DATE.search(text):
         return None
     if any(marker in text for marker in _TODAY_MARKERS):
         return "today"
     if any(marker in text for marker in _CURRENT_MARKERS):
+        return "current"
+    if (
+        any(role in text for role in _CURRENT_ROLE_MARKERS)
+        and not any(marker in text for marker in _HISTORICAL_ROLE_MARKERS)
+    ):
         return "current"
     return None
 
@@ -74,13 +96,32 @@ class TimeAwareRetriever:
     local tĩnh.
     """
 
-    def __init__(self, inner: Retriever, as_of: date | None = None, enabled: bool = True) -> None:
+    def __init__(self, inner: Retriever, as_of: date | None = None, enabled: bool = True,
+                 window_today: int = 10, window_current: int = 365) -> None:
+        if window_today < 0 or window_current < 0:
+            raise ValueError("cửa sổ tìm kiếm web không được âm")
         self.inner = inner
         self.as_of = as_of
         self.enabled = enabled
+        self.window_today = window_today
+        self.window_current = window_current
         self.last_enriched_query: str | None = None
 
     def search(self, claim: str, top_k: int = 3) -> list[RetrievedEvidence]:
         query, enriched = (enrich_query(claim, self.as_of) if self.enabled else (claim, False))
         self.last_enriched_query = query if enriched else None
+        # WebRetriever exposes this opt-in capability.  Keep the Retriever
+        # protocol unchanged so non-web retrievers remain compatible.
+        search_time_window = getattr(self.inner, "search_time_window", None)
+        recency = recency_class(claim)
+        if enriched and recency is not None and callable(search_time_window):
+            reference = self.as_of or datetime.now().date()
+            window = self.window_today if recency == "today" else self.window_current
+            return search_time_window(
+                query,
+                top_k,
+                reference - timedelta(days=window),
+                reference,
+                language="vi",
+            )
         return self.inner.search(query, top_k)
