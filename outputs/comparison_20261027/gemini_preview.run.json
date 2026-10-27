@@ -1,0 +1,23 @@
+{
+  "started_at_utc": "2026-10-27T03:05:32.520902+00:00",
+  "backend": "gemini",
+  "case_count": 84,
+  "full_dataset": true,
+  "dataset_version": "vi-evidence-gold-v1",
+  "inputs_sha256": "1f4681e45ed481915fe86e4b4b5338a54910497266608965bf497c26c6b28e2a",
+  "prompt_sha256": "0a91e0629ca2ddb9d514d23070e559c0bb4879fd097dff5068712b8e00a7b44e",
+  "runner_sha256": "bc83a4b6c728ad0d5bcf4e390ededdc8a58337c2b5eb9a434043b9d33599bf21",
+  "python": "3.14.8 (tags/v3.14.8:8e6e75d, Sep 30 2026, 18:19:33) [MSC v.1944 64 bit (AMD64)]",
+  "gold_labels_loaded": false,
+  "external_search": false,
+  "automatic_retries": 0,
+  "dry_run": true,
+  "model": null,
+  "generation": {
+    "temperature": null,
+    "max_output_tokens": 4096,
+    "timeout": 90,
+    "pause_seconds": 1
+  },
+  "client_sha256": "a4f35a3f15ab6b0f1ab49379495051e5e1c80e9b6679ef6867439ebec42f81cd"
+}

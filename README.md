@@ -30,6 +30,15 @@ Cần chuẩn bị checkpoint verifier `models/rt_v2_balanced/best_model` (RT-V2
 
 Web cần `TAVILY_API_KEY` (đặt trong `.env`, xem `.env.example`). Thiếu key thì tự chạy chỉ với kho local.
 
+### So sánh PhoBERT với Gemini trên 84 gold case
+
+Đặt `GEMINI_API_KEY` và `GEMINI_MODEL` trong `.env` ở thư mục gốc. Chạy
+`scripts/run_model_gold.py --backend phobert|gemini --output <file.jsonl>` cho từng
+model, sau đó chấm bằng `scripts/evaluate_model_gold.py`. Hai nhánh nhận cùng
+bằng chứng cố định, không truy xuất lại và không đọc đáp án khi suy luận.
+Xem [hướng dẫn cắm key, chạy app và so sánh](docs/HUONG_DAN_GEMINI_COMPARISON.md).
+Gemini chưa được nối vào nút kiểm chứng của giao diện; key này dùng cho runner so sánh.
+
 ### Lệnh thường dùng
 
 ```powershell

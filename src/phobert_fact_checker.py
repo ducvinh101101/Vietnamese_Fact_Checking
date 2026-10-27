@@ -8,6 +8,7 @@ import os
 import shutil
 import sys
 from math import isfinite
+from threading import RLock
 
 from src.decision_policy import DecisionPolicy
 from src.evidence_focus import SINGLE_VIEWS, VIEWS, average_probabilities, ensemble_texts, focus_text
@@ -17,6 +18,29 @@ from src.schemas import RetrievedEvidence, VerificationResult
 
 
 _DLL_DIRECTORY_HANDLES: list[object] = []
+_SEGMENTERS: dict[str, object] = {}
+_SEGMENTER_LOCK = RLock()
+
+
+def load_segmenter_once(segmenter_dir: str | Path, factory):
+    """Reuse the process-wide JVM and undo py_vncorenlp's os.chdir side effect.
+
+    py_vncorenlp configures the JVM at construction and cannot do that again
+    after it has started. Multiple app modes/verifiers share the same segmenter.
+    """
+    directory = str(Path(segmenter_dir).resolve())
+    with _SEGMENTER_LOCK:
+        if directory in _SEGMENTERS:
+            return _SEGMENTERS[directory]
+        if _SEGMENTERS:
+            raise RuntimeError("VnCoreNLP đã dùng một thư mục model khác trong tiến trình này; hãy khởi động lại ứng dụng.")
+        previous_directory = Path.cwd()
+        try:
+            segmenter = factory(annotators=["wseg"], save_dir=directory)
+        finally:
+            os.chdir(previous_directory)
+        _SEGMENTERS[directory] = segmenter
+        return segmenter
 
 
 def prepare_torch_dll_path() -> None:
@@ -88,11 +112,12 @@ class PhoBERTFactChecker:
         self.tokenizer = AutoTokenizer.from_pretrained(str(model_dir), use_fast=False)
         self.model = AutoModelForSequenceClassification.from_pretrained(str(model_dir)).to(self.device)
         self.model.eval()
-        self.segmenter = py_vncorenlp.VnCoreNLP(annotators=["wseg"], save_dir=str(segmenter_dir.resolve()))
+        self.segmenter = load_segmenter_once(segmenter_dir, py_vncorenlp.VnCoreNLP)
 
     @lru_cache(maxsize=2_048)
     def _segment(self, text: str) -> str:
-        return " ".join(self.segmenter.word_segment(text))
+        with _SEGMENTER_LOCK:
+            return " ".join(self.segmenter.word_segment(text))
 
     def predict_logits(self, claim: str, evidence: str) -> list[float]:
         return self.predict_logits_batch(claim, [evidence])[0]

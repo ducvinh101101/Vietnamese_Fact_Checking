@@ -1,0 +1,137 @@
+{
+  "production_changes_made": false,
+  "gemini_called": false,
+  "gold_modified": false,
+  "dev": {
+    "oracle": {
+      "n": 36,
+      "correct": 32,
+      "accuracy": 0.8888888888888888,
+      "macro_f1": 0.8876328502415459,
+      "predicted_counts": {
+        "SUPPORTED": 12,
+        "NOT_ENOUGH_INFO": 13,
+        "REFUTED": 11
+      },
+      "mean_confidence": 0.9298416666666667,
+      "wrong_with_confidence_ge_0_9": 3,
+      "confusion_rows_gold_columns_predicted": {
+        "SUPPORTED": {
+          "SUPPORTED": 10,
+          "REFUTED": 1,
+          "NOT_ENOUGH_INFO": 1
+        },
+        "REFUTED": {
+          "SUPPORTED": 2,
+          "REFUTED": 10,
+          "NOT_ENOUGH_INFO": 0
+        },
+        "NOT_ENOUGH_INFO": {
+          "SUPPORTED": 0,
+          "REFUTED": 0,
+          "NOT_ENOUGH_INFO": 12
+        }
+      }
+    },
+    "local_raw": {
+      "n": 36,
+      "correct": 24,
+      "accuracy": 0.6666666666666666,
+      "macro_f1": 0.6675450153711023,
+      "predicted_counts": {
+        "NOT_ENOUGH_INFO": 11,
+        "SUPPORTED": 15,
+        "REFUTED": 10
+      },
+      "mean_confidence": 0.7786333333333333,
+      "wrong_with_confidence_ge_0_9": 4,
+      "confusion_rows_gold_columns_predicted": {
+        "SUPPORTED": {
+          "SUPPORTED": 9,
+          "REFUTED": 0,
+          "NOT_ENOUGH_INFO": 3
+        },
+        "REFUTED": {
+          "SUPPORTED": 3,
+          "REFUTED": 8,
+          "NOT_ENOUGH_INFO": 1
+        },
+        "NOT_ENOUGH_INFO": {
+          "SUPPORTED": 3,
+          "REFUTED": 2,
+          "NOT_ENOUGH_INFO": 7
+        }
+      }
+    },
+    "local_final": {
+      "n": 36,
+      "correct": 24,
+      "accuracy": 0.6666666666666666,
+      "macro_f1": 0.6675450153711023,
+      "predicted_counts": {
+        "NOT_ENOUGH_INFO": 11,
+        "SUPPORTED": 15,
+        "REFUTED": 10
+      },
+      "mean_confidence": 0.7786333333333333,
+      "wrong_with_confidence_ge_0_9": 4,
+      "confusion_rows_gold_columns_predicted": {
+        "SUPPORTED": {
+          "SUPPORTED": 9,
+          "REFUTED": 0,
+          "NOT_ENOUGH_INFO": 3
+        },
+        "REFUTED": {
+          "SUPPORTED": 3,
+          "REFUTED": 8,
+          "NOT_ENOUGH_INFO": 1
+        },
+        "NOT_ENOUGH_INFO": {
+          "SUPPORTED": 3,
+          "REFUTED": 2,
+          "NOT_ENOUGH_INFO": 7
+        }
+      }
+    }
+  },
+  "dev_gold_url_top3": 36,
+  "oracle_correct_local_wrong_ids": [
+    390,
+    835,
+    187,
+    75,
+    369,
+    579,
+    548,
+    271,
+    573,
+    421
+  ],
+  "gold_84": {
+    "predicted_counts": {
+      "REFUTED": 73,
+      "SUPPORTED": 6,
+      "NOT_ENOUGH_INFO": 5
+    },
+    "correct": 28,
+    "wrong": 56,
+    "wrong_confidence_ge_0_9": 34,
+    "mean_confidence_on_wrong": 0.8657392857142857
+  },
+  "corpus_v1": {
+    "passages": 5845,
+    "documents": 1041,
+    "published_at_present": 0
+  },
+  "corpus_v2": {
+    "n": 5844,
+    "dated": 1087,
+    "missing_date_fraction": 0.8139972621492129,
+    "dated_year_counts": {
+      "2023": 1023,
+      "2022": 64
+    },
+    "min_recorded_date": "2022-08-15T00:00:00Z",
+    "max_recorded_date": "2023-04-19T00:00:00Z"
+  }
+}

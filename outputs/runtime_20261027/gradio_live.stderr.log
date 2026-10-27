@@ -1,0 +1,6 @@
+D:\Vietnamese_Fact_Checking\app_gradio.py:209: DeprecationWarning: The 'theme' parameter in the Blocks constructor will be removed in Gradio 6.0. You will need to pass 'theme' to Blocks.launch() instead.
+  with gr.Blocks(theme=theme, css=CSS, title="Kiểm chứng thông tin tiếng Việt") as demo:
+D:\Vietnamese_Fact_Checking\app_gradio.py:209: DeprecationWarning: The 'css' parameter in the Blocks constructor will be removed in Gradio 6.0. You will need to pass 'css' to Blocks.launch() instead.
+  with gr.Blocks(theme=theme, css=CSS, title="Kiểm chứng thông tin tiếng Việt") as demo:
+D:\Vietnamese_Fact_Checking\app_gradio.py:241: DeprecationWarning: The 'show_api' parameter in event listeners will be removed in Gradio 6.0. You will need to use the 'api_visibility' parameter instead. To replicate show_api=False, in Gradio 6.0, use api_visibility='undocumented'.
+  clear.add([claim, *outputs])
