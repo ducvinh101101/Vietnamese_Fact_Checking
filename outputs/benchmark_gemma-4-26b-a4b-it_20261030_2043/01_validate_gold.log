@@ -1,0 +1,20 @@
+{
+  "status": "VALID",
+  "version": "vi-evidence-gold-v1",
+  "cases": 84,
+  "labels": {
+    "NOT_ENOUGH_INFO": 28,
+    "REFUTED": 28,
+    "SUPPORTED": 28
+  },
+  "categories": {
+    "entity_scope": 12,
+    "evidence_quality": 12,
+    "language_negation": 12,
+    "logic_quantifiers": 12,
+    "multi_evidence": 12,
+    "numbers_units": 12,
+    "time_scope": 12
+  },
+  "hashes_verified": true
+}

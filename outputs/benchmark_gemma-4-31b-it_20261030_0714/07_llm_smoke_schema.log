@@ -1,0 +1,4 @@
+01/3 vg001 NOT_ENOUGH_INFO
+02/3 vg002 ERROR
+03/3 vg003 ERROR
+Saved D:\user\Desktop\Github\XLNNTN\outputs\benchmark_gemma-4-31b-it_20261030_0714\llm_smoke_schema.jsonl; failures=2; truncated_cases=0

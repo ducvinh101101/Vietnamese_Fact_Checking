@@ -20,6 +20,16 @@ CATEGORIES = {
 }
 
 
+def text_sha256(path):
+    """SHA-256 of a text file with CRLF normalised to LF.
+
+    The frozen files are text; Windows (Path.write_text, git core.autocrlf) can turn
+    LF into CRLF without changing content. Hash the LF form so the check is
+    about content, not the line endings of the machine that wrote/checked out it.
+    """
+    return hashlib.sha256(Path(path).read_bytes().replace(b"\r\n", b"\n")).hexdigest()
+
+
 def require(condition, message):
     if not condition:
         raise ValueError(message)
@@ -42,7 +52,7 @@ def validate_dataset(directory):
     expected_files = {"gold.jsonl", "inputs.jsonl", "PROTOCOL.md", "build_dataset.py"}
     require(set(manifest["sha256"]) == expected_files, "Unexpected manifest file list")
     for name, expected in manifest["sha256"].items():
-        actual = hashlib.sha256((directory / name).read_bytes()).hexdigest()
+        actual = text_sha256(directory / name)
         require(actual == expected, f"Hash mismatch: {name}; do not silently regenerate gold after scoring")
     gold = read_jsonl(directory / "gold.jsonl")
     blind = read_jsonl(directory / "inputs.jsonl")

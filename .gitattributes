@@ -13,3 +13,4 @@ data/evidence/*.json text eol=lf
 data/evaluation/*.jsonl text eol=lf
 data/evaluation/*.json text eol=lf
 configs/*.yaml text eol=lf
+tests/golden/model_comparison_v1/* text eol=lf

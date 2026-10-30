@@ -1,0 +1,26 @@
+{
+  "model": "gemma-4-31b-it",
+  "python": "3.13.14 (tags/v3.13.14:fd17997, Jun 10 2026, 13:03:48) [MSC v.1944 64 bit (AMD64)]",
+  "started": "2026-10-30T19:39:08.879015",
+  "out": "D:\\user\\Desktop\\Github\\XLNNTN\\outputs\\benchmark_gemma-4-31b-it_20261030_1939",
+  "steps": [
+    {
+      "name": "validate_gold",
+      "rc": 0,
+      "seconds": 0.2,
+      "log": "01_validate_gold.log"
+    },
+    {
+      "name": "check_release_smoke",
+      "rc": 0,
+      "seconds": 40.5,
+      "log": "02_check_release_smoke.log"
+    },
+    {
+      "name": "demo_cases",
+      "rc": 0,
+      "seconds": 22.9,
+      "log": "03_demo_cases.log"
+    }
+  ]
+}

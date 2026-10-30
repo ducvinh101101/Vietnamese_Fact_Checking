@@ -1,0 +1,32 @@
+{
+  "model": "gemma-4-26b-a4b-it",
+  "python": "3.13.14 (tags/v3.13.14:fd17997, Jun 10 2026, 13:03:48) [MSC v.1944 64 bit (AMD64)]",
+  "started": "2026-10-30T20:43:55.744720",
+  "out": "D:\\user\\Desktop\\Github\\XLNNTN\\outputs\\benchmark_gemma-4-26b-a4b-it_20261030_2043",
+  "steps": [
+    {
+      "name": "validate_gold",
+      "rc": 0,
+      "seconds": 0.2,
+      "log": "01_validate_gold.log"
+    },
+    {
+      "name": "check_release_smoke",
+      "rc": 0,
+      "seconds": 30.2,
+      "log": "02_check_release_smoke.log"
+    },
+    {
+      "name": "demo_cases",
+      "rc": 0,
+      "seconds": 21.5,
+      "log": "03_demo_cases.log"
+    },
+    {
+      "name": "llm_smoke_schema",
+      "rc": 0,
+      "seconds": 176.2,
+      "log": "04_llm_smoke_schema.log"
+    }
+  ]
+}
