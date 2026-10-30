@@ -27,6 +27,26 @@
       "rc": 0,
       "seconds": 176.2,
       "log": "04_llm_smoke_schema.log"
+    },
+    {
+      "name": "llm_full_84",
+      "rc": 1,
+      "seconds": 3763.2,
+      "log": "05_llm_full_84.log"
+    },
+    {
+      "name": "score_phobert_vs_llm",
+      "rc": 0,
+      "seconds": 0.6,
+      "log": "06_score_phobert_vs_llm.log"
+    },
+    {
+      "name": "score_phobert_project_vs_llm",
+      "rc": 0,
+      "seconds": 0.1,
+      "log": "07_score_phobert_project_vs_llm.log"
     }
-  ]
+  ],
+  "llm_json_mode": "schema",
+  "finished": "2026-10-30T21:50:27.710131"
 }

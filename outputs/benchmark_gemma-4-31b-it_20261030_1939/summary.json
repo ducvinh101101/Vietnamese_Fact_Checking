@@ -21,6 +21,26 @@
       "rc": 0,
       "seconds": 22.9,
       "log": "03_demo_cases.log"
+    },
+    {
+      "name": "llm_full_84",
+      "rc": 1,
+      "seconds": 9198.0,
+      "log": "04_llm_full_84.log"
+    },
+    {
+      "name": "score_phobert_vs_llm",
+      "rc": 0,
+      "seconds": 0.1,
+      "log": "05_score_phobert_vs_llm.log"
+    },
+    {
+      "name": "score_phobert_project_vs_llm",
+      "rc": 0,
+      "seconds": 0.1,
+      "log": "06_score_phobert_project_vs_llm.log"
     }
-  ]
+  ],
+  "llm_json_mode": "schema",
+  "finished": "2026-10-30T22:13:30.928484"
 }

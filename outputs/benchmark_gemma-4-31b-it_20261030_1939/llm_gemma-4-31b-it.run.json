@@ -21,5 +21,12 @@
     "max_retries": 6,
     "json_mode": "schema"
   },
-  "client_sha256": "3b5724177e62013da70ccd93dd9071f019ed18cb4463233818d521ea8fdb0956"
+  "client_sha256": "3b5724177e62013da70ccd93dd9071f019ed18cb4463233818d521ea8fdb0956",
+  "finished_at_utc": "2026-10-30T15:13:30.555600+00:00",
+  "failed_cases": 8,
+  "cases_with_truncated_pairs": null,
+  "retries_used": 145,
+  "reused_cases": 32,
+  "resumed_from": "outputs\\benchmark_gemma-4-31b-it_20261030_0714\\llm_gemma-4-31b-it.jsonl",
+  "predictions_sha256": "7780a987dc15f31889d5b3c18c7db4efbb267aec27d7c2a1756c43252e13db03"
 }

@@ -21,5 +21,12 @@
     "max_retries": 6,
     "json_mode": "schema"
   },
-  "client_sha256": "3b5724177e62013da70ccd93dd9071f019ed18cb4463233818d521ea8fdb0956"
+  "client_sha256": "3b5724177e62013da70ccd93dd9071f019ed18cb4463233818d521ea8fdb0956",
+  "finished_at_utc": "2026-10-30T14:50:26.861089+00:00",
+  "failed_cases": 9,
+  "cases_with_truncated_pairs": null,
+  "retries_used": 29,
+  "reused_cases": 0,
+  "resumed_from": null,
+  "predictions_sha256": "ba13e9ad43b761c823f144a7639d3d16d875ef82160bc3b718ec45dea828586b"
 }
