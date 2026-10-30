@@ -1,0 +1,128 @@
+{
+  "first": {
+    "name": "Gemma4-26B",
+    "accuracy": 0.8571428571428571,
+    "macro_f1": 0.9047811447811448,
+    "per_label_f1": {
+      "SUPPORTED": 0.9454545454545454,
+      "REFUTED": 0.888888888888889,
+      "NOT_ENOUGH_INFO": 0.88
+    },
+    "per_category_accuracy": {
+      "entity_scope": 0.9166666666666666,
+      "evidence_quality": 0.8333333333333334,
+      "language_negation": 0.8333333333333334,
+      "logic_quantifiers": 0.8333333333333334,
+      "multi_evidence": 0.75,
+      "numbers_units": 0.8333333333333334,
+      "time_scope": 1.0
+    },
+    "predicted_counts": {
+      "SUPPORTED": 27,
+      "REFUTED": 26,
+      "NOT_ENOUGH_INFO": 22,
+      "ERROR": 9
+    },
+    "confusion": {
+      "SUPPORTED": {
+        "SUPPORTED": 26,
+        "REFUTED": 0,
+        "NOT_ENOUGH_INFO": 0,
+        "ERROR": 2
+      },
+      "REFUTED": {
+        "SUPPORTED": 1,
+        "REFUTED": 24,
+        "NOT_ENOUGH_INFO": 0,
+        "ERROR": 3
+      },
+      "NOT_ENOUGH_INFO": {
+        "SUPPORTED": 0,
+        "REFUTED": 2,
+        "NOT_ENOUGH_INFO": 22,
+        "ERROR": 4
+      }
+    },
+    "latency_median_s": 7.99625,
+    "latency_p95_s": 174.6477,
+    "errors": 9,
+    "retries": 26
+  },
+  "second": {
+    "name": "Gemma4-31B",
+    "accuracy": 0.8571428571428571,
+    "macro_f1": 0.9001594348431196,
+    "per_label_f1": {
+      "SUPPORTED": 0.9056603773584904,
+      "REFUTED": 0.8928571428571429,
+      "NOT_ENOUGH_INFO": 0.9019607843137255
+    },
+    "per_category_accuracy": {
+      "entity_scope": 0.9166666666666666,
+      "evidence_quality": 1.0,
+      "language_negation": 0.75,
+      "logic_quantifiers": 0.8333333333333334,
+      "multi_evidence": 0.9166666666666666,
+      "numbers_units": 0.6666666666666666,
+      "time_scope": 0.9166666666666666
+    },
+    "predicted_counts": {
+      "SUPPORTED": 25,
+      "REFUTED": 28,
+      "NOT_ENOUGH_INFO": 23,
+      "ERROR": 8
+    },
+    "confusion": {
+      "SUPPORTED": {
+        "SUPPORTED": 24,
+        "REFUTED": 0,
+        "NOT_ENOUGH_INFO": 0,
+        "ERROR": 4
+      },
+      "REFUTED": {
+        "SUPPORTED": 1,
+        "REFUTED": 25,
+        "NOT_ENOUGH_INFO": 0,
+        "ERROR": 2
+      },
+      "NOT_ENOUGH_INFO": {
+        "SUPPORTED": 0,
+        "REFUTED": 3,
+        "NOT_ENOUGH_INFO": 23,
+        "ERROR": 2
+      }
+    },
+    "latency_median_s": 51.2913,
+    "latency_p95_s": 313.0874,
+    "errors": 8,
+    "retries": 97
+  },
+  "paired": {
+    "only_first_correct": [
+      "vg007",
+      "vg012",
+      "vg014",
+      "vg023",
+      "vg049",
+      "vg063",
+      "vg067"
+    ],
+    "only_second_correct": [
+      "vg003",
+      "vg026",
+      "vg029",
+      "vg040",
+      "vg059",
+      "vg065",
+      "vg071"
+    ],
+    "mcnemar_exact_p": 1.0,
+    "delta_macro_f1": -0.0046217099380252424,
+    "delta_macro_f1_ci95": [
+      -0.057422375991943,
+      0.04787192678273522
+    ],
+    "bootstrap_rounds": 10000,
+    "seed": 42
+  }
+}

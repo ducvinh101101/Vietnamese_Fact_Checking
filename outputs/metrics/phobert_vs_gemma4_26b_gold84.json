@@ -1,0 +1,164 @@
+{
+  "first": {
+    "name": "PhoBERT",
+    "accuracy": 0.3333333333333333,
+    "macro_f1": 0.22502838519146032,
+    "per_label_f1": {
+      "SUPPORTED": 0.058823529411764705,
+      "REFUTED": 0.4950495049504951,
+      "NOT_ENOUGH_INFO": 0.12121212121212122
+    },
+    "per_category_accuracy": {
+      "entity_scope": 0.3333333333333333,
+      "evidence_quality": 0.5,
+      "language_negation": 0.3333333333333333,
+      "logic_quantifiers": 0.3333333333333333,
+      "multi_evidence": 0.25,
+      "numbers_units": 0.25,
+      "time_scope": 0.3333333333333333
+    },
+    "predicted_counts": {
+      "SUPPORTED": 6,
+      "REFUTED": 73,
+      "NOT_ENOUGH_INFO": 5,
+      "ERROR": 0
+    },
+    "confusion": {
+      "SUPPORTED": {
+        "SUPPORTED": 1,
+        "REFUTED": 24,
+        "NOT_ENOUGH_INFO": 3,
+        "ERROR": 0
+      },
+      "REFUTED": {
+        "SUPPORTED": 3,
+        "REFUTED": 25,
+        "NOT_ENOUGH_INFO": 0,
+        "ERROR": 0
+      },
+      "NOT_ENOUGH_INFO": {
+        "SUPPORTED": 2,
+        "REFUTED": 24,
+        "NOT_ENOUGH_INFO": 2,
+        "ERROR": 0
+      }
+    },
+    "latency_median_s": 0.25395,
+    "latency_p95_s": 0.5055,
+    "errors": 0,
+    "retries": 0
+  },
+  "second": {
+    "name": "Gemma4-26B",
+    "accuracy": 0.8571428571428571,
+    "macro_f1": 0.9047811447811448,
+    "per_label_f1": {
+      "SUPPORTED": 0.9454545454545454,
+      "REFUTED": 0.888888888888889,
+      "NOT_ENOUGH_INFO": 0.88
+    },
+    "per_category_accuracy": {
+      "entity_scope": 0.9166666666666666,
+      "evidence_quality": 0.8333333333333334,
+      "language_negation": 0.8333333333333334,
+      "logic_quantifiers": 0.8333333333333334,
+      "multi_evidence": 0.75,
+      "numbers_units": 0.8333333333333334,
+      "time_scope": 1.0
+    },
+    "predicted_counts": {
+      "SUPPORTED": 27,
+      "REFUTED": 26,
+      "NOT_ENOUGH_INFO": 22,
+      "ERROR": 9
+    },
+    "confusion": {
+      "SUPPORTED": {
+        "SUPPORTED": 26,
+        "REFUTED": 0,
+        "NOT_ENOUGH_INFO": 0,
+        "ERROR": 2
+      },
+      "REFUTED": {
+        "SUPPORTED": 1,
+        "REFUTED": 24,
+        "NOT_ENOUGH_INFO": 0,
+        "ERROR": 3
+      },
+      "NOT_ENOUGH_INFO": {
+        "SUPPORTED": 0,
+        "REFUTED": 2,
+        "NOT_ENOUGH_INFO": 22,
+        "ERROR": 4
+      }
+    },
+    "latency_median_s": 7.99625,
+    "latency_p95_s": 174.6477,
+    "errors": 9,
+    "retries": 26
+  },
+  "paired": {
+    "only_first_correct": [
+      "vg003",
+      "vg059",
+      "vg072"
+    ],
+    "only_second_correct": [
+      "vg001",
+      "vg002",
+      "vg006",
+      "vg008",
+      "vg009",
+      "vg010",
+      "vg011",
+      "vg012",
+      "vg017",
+      "vg021",
+      "vg023",
+      "vg024",
+      "vg025",
+      "vg028",
+      "vg030",
+      "vg031",
+      "vg032",
+      "vg033",
+      "vg035",
+      "vg042",
+      "vg045",
+      "vg046",
+      "vg047",
+      "vg048",
+      "vg049",
+      "vg051",
+      "vg052",
+      "vg054",
+      "vg056",
+      "vg057",
+      "vg058",
+      "vg060",
+      "vg062",
+      "vg063",
+      "vg066",
+      "vg067",
+      "vg068",
+      "vg069",
+      "vg070",
+      "vg074",
+      "vg076",
+      "vg078",
+      "vg079",
+      "vg080",
+      "vg081",
+      "vg083",
+      "vg084"
+    ],
+    "mcnemar_exact_p": 3.708322537931963e-11,
+    "delta_macro_f1": 0.6797527595896845,
+    "delta_macro_f1_ci95": [
+      0.5842826153017789,
+      0.7656745997309413
+    ],
+    "bootstrap_rounds": 10000,
+    "seed": 42
+  }
+}
