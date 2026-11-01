@@ -1,0 +1,64 @@
+{
+  "model": "gemma-4-31b-it",
+  "python": "3.13.14 (tags/v3.13.14:fd17997, Jun 10 2026, 13:03:48) [MSC v.1944 64 bit (AMD64)]",
+  "started": "2026-10-30T07:14:07.141516",
+  "out": "D:\\user\\Desktop\\Github\\XLNNTN\\outputs\\benchmark_gemma-4-31b-it_20261030_0714",
+  "steps": [
+    {
+      "name": "pytest",
+      "rc": 0,
+      "seconds": 430.2,
+      "log": "01_pytest.log"
+    },
+    {
+      "name": "validate_gold",
+      "rc": 0,
+      "seconds": 0.2,
+      "log": "02_validate_gold.log"
+    },
+    {
+      "name": "check_release_smoke",
+      "rc": 0,
+      "seconds": 17.1,
+      "log": "03_check_release_smoke.log"
+    },
+    {
+      "name": "demo_cases",
+      "rc": 0,
+      "seconds": 23.1,
+      "log": "04_demo_cases.log"
+    },
+    {
+      "name": "phobert_verifier",
+      "rc": 0,
+      "seconds": 38.8,
+      "log": "05_phobert_verifier.log"
+    },
+    {
+      "name": "phobert_project_rules",
+      "rc": 0,
+      "seconds": 39.0,
+      "log": "06_phobert_project_rules.log"
+    },
+    {
+      "name": "llm_smoke_schema",
+      "rc": 1,
+      "seconds": 32.6,
+      "log": "07_llm_smoke_schema.log"
+    },
+    {
+      "name": "llm_full_84",
+      "rc": 1,
+      "seconds": 2066.6,
+      "log": "08_llm_full_84.log"
+    },
+    {
+      "name": "score",
+      "rc": 2,
+      "seconds": 0.1,
+      "log": "09_score.log"
+    }
+  ],
+  "llm_json_mode": "schema",
+  "finished": "2026-10-30T07:58:14.582030"
+}

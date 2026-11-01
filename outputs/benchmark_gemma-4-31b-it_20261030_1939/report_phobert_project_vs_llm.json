@@ -1,0 +1,762 @@
+{
+  "dataset_version": "vi-evidence-gold-v1",
+  "gold_sha256": "bd36869d71604b3cbcb8eb889ea4fc4df5ea0e3bdf3253e26b6b66f576d81c95",
+  "inputs_sha256": "1899b07f52585badf9d4909262495d62ab88a1cf1c6c80d5a9c32d65059a60f4",
+  "results": [
+    {
+      "prediction_file": "outputs\\benchmark_gemma-4-31b-it_20261030_0714\\phobert_project.jsonl",
+      "prediction_sha256": "2f22edf99780ebc0482ec52ad6a148b19259648a27b0e789789605544fc45e62",
+      "total": 84,
+      "correct": 29,
+      "accuracy": 0.34523809523809523,
+      "macro_f1": 0.23054070112893643,
+      "valid_labels": 84,
+      "valid_label_rate": 1.0,
+      "per_label": {
+        "SUPPORTED": {
+          "precision": 0.2,
+          "recall": 0.03571428571428571,
+          "f1": 0.06060606060606061,
+          "support": 28
+        },
+        "REFUTED": {
+          "precision": 0.35135135135135137,
+          "recall": 0.9285714285714286,
+          "f1": 0.5098039215686275,
+          "support": 28
+        },
+        "NOT_ENOUGH_INFO": {
+          "precision": 0.4,
+          "recall": 0.07142857142857142,
+          "f1": 0.12121212121212122,
+          "support": 28
+        }
+      },
+      "confusion_rows_gold_columns_predicted": {
+        "SUPPORTED": {
+          "SUPPORTED": 1,
+          "REFUTED": 24,
+          "NOT_ENOUGH_INFO": 3,
+          "INVALID": 0
+        },
+        "REFUTED": {
+          "SUPPORTED": 2,
+          "REFUTED": 26,
+          "NOT_ENOUGH_INFO": 0,
+          "INVALID": 0
+        },
+        "NOT_ENOUGH_INFO": {
+          "SUPPORTED": 2,
+          "REFUTED": 24,
+          "NOT_ENOUGH_INFO": 2,
+          "INVALID": 0
+        }
+      },
+      "per_category": {
+        "entity_scope": {
+          "total": 12,
+          "correct": 4,
+          "accuracy": 0.3333333333333333
+        },
+        "evidence_quality": {
+          "total": 12,
+          "correct": 7,
+          "accuracy": 0.5833333333333334
+        },
+        "language_negation": {
+          "total": 12,
+          "correct": 4,
+          "accuracy": 0.3333333333333333
+        },
+        "logic_quantifiers": {
+          "total": 12,
+          "correct": 4,
+          "accuracy": 0.3333333333333333
+        },
+        "multi_evidence": {
+          "total": 12,
+          "correct": 3,
+          "accuracy": 0.25
+        },
+        "numbers_units": {
+          "total": 12,
+          "correct": 3,
+          "accuracy": 0.25
+        },
+        "time_scope": {
+          "total": 12,
+          "correct": 4,
+          "accuracy": 0.3333333333333333
+        }
+      },
+      "citations": {
+        "predictions_with_evidence_ids": 84,
+        "coverage": 1.0,
+        "correct_label_and_exact_minimal_evidence": 25,
+        "joint_accuracy_among_annotated": 0.2976190476190476
+      },
+      "correct_ids": [
+        "vg003",
+        "vg004",
+        "vg005",
+        "vg007",
+        "vg013",
+        "vg014",
+        "vg015",
+        "vg018",
+        "vg019",
+        "vg020",
+        "vg022",
+        "vg027",
+        "vg036",
+        "vg037",
+        "vg038",
+        "vg039",
+        "vg041",
+        "vg043",
+        "vg050",
+        "vg053",
+        "vg055",
+        "vg059",
+        "vg061",
+        "vg064",
+        "vg072",
+        "vg073",
+        "vg075",
+        "vg076",
+        "vg082"
+      ],
+      "errors": [
+        {
+          "id": "vg001",
+          "gold_label": "NOT_ENOUGH_INFO",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg002",
+          "gold_label": "NOT_ENOUGH_INFO",
+          "predicted_label": "SUPPORTED",
+          "error": null
+        },
+        {
+          "id": "vg006",
+          "gold_label": "NOT_ENOUGH_INFO",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg008",
+          "gold_label": "SUPPORTED",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg009",
+          "gold_label": "SUPPORTED",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg010",
+          "gold_label": "NOT_ENOUGH_INFO",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg011",
+          "gold_label": "SUPPORTED",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg012",
+          "gold_label": "SUPPORTED",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg016",
+          "gold_label": "NOT_ENOUGH_INFO",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg017",
+          "gold_label": "SUPPORTED",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg021",
+          "gold_label": "NOT_ENOUGH_INFO",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg023",
+          "gold_label": "SUPPORTED",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg024",
+          "gold_label": "SUPPORTED",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg025",
+          "gold_label": "SUPPORTED",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg026",
+          "gold_label": "SUPPORTED",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg028",
+          "gold_label": "REFUTED",
+          "predicted_label": "SUPPORTED",
+          "error": null
+        },
+        {
+          "id": "vg029",
+          "gold_label": "NOT_ENOUGH_INFO",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg030",
+          "gold_label": "NOT_ENOUGH_INFO",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg031",
+          "gold_label": "NOT_ENOUGH_INFO",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg032",
+          "gold_label": "SUPPORTED",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg033",
+          "gold_label": "SUPPORTED",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg034",
+          "gold_label": "NOT_ENOUGH_INFO",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg035",
+          "gold_label": "SUPPORTED",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg040",
+          "gold_label": "SUPPORTED",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg042",
+          "gold_label": "NOT_ENOUGH_INFO",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg044",
+          "gold_label": "NOT_ENOUGH_INFO",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg045",
+          "gold_label": "NOT_ENOUGH_INFO",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg046",
+          "gold_label": "SUPPORTED",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg047",
+          "gold_label": "SUPPORTED",
+          "predicted_label": "NOT_ENOUGH_INFO",
+          "error": null
+        },
+        {
+          "id": "vg048",
+          "gold_label": "SUPPORTED",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg049",
+          "gold_label": "NOT_ENOUGH_INFO",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg051",
+          "gold_label": "SUPPORTED",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg052",
+          "gold_label": "SUPPORTED",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg054",
+          "gold_label": "NOT_ENOUGH_INFO",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg056",
+          "gold_label": "SUPPORTED",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg057",
+          "gold_label": "NOT_ENOUGH_INFO",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg058",
+          "gold_label": "NOT_ENOUGH_INFO",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg060",
+          "gold_label": "NOT_ENOUGH_INFO",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg062",
+          "gold_label": "NOT_ENOUGH_INFO",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg063",
+          "gold_label": "SUPPORTED",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg065",
+          "gold_label": "REFUTED",
+          "predicted_label": "SUPPORTED",
+          "error": null
+        },
+        {
+          "id": "vg066",
+          "gold_label": "SUPPORTED",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg067",
+          "gold_label": "SUPPORTED",
+          "predicted_label": "NOT_ENOUGH_INFO",
+          "error": null
+        },
+        {
+          "id": "vg068",
+          "gold_label": "NOT_ENOUGH_INFO",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg069",
+          "gold_label": "SUPPORTED",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg070",
+          "gold_label": "SUPPORTED",
+          "predicted_label": "NOT_ENOUGH_INFO",
+          "error": null
+        },
+        {
+          "id": "vg071",
+          "gold_label": "NOT_ENOUGH_INFO",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg074",
+          "gold_label": "NOT_ENOUGH_INFO",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg077",
+          "gold_label": "NOT_ENOUGH_INFO",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg078",
+          "gold_label": "SUPPORTED",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg079",
+          "gold_label": "SUPPORTED",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg080",
+          "gold_label": "SUPPORTED",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg081",
+          "gold_label": "NOT_ENOUGH_INFO",
+          "predicted_label": "SUPPORTED",
+          "error": null
+        },
+        {
+          "id": "vg083",
+          "gold_label": "NOT_ENOUGH_INFO",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg084",
+          "gold_label": "NOT_ENOUGH_INFO",
+          "predicted_label": "REFUTED",
+          "error": null
+        }
+      ]
+    },
+    {
+      "prediction_file": "D:\\user\\Desktop\\Github\\XLNNTN\\outputs\\benchmark_gemma-4-31b-it_20261030_1939\\llm_gemma-4-31b-it.jsonl",
+      "prediction_sha256": "7780a987dc15f31889d5b3c18c7db4efbb267aec27d7c2a1756c43252e13db03",
+      "total": 84,
+      "correct": 72,
+      "accuracy": 0.8571428571428571,
+      "macro_f1": 0.9001594348431196,
+      "valid_labels": 76,
+      "valid_label_rate": 0.9047619047619048,
+      "per_label": {
+        "SUPPORTED": {
+          "precision": 0.96,
+          "recall": 0.8571428571428571,
+          "f1": 0.9056603773584904,
+          "support": 28
+        },
+        "REFUTED": {
+          "precision": 0.8928571428571429,
+          "recall": 0.8928571428571429,
+          "f1": 0.8928571428571429,
+          "support": 28
+        },
+        "NOT_ENOUGH_INFO": {
+          "precision": 1.0,
+          "recall": 0.8214285714285714,
+          "f1": 0.9019607843137255,
+          "support": 28
+        }
+      },
+      "confusion_rows_gold_columns_predicted": {
+        "SUPPORTED": {
+          "SUPPORTED": 24,
+          "REFUTED": 0,
+          "NOT_ENOUGH_INFO": 0,
+          "INVALID": 4
+        },
+        "REFUTED": {
+          "SUPPORTED": 1,
+          "REFUTED": 25,
+          "NOT_ENOUGH_INFO": 0,
+          "INVALID": 2
+        },
+        "NOT_ENOUGH_INFO": {
+          "SUPPORTED": 0,
+          "REFUTED": 3,
+          "NOT_ENOUGH_INFO": 23,
+          "INVALID": 2
+        }
+      },
+      "per_category": {
+        "entity_scope": {
+          "total": 12,
+          "correct": 11,
+          "accuracy": 0.9166666666666666
+        },
+        "evidence_quality": {
+          "total": 12,
+          "correct": 12,
+          "accuracy": 1.0
+        },
+        "language_negation": {
+          "total": 12,
+          "correct": 9,
+          "accuracy": 0.75
+        },
+        "logic_quantifiers": {
+          "total": 12,
+          "correct": 10,
+          "accuracy": 0.8333333333333334
+        },
+        "multi_evidence": {
+          "total": 12,
+          "correct": 11,
+          "accuracy": 0.9166666666666666
+        },
+        "numbers_units": {
+          "total": 12,
+          "correct": 8,
+          "accuracy": 0.6666666666666666
+        },
+        "time_scope": {
+          "total": 12,
+          "correct": 11,
+          "accuracy": 0.9166666666666666
+        }
+      },
+      "citations": {
+        "predictions_with_evidence_ids": 84,
+        "coverage": 1.0,
+        "correct_label_and_exact_minimal_evidence": 70,
+        "joint_accuracy_among_annotated": 0.8333333333333334
+      },
+      "correct_ids": [
+        "vg001",
+        "vg002",
+        "vg003",
+        "vg004",
+        "vg005",
+        "vg006",
+        "vg008",
+        "vg009",
+        "vg010",
+        "vg011",
+        "vg013",
+        "vg015",
+        "vg017",
+        "vg018",
+        "vg019",
+        "vg020",
+        "vg021",
+        "vg022",
+        "vg024",
+        "vg025",
+        "vg026",
+        "vg027",
+        "vg028",
+        "vg029",
+        "vg030",
+        "vg031",
+        "vg032",
+        "vg033",
+        "vg035",
+        "vg036",
+        "vg037",
+        "vg038",
+        "vg039",
+        "vg040",
+        "vg041",
+        "vg042",
+        "vg043",
+        "vg045",
+        "vg046",
+        "vg047",
+        "vg048",
+        "vg050",
+        "vg051",
+        "vg052",
+        "vg053",
+        "vg054",
+        "vg055",
+        "vg056",
+        "vg057",
+        "vg058",
+        "vg059",
+        "vg060",
+        "vg061",
+        "vg062",
+        "vg064",
+        "vg065",
+        "vg066",
+        "vg068",
+        "vg069",
+        "vg070",
+        "vg071",
+        "vg073",
+        "vg074",
+        "vg075",
+        "vg076",
+        "vg078",
+        "vg079",
+        "vg080",
+        "vg081",
+        "vg082",
+        "vg083",
+        "vg084"
+      ],
+      "errors": [
+        {
+          "id": "vg007",
+          "gold_label": "REFUTED",
+          "predicted_label": null,
+          "error": "RuntimeError: Gemini HTTP 500 (INTERNAL: Internal error encountered.); check API key, model access and quota"
+        },
+        {
+          "id": "vg012",
+          "gold_label": "SUPPORTED",
+          "predicted_label": null,
+          "error": "RuntimeError: Gemini HTTP 500 (INTERNAL: Internal error encountered.); check API key, model access and quota"
+        },
+        {
+          "id": "vg014",
+          "gold_label": "REFUTED",
+          "predicted_label": null,
+          "error": "RuntimeError: Gemini HTTP 500 (INTERNAL: Internal error encountered.); check API key, model access and quota"
+        },
+        {
+          "id": "vg016",
+          "gold_label": "NOT_ENOUGH_INFO",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg023",
+          "gold_label": "SUPPORTED",
+          "predicted_label": null,
+          "error": "RuntimeError: Gemini HTTP 500 (INTERNAL: Internal error encountered.); check API key, model access and quota"
+        },
+        {
+          "id": "vg034",
+          "gold_label": "NOT_ENOUGH_INFO",
+          "predicted_label": "REFUTED",
+          "error": null
+        },
+        {
+          "id": "vg044",
+          "gold_label": "NOT_ENOUGH_INFO",
+          "predicted_label": null,
+          "error": "RuntimeError: Gemini HTTP 503 (UNAVAILABLE: This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.); check API key, model access and quota"
+        },
+        {
+          "id": "vg049",
+          "gold_label": "NOT_ENOUGH_INFO",
+          "predicted_label": null,
+          "error": "RuntimeError: Gemini HTTP 503 (UNAVAILABLE: This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.); check API key, model access and quota"
+        },
+        {
+          "id": "vg063",
+          "gold_label": "SUPPORTED",
+          "predicted_label": null,
+          "error": "RuntimeError: Gemini HTTP 500 (INTERNAL: Internal error encountered.); check API key, model access and quota"
+        },
+        {
+          "id": "vg067",
+          "gold_label": "SUPPORTED",
+          "predicted_label": null,
+          "error": "RuntimeError: Gemini HTTP 500 (INTERNAL: Internal error encountered.); check API key, model access and quota"
+        },
+        {
+          "id": "vg072",
+          "gold_label": "REFUTED",
+          "predicted_label": "SUPPORTED",
+          "error": null
+        },
+        {
+          "id": "vg077",
+          "gold_label": "NOT_ENOUGH_INFO",
+          "predicted_label": "REFUTED",
+          "error": null
+        }
+      ]
+    }
+  ],
+  "paired_comparison": {
+    "both_correct": 26,
+    "both_wrong": 9,
+    "first_only_correct": [
+      "vg007",
+      "vg014",
+      "vg072"
+    ],
+    "second_only_correct": [
+      "vg001",
+      "vg002",
+      "vg006",
+      "vg008",
+      "vg009",
+      "vg010",
+      "vg011",
+      "vg017",
+      "vg021",
+      "vg024",
+      "vg025",
+      "vg026",
+      "vg028",
+      "vg029",
+      "vg030",
+      "vg031",
+      "vg032",
+      "vg033",
+      "vg035",
+      "vg040",
+      "vg042",
+      "vg045",
+      "vg046",
+      "vg047",
+      "vg048",
+      "vg051",
+      "vg052",
+      "vg054",
+      "vg056",
+      "vg057",
+      "vg058",
+      "vg060",
+      "vg062",
+      "vg065",
+      "vg066",
+      "vg068",
+      "vg069",
+      "vg070",
+      "vg071",
+      "vg074",
+      "vg078",
+      "vg079",
+      "vg080",
+      "vg081",
+      "vg083",
+      "vg084"
+    ],
+    "accuracy_second_minus_first": 0.5119047619047619
+  }
+}

@@ -1,0 +1,491 @@
+{
+  "generated_at": "2026-10-30T20:44:46",
+  "cases": [
+    {
+      "id": "D1",
+      "mode": "local",
+      "expected": "SUPPORTED",
+      "title": "Có trong kho, đúng nguyên văn",
+      "claim": "Tổng thống Brazil Lula hoãn chuyến thăm 6 ngày tới Trung Quốc do bệnh viêm phổi chưa khỏi hẳn.",
+      "why": "Trùng nguyên văn một câu trong bài VnExpress (vifactcheck_01030_p001).",
+      "predicted": "SUPPORTED",
+      "confidence": 0.9898,
+      "match": true,
+      "cited_url": "https://vnexpress.net/tong-thong-brazil-hoan-tham-trung-quoc-vi-viem-phoi-4585646.html",
+      "cited_origin": "local",
+      "minimal_pair_reason": null,
+      "guard_reason": null,
+      "engine": "phobert",
+      "response": {
+        "schema_version": "w3-03/v1",
+        "verdict": {
+          "label": "SUPPORTED",
+          "confidence": 0.9898,
+          "explanation": "PhoBERT đánh giá phát biểu được bằng chứng đã trích dẫn ủng hộ."
+        },
+        "retrieval": {
+          "retrieved_count": 3,
+          "positive_score_count": 3,
+          "evidence": [
+            {
+              "passage_id": "vifactcheck_01030_p001",
+              "document_id": "vifactcheck_01030",
+              "score": 91.46591825832529,
+              "source": "VnExpress",
+              "url": "https://vnexpress.net/tong-thong-brazil-hoan-tham-trung-quoc-vi-viem-phoi-4585646.html",
+              "domain": "",
+              "title": null,
+              "published_at": null,
+              "retrieved_at": null,
+              "source_type": "unknown",
+              "content": "Tổng thống Brazil Lula hoãn chuyến thăm 6 ngày tới Trung Quốc do bệnh viêm phổi chưa khỏi hẳn. Chính quyền Brazil ngày 25/3 thông báo Tổng thống Luiz Inacio Lula da Silva, 77 tuổi, sẽ hoãn lịch trình thăm Trung Quốc. Giới chức cho hay chưa có lịch thăm mới, nói thêm đã gửi thông báo tới Trung Quốc. Theo kế hoạch ban đầu, ông Lula lên đường sang Trung Quốc vào 25/3 nhưng lịch này bị lùi lại một ngày do Tổng thống Brazil \"viêm phổi nhẹ\" và đang dùng thuốc điều trị, văn phòng tổng thống cho hay. Tuy nhiên, các bác sĩ đề nghị ông hoãn chuyến đi dài 20 giờ bay sau cuộc kiểm tra sức khỏe ngày 25/3.",
+              "origin": "local"
+            },
+            {
+              "passage_id": "vifactcheck_00742_p001",
+              "document_id": "vifactcheck_00742",
+              "score": 61.56759880984204,
+              "source": "Thanh Niên",
+              "url": "https://thanhnien.vn/tong-thong-brazil-huy-cong-du-trung-quoc-185230326071228807.htm",
+              "domain": "",
+              "title": null,
+              "published_at": null,
+              "retrieved_at": null,
+              "source_type": "unknown",
+              "content": "Văn phòng tổng thống Brazil xác nhận Tổng thống Luiz Inácio Lula da Silva đã hủy chuyến công du được mong đợi đến Trung Quốc do vấn đề sức khỏe. Văn phòng tổng thống Brazil ngày 25.3 xác nhận Tổng thống Luiz Inácio Lula da Silva đã hủy chuyến công du Trung Quốc do mắc bệnh viêm phổi, hãng tin Reuters đưa tin. Theo thông tin từ văn phòng tổng thống, ông Lula, 77 tuổi, đã được đưa vào bệnh viện với các triệu chứng giống như cúm và được chẩn đoán mắc “viêm phế quản phổi do vi khuẩn và vi rút cúm A”.",
+              "origin": "local"
+            },
+            {
+              "passage_id": "vifactcheck_01030_p002",
+              "document_id": "vifactcheck_01030",
+              "score": 46.60532886026909,
+              "source": "VnExpress",
+              "url": "https://vnexpress.net/tong-thong-brazil-hoan-tham-trung-quoc-vi-viem-phoi-4585646.html",
+              "domain": "",
+              "title": null,
+              "published_at": null,
+              "retrieved_at": null,
+              "source_type": "unknown",
+              "content": "\"Tình trạng của ông ấy đã cải thiện, nhưng các bác sĩ phụ trách y tế cho Tổng thống vẫn khuyến nghị ông hoãn chuyến thăm Trung Quốc\" tới khi khỏi hoàn toàn, chính quyền Brazil dẫn lời bác sĩ Ana Helena Germoglio trong thông báo. Kể từ khi nhậm chức ba tháng trước, ông Lula đã tới thăm Argentina và Mỹ. Trung Quốc là đối tác thương mại lớn nhất của Brazil và thương mại đã được kỳ vọng là chủ đề quan trọng trong chương trình nghị sự của ông Lula tại Bắc Kinh. Năm ngoái, kim ngạch thương mại song phương vượt 150 tỷ USD. Tổng thống Brazil coi Trung Quốc là \"đồng minh quan trọng\" trong sáng kiến của mình về thành lập nhóm quốc gia giúp đàm phán thỏa thuận hòa bình cho Nga và Ukraine.",
+              "origin": "local"
+            }
+          ]
+        },
+        "citations": [
+          {
+            "passage_id": "vifactcheck_01030_p001",
+            "document_id": "vifactcheck_01030",
+            "score": 91.46591825832529,
+            "source": "VnExpress",
+            "url": "https://vnexpress.net/tong-thong-brazil-hoan-tham-trung-quoc-vi-viem-phoi-4585646.html",
+            "domain": "",
+            "title": null,
+            "published_at": null,
+            "retrieved_at": null,
+            "source_type": "unknown",
+            "content": "Tổng thống Brazil Lula hoãn chuyến thăm 6 ngày tới Trung Quốc do bệnh viêm phổi chưa khỏi hẳn. Chính quyền Brazil ngày 25/3 thông báo Tổng thống Luiz Inacio Lula da Silva, 77 tuổi, sẽ hoãn lịch trình thăm Trung Quốc. Giới chức cho hay chưa có lịch thăm mới, nói thêm đã gửi thông báo tới Trung Quốc. Theo kế hoạch ban đầu, ông Lula lên đường sang Trung Quốc vào 25/3 nhưng lịch này bị lùi lại một ngày do Tổng thống Brazil \"viêm phổi nhẹ\" và đang dùng thuốc điều trị, văn phòng tổng thống cho hay. Tuy nhiên, các bác sĩ đề nghị ông hoãn chuyến đi dài 20 giờ bay sau cuộc kiểm tra sức khỏe ngày 25/3.",
+            "origin": "local"
+          }
+        ],
+        "diagnostics": {
+          "mode": "local",
+          "settings": {
+            "top_k": 3,
+            "guard": false,
+            "minimal_pair": true,
+            "evidence_view": "ensemble",
+            "corpus": "data/evidence/vifactcheck_passages.jsonl"
+          },
+          "fallback_reason": null,
+          "web_status": null
+        }
+      }
+    },
+    {
+      "id": "D2",
+      "mode": "local",
+      "expected": "REFUTED",
+      "title": "Đổi một con số",
+      "claim": "Tổng thống Brazil Lula hoãn chuyến thăm 10 ngày tới Trung Quốc do bệnh viêm phổi chưa khỏi hẳn.",
+      "why": "Nguồn nói 6 ngày; claim nói 10 ngày — mâu thuẫn số liệu (luật cặp-tối-thiểu).",
+      "predicted": "REFUTED",
+      "confidence": 0.9853,
+      "match": true,
+      "cited_url": "https://vnexpress.net/tong-thong-brazil-hoan-tham-trung-quoc-vi-viem-phoi-4585646.html",
+      "cited_origin": "local",
+      "minimal_pair_reason": null,
+      "guard_reason": null,
+      "engine": "phobert",
+      "response": {
+        "schema_version": "w3-03/v1",
+        "verdict": {
+          "label": "REFUTED",
+          "confidence": 0.9853,
+          "explanation": "PhoBERT đánh giá phát biểu mâu thuẫn với bằng chứng đã trích dẫn."
+        },
+        "retrieval": {
+          "retrieved_count": 3,
+          "positive_score_count": 3,
+          "evidence": [
+            {
+              "passage_id": "vifactcheck_01030_p001",
+              "document_id": "vifactcheck_01030",
+              "score": 88.83361581583293,
+              "source": "VnExpress",
+              "url": "https://vnexpress.net/tong-thong-brazil-hoan-tham-trung-quoc-vi-viem-phoi-4585646.html",
+              "domain": "",
+              "title": null,
+              "published_at": null,
+              "retrieved_at": null,
+              "source_type": "unknown",
+              "content": "Tổng thống Brazil Lula hoãn chuyến thăm 6 ngày tới Trung Quốc do bệnh viêm phổi chưa khỏi hẳn. Chính quyền Brazil ngày 25/3 thông báo Tổng thống Luiz Inacio Lula da Silva, 77 tuổi, sẽ hoãn lịch trình thăm Trung Quốc. Giới chức cho hay chưa có lịch thăm mới, nói thêm đã gửi thông báo tới Trung Quốc. Theo kế hoạch ban đầu, ông Lula lên đường sang Trung Quốc vào 25/3 nhưng lịch này bị lùi lại một ngày do Tổng thống Brazil \"viêm phổi nhẹ\" và đang dùng thuốc điều trị, văn phòng tổng thống cho hay. Tuy nhiên, các bác sĩ đề nghị ông hoãn chuyến đi dài 20 giờ bay sau cuộc kiểm tra sức khỏe ngày 25/3.",
+              "origin": "local"
+            },
+            {
+              "passage_id": "vifactcheck_00742_p001",
+              "document_id": "vifactcheck_00742",
+              "score": 61.56759880984204,
+              "source": "Thanh Niên",
+              "url": "https://thanhnien.vn/tong-thong-brazil-huy-cong-du-trung-quoc-185230326071228807.htm",
+              "domain": "",
+              "title": null,
+              "published_at": null,
+              "retrieved_at": null,
+              "source_type": "unknown",
+              "content": "Văn phòng tổng thống Brazil xác nhận Tổng thống Luiz Inácio Lula da Silva đã hủy chuyến công du được mong đợi đến Trung Quốc do vấn đề sức khỏe. Văn phòng tổng thống Brazil ngày 25.3 xác nhận Tổng thống Luiz Inácio Lula da Silva đã hủy chuyến công du Trung Quốc do mắc bệnh viêm phổi, hãng tin Reuters đưa tin. Theo thông tin từ văn phòng tổng thống, ông Lula, 77 tuổi, đã được đưa vào bệnh viện với các triệu chứng giống như cúm và được chẩn đoán mắc “viêm phế quản phổi do vi khuẩn và vi rút cúm A”.",
+              "origin": "local"
+            },
+            {
+              "passage_id": "vifactcheck_01030_p002",
+              "document_id": "vifactcheck_01030",
+              "score": 46.60532886026909,
+              "source": "VnExpress",
+              "url": "https://vnexpress.net/tong-thong-brazil-hoan-tham-trung-quoc-vi-viem-phoi-4585646.html",
+              "domain": "",
+              "title": null,
+              "published_at": null,
+              "retrieved_at": null,
+              "source_type": "unknown",
+              "content": "\"Tình trạng của ông ấy đã cải thiện, nhưng các bác sĩ phụ trách y tế cho Tổng thống vẫn khuyến nghị ông hoãn chuyến thăm Trung Quốc\" tới khi khỏi hoàn toàn, chính quyền Brazil dẫn lời bác sĩ Ana Helena Germoglio trong thông báo. Kể từ khi nhậm chức ba tháng trước, ông Lula đã tới thăm Argentina và Mỹ. Trung Quốc là đối tác thương mại lớn nhất của Brazil và thương mại đã được kỳ vọng là chủ đề quan trọng trong chương trình nghị sự của ông Lula tại Bắc Kinh. Năm ngoái, kim ngạch thương mại song phương vượt 150 tỷ USD. Tổng thống Brazil coi Trung Quốc là \"đồng minh quan trọng\" trong sáng kiến của mình về thành lập nhóm quốc gia giúp đàm phán thỏa thuận hòa bình cho Nga và Ukraine.",
+              "origin": "local"
+            }
+          ]
+        },
+        "citations": [
+          {
+            "passage_id": "vifactcheck_01030_p001",
+            "document_id": "vifactcheck_01030",
+            "score": 88.83361581583293,
+            "source": "VnExpress",
+            "url": "https://vnexpress.net/tong-thong-brazil-hoan-tham-trung-quoc-vi-viem-phoi-4585646.html",
+            "domain": "",
+            "title": null,
+            "published_at": null,
+            "retrieved_at": null,
+            "source_type": "unknown",
+            "content": "Tổng thống Brazil Lula hoãn chuyến thăm 6 ngày tới Trung Quốc do bệnh viêm phổi chưa khỏi hẳn. Chính quyền Brazil ngày 25/3 thông báo Tổng thống Luiz Inacio Lula da Silva, 77 tuổi, sẽ hoãn lịch trình thăm Trung Quốc. Giới chức cho hay chưa có lịch thăm mới, nói thêm đã gửi thông báo tới Trung Quốc. Theo kế hoạch ban đầu, ông Lula lên đường sang Trung Quốc vào 25/3 nhưng lịch này bị lùi lại một ngày do Tổng thống Brazil \"viêm phổi nhẹ\" và đang dùng thuốc điều trị, văn phòng tổng thống cho hay. Tuy nhiên, các bác sĩ đề nghị ông hoãn chuyến đi dài 20 giờ bay sau cuộc kiểm tra sức khỏe ngày 25/3.",
+            "origin": "local"
+          }
+        ],
+        "diagnostics": {
+          "mode": "local",
+          "settings": {
+            "top_k": 3,
+            "guard": false,
+            "minimal_pair": true,
+            "evidence_view": "ensemble",
+            "corpus": "data/evidence/vifactcheck_passages.jsonl"
+          },
+          "fallback_reason": null,
+          "web_status": null
+        }
+      }
+    },
+    {
+      "id": "D3",
+      "mode": "local",
+      "expected": "REFUTED",
+      "title": "Thêm phủ định",
+      "claim": "Tổng thống Brazil Lula không hoãn chuyến thăm 6 ngày tới Trung Quốc do bệnh viêm phổi chưa khỏi hẳn.",
+      "why": "Nguồn khẳng định có hoãn; claim phủ định.",
+      "predicted": "REFUTED",
+      "confidence": 0.85,
+      "match": true,
+      "cited_url": "https://vnexpress.net/tong-thong-brazil-hoan-tham-trung-quoc-vi-viem-phoi-4585646.html",
+      "cited_origin": "local",
+      "minimal_pair_reason": "contradiction:negation",
+      "guard_reason": null,
+      "engine": "phobert",
+      "response": {
+        "schema_version": "w3-03/v1",
+        "verdict": {
+          "label": "REFUTED",
+          "confidence": 0.85,
+          "explanation": "[minimal-pair] Claim gần như trùng một câu trong nguồn nhưng khác yếu tố then chốt (negation: claim 'không' ≠ nguồn '∅') (trước đó: SUPPORTED)."
+        },
+        "retrieval": {
+          "retrieved_count": 3,
+          "positive_score_count": 3,
+          "evidence": [
+            {
+              "passage_id": "vifactcheck_01030_p001",
+              "document_id": "vifactcheck_01030",
+              "score": 91.46591825832529,
+              "source": "VnExpress",
+              "url": "https://vnexpress.net/tong-thong-brazil-hoan-tham-trung-quoc-vi-viem-phoi-4585646.html",
+              "domain": "",
+              "title": null,
+              "published_at": null,
+              "retrieved_at": null,
+              "source_type": "unknown",
+              "content": "Tổng thống Brazil Lula hoãn chuyến thăm 6 ngày tới Trung Quốc do bệnh viêm phổi chưa khỏi hẳn. Chính quyền Brazil ngày 25/3 thông báo Tổng thống Luiz Inacio Lula da Silva, 77 tuổi, sẽ hoãn lịch trình thăm Trung Quốc. Giới chức cho hay chưa có lịch thăm mới, nói thêm đã gửi thông báo tới Trung Quốc. Theo kế hoạch ban đầu, ông Lula lên đường sang Trung Quốc vào 25/3 nhưng lịch này bị lùi lại một ngày do Tổng thống Brazil \"viêm phổi nhẹ\" và đang dùng thuốc điều trị, văn phòng tổng thống cho hay. Tuy nhiên, các bác sĩ đề nghị ông hoãn chuyến đi dài 20 giờ bay sau cuộc kiểm tra sức khỏe ngày 25/3.",
+              "origin": "local"
+            },
+            {
+              "passage_id": "vifactcheck_00742_p001",
+              "document_id": "vifactcheck_00742",
+              "score": 61.56759880984204,
+              "source": "Thanh Niên",
+              "url": "https://thanhnien.vn/tong-thong-brazil-huy-cong-du-trung-quoc-185230326071228807.htm",
+              "domain": "",
+              "title": null,
+              "published_at": null,
+              "retrieved_at": null,
+              "source_type": "unknown",
+              "content": "Văn phòng tổng thống Brazil xác nhận Tổng thống Luiz Inácio Lula da Silva đã hủy chuyến công du được mong đợi đến Trung Quốc do vấn đề sức khỏe. Văn phòng tổng thống Brazil ngày 25.3 xác nhận Tổng thống Luiz Inácio Lula da Silva đã hủy chuyến công du Trung Quốc do mắc bệnh viêm phổi, hãng tin Reuters đưa tin. Theo thông tin từ văn phòng tổng thống, ông Lula, 77 tuổi, đã được đưa vào bệnh viện với các triệu chứng giống như cúm và được chẩn đoán mắc “viêm phế quản phổi do vi khuẩn và vi rút cúm A”.",
+              "origin": "local"
+            },
+            {
+              "passage_id": "vifactcheck_01030_p002",
+              "document_id": "vifactcheck_01030",
+              "score": 46.60532886026909,
+              "source": "VnExpress",
+              "url": "https://vnexpress.net/tong-thong-brazil-hoan-tham-trung-quoc-vi-viem-phoi-4585646.html",
+              "domain": "",
+              "title": null,
+              "published_at": null,
+              "retrieved_at": null,
+              "source_type": "unknown",
+              "content": "\"Tình trạng của ông ấy đã cải thiện, nhưng các bác sĩ phụ trách y tế cho Tổng thống vẫn khuyến nghị ông hoãn chuyến thăm Trung Quốc\" tới khi khỏi hoàn toàn, chính quyền Brazil dẫn lời bác sĩ Ana Helena Germoglio trong thông báo. Kể từ khi nhậm chức ba tháng trước, ông Lula đã tới thăm Argentina và Mỹ. Trung Quốc là đối tác thương mại lớn nhất của Brazil và thương mại đã được kỳ vọng là chủ đề quan trọng trong chương trình nghị sự của ông Lula tại Bắc Kinh. Năm ngoái, kim ngạch thương mại song phương vượt 150 tỷ USD. Tổng thống Brazil coi Trung Quốc là \"đồng minh quan trọng\" trong sáng kiến của mình về thành lập nhóm quốc gia giúp đàm phán thỏa thuận hòa bình cho Nga và Ukraine.",
+              "origin": "local"
+            }
+          ]
+        },
+        "citations": [
+          {
+            "passage_id": "vifactcheck_01030_p001",
+            "document_id": "vifactcheck_01030",
+            "score": 91.46591825832529,
+            "source": "VnExpress",
+            "url": "https://vnexpress.net/tong-thong-brazil-hoan-tham-trung-quoc-vi-viem-phoi-4585646.html",
+            "domain": "",
+            "title": null,
+            "published_at": null,
+            "retrieved_at": null,
+            "source_type": "unknown",
+            "content": "Tổng thống Brazil Lula hoãn chuyến thăm 6 ngày tới Trung Quốc do bệnh viêm phổi chưa khỏi hẳn. Chính quyền Brazil ngày 25/3 thông báo Tổng thống Luiz Inacio Lula da Silva, 77 tuổi, sẽ hoãn lịch trình thăm Trung Quốc. Giới chức cho hay chưa có lịch thăm mới, nói thêm đã gửi thông báo tới Trung Quốc. Theo kế hoạch ban đầu, ông Lula lên đường sang Trung Quốc vào 25/3 nhưng lịch này bị lùi lại một ngày do Tổng thống Brazil \"viêm phổi nhẹ\" và đang dùng thuốc điều trị, văn phòng tổng thống cho hay. Tuy nhiên, các bác sĩ đề nghị ông hoãn chuyến đi dài 20 giờ bay sau cuộc kiểm tra sức khỏe ngày 25/3.",
+            "origin": "local"
+          }
+        ],
+        "diagnostics": {
+          "mode": "local",
+          "settings": {
+            "top_k": 3,
+            "guard": false,
+            "minimal_pair": true,
+            "evidence_view": "ensemble",
+            "corpus": "data/evidence/vifactcheck_passages.jsonl"
+          },
+          "fallback_reason": null,
+          "web_status": null,
+          "minimal_pair_reason": "contradiction:negation"
+        }
+      }
+    },
+    {
+      "id": "D4",
+      "mode": "local",
+      "expected": "REFUTED",
+      "title": "Claim sai trong test ViFactCheck",
+      "claim": "Kể từ năm 2015 đến nay, theo Kyodo Nhật Bản đã bị Trung Quốc bắt vì tình nghi tham gia hoạt động gián điệp ít nhất 20 công dân Nhật.",
+      "why": "Nhãn người REFUTED (test row 177); verifier phải đọc hiểu, không chỉ khớp từ.",
+      "predicted": "REFUTED",
+      "confidence": 0.9918,
+      "match": true,
+      "cited_url": "https://vnexpress.net/trung-quoc-bat-mot-nguoi-nhat-voi-cao-buoc-gian-diep-4585952.html",
+      "cited_origin": "local",
+      "minimal_pair_reason": null,
+      "guard_reason": null,
+      "engine": "phobert",
+      "response": {
+        "schema_version": "w3-03/v1",
+        "verdict": {
+          "label": "REFUTED",
+          "confidence": 0.9918,
+          "explanation": "PhoBERT đánh giá phát biểu mâu thuẫn với bằng chứng đã trích dẫn."
+        },
+        "retrieval": {
+          "retrieved_count": 3,
+          "positive_score_count": 3,
+          "evidence": [
+            {
+              "passage_id": "vifactcheck_01033_p003",
+              "document_id": "vifactcheck_01033",
+              "score": 91.9281406244341,
+              "source": "VnExpress",
+              "url": "https://vnexpress.net/trung-quoc-bat-mot-nguoi-nhat-voi-cao-buoc-gian-diep-4585952.html",
+              "domain": "",
+              "title": null,
+              "published_at": null,
+              "retrieved_at": null,
+              "source_type": "unknown",
+              "content": "Ít nhất 16 công dân Nhật Bản đã bị Trung Quốc bắt vì tình nghi tham gia hoạt động gián điệp kể từ năm 2015, theo Kyodo. Hồi tháng 10/2019, Trung Quốc bắt một giáo sư Nhật Bản với nghi ngờ làm gián điệp. Người này được trả tự do và quay về Nhật Bản vào tháng sau đó. Ngọc Ánh (Theo AFP/Reuters)",
+              "origin": "local"
+            },
+            {
+              "passage_id": "vifactcheck_01033_p002",
+              "document_id": "vifactcheck_01033",
+              "score": 50.03728677309676,
+              "source": "VnExpress",
+              "url": "https://vnexpress.net/trung-quoc-bat-mot-nguoi-nhat-voi-cao-buoc-gian-diep-4585952.html",
+              "domain": "",
+              "title": null,
+              "published_at": null,
+              "retrieved_at": null,
+              "source_type": "unknown",
+              "content": "Phát ngôn viên hãng dược đa quốc gia có trụ sở tại Nhật Bản Astellas Pharma hôm 26/3 xác nhận người bị bắt ở Trung Quốc là nhân viên công ty. Astellas Pharma không nêu danh tính và không rõ lý do nhân viên bị bắt. Phát ngôn viên Bộ Ngoại giao Trung Quốc Mao Ninh cùng ngày xác nhận nước này đang giữ một công dân Nhật Bản vì nghi ngờ người này \"tham gia các hoạt động gián điệp, vi phạm luật hình sự và luật chống gián điệp của Trung Quốc\". Bà Mao nói thêm Trung Quốc là quốc gia thượng tôn pháp luật, mọi công dân nước ngoài đều phải tuân thủ luật pháp nước này và những người có tội đều sẽ bị truy tố theo luật.",
+              "origin": "local"
+            },
+            {
+              "passage_id": "vifactcheck_01033_p001",
+              "document_id": "vifactcheck_01033",
+              "score": 46.11678213779174,
+              "source": "VnExpress",
+              "url": "https://vnexpress.net/trung-quoc-bat-mot-nguoi-nhat-voi-cao-buoc-gian-diep-4585952.html",
+              "domain": "",
+              "title": null,
+              "published_at": null,
+              "retrieved_at": null,
+              "source_type": "unknown",
+              "content": "Trung Quốc bắt một nhân viên hãng dược Nhật với nghi ngờ tham gia hoạt động gián điệp, Tokyo kêu gọi Bắc Kinh thả người này. Phát ngôn viên chính phủ Nhật Bản Hirokazu Matsuno ngày 27/3 cho biết đại sứ quán nước này tại Bắc Kinh đã được thông báo rằng \"một người đàn ông Nhật Bản ngoài 50 tuổi bị bắt tại Bắc Kinh vì vi phạm luật pháp Trung Quốc trong tháng này\". Ông Matsuno không cung cấp thông tin chi tiết như danh tính hay thời điểm người đàn ông Nhật Bản bị bắt ở Bắc Kinh. Ông cho biết ngay khi nhận tin, chính phủ Nhật Bản đã thúc giục Bắc Kinh lập tức trả tự do cho công dân, thêm rằng Tokyo đang tìm cách tiếp cận lãnh sự với người này.",
+              "origin": "local"
+            }
+          ]
+        },
+        "citations": [
+          {
+            "passage_id": "vifactcheck_01033_p003",
+            "document_id": "vifactcheck_01033",
+            "score": 91.9281406244341,
+            "source": "VnExpress",
+            "url": "https://vnexpress.net/trung-quoc-bat-mot-nguoi-nhat-voi-cao-buoc-gian-diep-4585952.html",
+            "domain": "",
+            "title": null,
+            "published_at": null,
+            "retrieved_at": null,
+            "source_type": "unknown",
+            "content": "Ít nhất 16 công dân Nhật Bản đã bị Trung Quốc bắt vì tình nghi tham gia hoạt động gián điệp kể từ năm 2015, theo Kyodo. Hồi tháng 10/2019, Trung Quốc bắt một giáo sư Nhật Bản với nghi ngờ làm gián điệp. Người này được trả tự do và quay về Nhật Bản vào tháng sau đó. Ngọc Ánh (Theo AFP/Reuters)",
+            "origin": "local"
+          }
+        ],
+        "diagnostics": {
+          "mode": "local",
+          "settings": {
+            "top_k": 3,
+            "guard": false,
+            "minimal_pair": true,
+            "evidence_view": "ensemble",
+            "corpus": "data/evidence/vifactcheck_passages.jsonl"
+          },
+          "fallback_reason": null,
+          "web_status": null
+        }
+      }
+    },
+    {
+      "id": "D5",
+      "mode": "local",
+      "expected": "NOT_ENOUGH_INFO",
+      "title": "Kho không đủ thông tin",
+      "claim": "Đông Nam Á được xem là vùng trũng của bóng đá thế giới, đặc biệt là sau sự thành công của đội tuyển U23 Việt Nam.",
+      "why": "Nhãn người NEI (test row 806): bài liên quan có trong kho nhưng không xác nhận nhận định này.",
+      "predicted": "NOT_ENOUGH_INFO",
+      "confidence": 0.9946,
+      "match": true,
+      "cited_url": null,
+      "cited_origin": null,
+      "minimal_pair_reason": null,
+      "guard_reason": null,
+      "engine": "phobert",
+      "response": {
+        "schema_version": "w3-03/v1",
+        "verdict": {
+          "label": "NOT_ENOUGH_INFO",
+          "confidence": 0.9946,
+          "explanation": "PhoBERT không tìm thấy bằng chứng đủ mạnh để kết luận ủng hộ hoặc bác bỏ."
+        },
+        "retrieval": {
+          "retrieved_count": 3,
+          "positive_score_count": 3,
+          "evidence": [
+            {
+              "passage_id": "vifactcheck_00764_p003",
+              "document_id": "vifactcheck_00764",
+              "score": 59.64668048699693,
+              "source": "Tiền Phong",
+              "url": "https://tienphong.vn/asean-xuc-tien-ho-so-xin-dang-cai-world-cup-2034-post1520440.tpo",
+              "domain": "",
+              "title": null,
+              "published_at": null,
+              "retrieved_at": null,
+              "source_type": "unknown",
+              "content": "Đông Nam Á được xem là vùng trũng của bóng đá thế giới và quyết định gửi hồ sơ xin đăng cai World Cup 2034 có thể là động lực quan trọng để giúp bóng đá khu vực phát triển mạnh trong tương lai.",
+              "origin": "local"
+            },
+            {
+              "passage_id": "vifactcheck_00149_p003",
+              "document_id": "vifactcheck_00149",
+              "score": 43.633750160792175,
+              "source": "Chính Phủ",
+              "url": "https://baochinhphu.vn/vff-da-chon-duoc-nguoi-ke-nhiem-hlv-park-hang-seo-102230216162644434.htm",
+              "domain": "",
+              "title": null,
+              "published_at": null,
+              "retrieved_at": null,
+              "source_type": "unknown",
+              "content": "Nhiệm vụ đầu tiên của tân HLV trưởng sẽ là xây dựng lực lượng và kế hoạch hoạt động của Đội tuyển U23 quốc gia, dự kiến sẽ tập trung vào đầu tháng 3 tới nhằm chuẩn bị cho SEA Game 32. Ông Philippe Troussier sinh ngày 21/3/1955 tại Paris, Pháp. Ông được biết đến là một chuyên gia bóng đá dày dạn kinh nghiệm khi từng đảm nhiệm cương vị huấn luyện trưởng tại nhiều đội bóng khác nhau trên thế giới, ở cấp câu lạc bộ cũng như cấp đội tuyển quốc gia. Tại Việt Nam, ông Philippe Troussier đã có 3 năm làm việc trên cương vị Giám đốc Kỹ thuật của Quỹ Đào tạo tài năng bóng đá trẻ PVF và từng dẫn dắt Đội tuyển U19 Việt Nam giành vé tham dự vòng chung kết U19 châu Á 2020. BT",
+              "origin": "local"
+            },
+            {
+              "passage_id": "vifactcheck_00504_p004",
+              "document_id": "vifactcheck_00504",
+              "score": 43.32592890268473,
+              "source": "Người lao động",
+              "url": "https://nld.com.vn/the-thao/u23-viet-nam-gat-hai-gi-qua-doha-cup-2023-20230329210853849.htm",
+              "domain": "",
+              "title": null,
+              "published_at": null,
+              "retrieved_at": null,
+              "source_type": "unknown",
+              "content": "Tuy nhiên, để gặt hái được những thành tích ấn tượng, tạo cột mốc lịch sử, đoàn quân của HLV Park Hang-seo cũng phải trải qua nhiều thử thách khó khăn, đặc biệt là tìm được chiến thuật, lối chơi phù hợp với trình độ, thể trạng của cầu thủ Việt Nam. Dưới thời HLV Park Hang-seo, các cấp đội tuyển Việt Nam không ngán ngại các đội bóng đến từ Tây Á. Lối chơi thiên về phòng ngự do chiến lược gia người Hàn Quốc áp đặt lên các học trò chưa mãn nhãn người xem nhưng việc triển khai nhuần nhuyễn đấu pháp \"phòng ngự chặt, phản công nhanh\" đã mang lại hiệu quả tích cực, giúp bóng đá Việt Nam vươn lên tầm cao mới ở đấu trường châu Á cũng như thế giới trong những năm qua.",
+              "origin": "local"
+            }
+          ]
+        },
+        "citations": [],
+        "diagnostics": {
+          "mode": "local",
+          "settings": {
+            "top_k": 3,
+            "guard": false,
+            "minimal_pair": true,
+            "evidence_view": "ensemble",
+            "corpus": "data/evidence/vifactcheck_passages.jsonl"
+          },
+          "fallback_reason": null,
+          "web_status": null
+        }
+      }
+    }
+  ]
+}

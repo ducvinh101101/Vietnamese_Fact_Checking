@@ -346,7 +346,7 @@ case(C, "NOT_ENOUGH_INFO", "Nhóm Hoa Giấy đã đạt mục tiêu trồng 100
 
 
 def dump_jsonl(path: Path, rows: list[dict]) -> None:
-    path.write_text("".join(json.dumps(row, ensure_ascii=False) + "\n" for row in rows), encoding="utf-8")
+    path.write_text("".join(json.dumps(row, ensure_ascii=False) + "\n" for row in rows), encoding="utf-8", newline="\n")
 
 
 def main() -> None:
@@ -383,9 +383,10 @@ def main() -> None:
         "external_fact_sources_used": False,
         "project_model_outputs_used": False,
         "second_annotator_reviewed": False,
-        "sha256": {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest() for name in files},
+        # LF-normalised, matching scripts/evaluate_model_gold.text_sha256 (CRLF checkouts still validate).
+        "sha256": {name: hashlib.sha256((ROOT / name).read_bytes().replace(b"\r\n", b"\n")).hexdigest() for name in files},
     }
-    (ROOT / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    (ROOT / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
     print(f"Wrote {len(gold)} cases; balanced labels; manifest saved to {ROOT / 'manifest.json'}")
 
 

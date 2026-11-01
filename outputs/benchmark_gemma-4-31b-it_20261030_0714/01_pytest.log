@@ -1,0 +1,50 @@
+........................................................................ [ 21%]
+............................ss.......................................... [ 42%]
+........................................................................ [ 64%]
+........................................................................ [ 85%]
+...............................................                          [100%]Running teardown with pytest sessionfinish...
+
+============================== warnings summary ===============================
+tests/test_gradio_ui.py::test_ui_builds_with_all_modes_and_examples
+  D:\user\Desktop\Github\XLNNTN\app_gradio.py:209: DeprecationWarning: The 'theme' parameter in the Blocks constructor will be removed in Gradio 6.0. You will need to pass 'theme' to Blocks.launch() instead.
+    with gr.Blocks(theme=theme, css=CSS, title="Kiểm chứng thông tin tiếng Việt") as demo:
+
+tests/test_gradio_ui.py::test_ui_builds_with_all_modes_and_examples
+  D:\user\Desktop\Github\XLNNTN\app_gradio.py:209: DeprecationWarning: The 'css' parameter in the Blocks constructor will be removed in Gradio 6.0. You will need to pass 'css' to Blocks.launch() instead.
+    with gr.Blocks(theme=theme, css=CSS, title="Kiểm chứng thông tin tiếng Việt") as demo:
+
+tests/test_gradio_ui.py::test_ui_builds_with_all_modes_and_examples
+tests/test_gradio_ui.py::test_ui_builds_with_all_modes_and_examples
+tests/test_gradio_ui.py::test_ui_builds_with_all_modes_and_examples
+tests/test_gradio_ui.py::test_ui_builds_with_all_modes_and_examples
+  C:\Users\PC\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\gradio\component_meta.py:189: DeprecationWarning: The default value of 'padding' in gr.HTML will be changed from True to False in Gradio 6.0. You will need to explicitly set padding=True if you want to keep the padding.
+    return fn(self, **kwargs)
+
+tests/test_gradio_ui.py::test_ui_builds_with_all_modes_and_examples
+  C:\Users\PC\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\gradio\helpers.py:445: DeprecationWarning: The 'show_api' parameter in event listeners will be removed in Gradio 6.0. You will need to use the 'api_visibility' parameter instead. To replicate show_api=False, in Gradio 6.0, use api_visibility='undocumented'.
+    self.load_input_event = self.dataset.click(
+
+tests/test_gradio_ui.py::test_ui_builds_with_all_modes_and_examples
+  C:\Users\PC\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\gradio\helpers.py:85: DeprecationWarning: The 'show_api' parameter in event listeners will be removed in Gradio 6.0. You will need to use the 'api_visibility' parameter instead. To replicate show_api=False, in Gradio 6.0, use api_visibility='undocumented'.
+    examples_obj.create()
+
+tests/test_gradio_ui.py::test_ui_builds_with_all_modes_and_examples
+  C:\Users\PC\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\gradio\components\clear_button.py:105: DeprecationWarning: The 'show_api' parameter in event listeners will be removed in Gradio 6.0. You will need to use the 'api_visibility' parameter instead. To replicate show_api=False, in Gradio 6.0, use api_visibility='undocumented'.
+    self.click(
+
+tests/test_gradio_ui.py::test_ui_builds_with_all_modes_and_examples
+  D:\user\Desktop\Github\XLNNTN\app_gradio.py:241: DeprecationWarning: The 'show_api' parameter in event listeners will be removed in Gradio 6.0. You will need to use the 'api_visibility' parameter instead. To replicate show_api=False, in Gradio 6.0, use api_visibility='undocumented'.
+    clear.add([claim, *outputs])
+
+tests/test_gradio_ui.py::test_blank_claim_returns_empty_outputs
+  C:\Users\PC\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\gradio\helpers.py:1141: UserWarning: Vui lòng nhập phát biểu cần kiểm chứng.
+    warnings.warn(message)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+Test tests/test_corpus_deep.py::test_claim_leak_into_corpus was skipped. 
+Reason: ('D:\\user\\Desktop\\Github\\XLNNTN\\tests\\test_corpus_deep.py', 177, 
+'Skipped: FC_TEST_CLAIMS environment variable not set or file does not exist.')
+Test tests/test_corpus_deep.py::test_heldout_urls_not_in_corpus was skipped. 
+Reason: ('D:\\user\\Desktop\\Github\\XLNNTN\\tests\\test_corpus_deep.py', 207, 
+'Skipped: FC_HELDOUT environment variable not set or file does not exist.')
+333 passed, 2 skipped, 11 warnings in 414.32s (0:06:54)

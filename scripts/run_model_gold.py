@@ -72,6 +72,11 @@ def protocol_prompt():
     return protocol.split(marker, 1)[1].split("```", 1)[0].strip()
 
 
+def text_sha256(path):
+    """Line-ending independent hash for the frozen text files (see evaluate_model_gold)."""
+    return hashlib.sha256(Path(path).read_bytes().replace(b"\r\n", b"\n")).hexdigest()
+
+
 def sha256(path):
     digest = hashlib.sha256()
     with path.open("rb") as stream:
@@ -139,7 +144,14 @@ def main():
     parser.add_argument("--timeout", type=float, default=90)
     parser.add_argument("--max-output-tokens", type=int, default=4096)
     parser.add_argument("--temperature", type=float)
+    parser.add_argument("--json-mode", choices=("schema", "mime", "prompt"), default="schema",
+                        help="Gemini API JSON mode; 'prompt' for models whose endpoint rejects JSON mode (e.g. some Gemma)")
     parser.add_argument("--pause-seconds", type=float, default=1, help="Pause between Gemini requests; no automatic retries")
+    parser.add_argument("--max-retries", type=int, default=0,
+                        help="Gemini only: retry transient HTTP 429/500/502/503/504 or network errors (label-blind); counted in metadata")
+    parser.add_argument("--resume-from", type=Path,
+                        help="Gemini only: copy successful rows from an earlier run of the SAME model/prompt/inputs and "
+                             "call the API only for its failed (label null) cases; equivalent to a label-blind retry")
     parser.add_argument("--dry-run", action="store_true", help="Validate blind inputs and export run metadata; no model/API call")
     args = parser.parse_args()
     try:
@@ -151,14 +163,40 @@ def main():
             records = records[:args.limit]
         if args.pause_seconds < 0:
             raise ValueError("--pause-seconds cannot be negative")
+        reused = {}
+        if args.resume_from:
+            if args.backend != "gemini":
+                raise ValueError("--resume-from is only available for Gemini")
+            previous_meta = json.loads(args.resume_from.with_name(args.resume_from.stem + ".run.json").read_text(encoding="utf-8"))
+            previous_model = previous_meta.get("model")
+            wanted_model = args.model or os.environ.get("GEMINI_MODEL")
+            if previous_model != wanted_model:
+                raise ValueError(f"--resume-from was made with model {previous_model}, not {wanted_model}")
+            if previous_meta.get("prompt_sha256") != hashlib.sha256(protocol_prompt().encode("utf-8")).hexdigest():
+                raise ValueError("--resume-from used a different prompt")
+            previous_raw = {}
+            raw_file = args.resume_from.with_name(args.resume_from.stem + ".raw.jsonl")
+            if raw_file.exists():
+                for line in raw_file.read_text(encoding="utf-8").splitlines():
+                    if line.strip():
+                        item = json.loads(line)
+                        previous_raw[item["id"]] = item.get("response")
+            for line in args.resume_from.read_text(encoding="utf-8").splitlines():
+                if line.strip():
+                    row = json.loads(line)
+                    if row.get("label"):
+                        row["reused_from_previous_run"] = True
+                        reused[row["id"]] = (row, previous_raw.get(row["id"]))
+        if args.max_retries < 0:
+            raise ValueError("--max-retries cannot be negative")
         if args.backend != "phobert" and args.project_rules:
             raise ValueError("--project-rules is only available for PhoBERT")
         prompt = protocol_prompt()
-        input_hash = sha256(args.inputs)
+        input_hash = text_sha256(args.inputs)
         manifest = json.loads((DEFAULT_INPUTS.parent / "manifest.json").read_text(encoding="utf-8"))
         if input_hash != manifest["sha256"]["inputs.jsonl"]:
             raise ValueError("Inputs do not match the frozen 84-case dataset")
-        if sha256(DEFAULT_PROTOCOL) != manifest["sha256"]["PROTOCOL.md"]:
+        if text_sha256(DEFAULT_PROTOCOL) != manifest["sha256"]["PROTOCOL.md"]:
             raise ValueError("Frozen protocol changed; do not silently change the comparison prompt")
         output = args.output.resolve()
         metadata_path = output.with_name(output.stem + ".run.json")
@@ -176,12 +214,15 @@ def main():
             "dataset_version": manifest["dataset_version"], "inputs_sha256": input_hash,
             "prompt_sha256": hashlib.sha256(prompt.encode("utf-8")).hexdigest(),
             "runner_sha256": sha256(Path(__file__)), "python": sys.version,
-            "gold_labels_loaded": False, "external_search": False, "automatic_retries": 0,
+            "gold_labels_loaded": False, "external_search": False,
+            "automatic_retries": args.max_retries if args.backend == "gemini" else 0,
             "dry_run": args.dry_run, "model": model if args.backend == "gemini" else "phobert_rt_v2_balanced",
         }
         if args.backend == "gemini":
             metadata["generation"] = {"temperature": args.temperature, "max_output_tokens": args.max_output_tokens,
-                                      "timeout": args.timeout, "pause_seconds": args.pause_seconds}
+                                      "timeout": args.timeout, "pause_seconds": args.pause_seconds,
+                                      "max_retries": args.max_retries,
+                                      "json_mode": args.json_mode}
             metadata["client_sha256"] = sha256(ROOT / "src/gemini_gold.py")
         if args.dry_run:
             output.parent.mkdir(parents=True, exist_ok=True)
@@ -191,7 +232,7 @@ def main():
         if args.backend == "gemini":
             from src.gemini_gold import GeminiGoldClient
             client = GeminiGoldClient(model, timeout=args.timeout, max_output_tokens=args.max_output_tokens,
-                                      temperature=args.temperature)
+                                      temperature=args.temperature, json_mode=args.json_mode)
         else:
             os.environ.setdefault("HF_HOME", str(ROOT / ".cache/huggingface"))
             verifier, raw_verifier, settings = build_phobert(args.config, args.project_rules)
@@ -200,14 +241,35 @@ def main():
             metadata["config_sha256"] = sha256(args.config if args.config.is_absolute() else ROOT / args.config)
         output.parent.mkdir(parents=True, exist_ok=True)
         metadata_path.write_text(json.dumps(metadata, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-        failures, truncated = 0, 0
+        failures, truncated, retries_used = 0, 0, 0
         with output.open("x", encoding="utf-8") as predictions, raw_path.open("x", encoding="utf-8") as raw_log:
             for index, record in enumerate(records, 1):
+                if record["id"] in reused:
+                    prediction, raw = reused[record["id"]]
+                    predictions.write(json.dumps(prediction, ensure_ascii=False) + "\n")
+                    raw_log.write(json.dumps({"id": record["id"], "response": raw}, ensure_ascii=False) + "\n")
+                    print(f"{index:02d}/{len(records)} {record['id']} {prediction['label']} (reused)", flush=True)
+                    continue
                 started = time.perf_counter()
                 raw = None
                 try:
                     if args.backend == "gemini":
-                        prediction, raw = client.predict(record, prompt)
+                        attempt = 0
+                        while True:
+                            try:
+                                prediction, raw = client.predict(record, prompt)
+                                break
+                            except RuntimeError as error:
+                                text = str(error)
+                                transient = any(f"HTTP {code}" in text for code in (429, 500, 502, 503, 504)) \
+                                    or "network/timeout" in text
+                                if not transient or attempt >= args.max_retries:
+                                    raise
+                                attempt += 1
+                                retries_used += 1
+                                time.sleep(min(60.0, 5.0 * 2 ** (attempt - 1)))
+                        if attempt:
+                            prediction["retries"] = attempt
                     else:
                         prediction = phobert_prediction(record, verifier, raw_verifier)
                         truncated += int(prediction["input_diagnostics"]["pairs_over_limit"] > 0)
@@ -231,6 +293,8 @@ def main():
                     time.sleep(args.pause_seconds)
         metadata.update(finished_at_utc=datetime.now(timezone.utc).isoformat(), failed_cases=failures,
                         cases_with_truncated_pairs=truncated if args.backend == "phobert" else None,
+                        retries_used=retries_used, reused_cases=len(reused),
+                        resumed_from=str(args.resume_from) if args.resume_from else None,
                         predictions_sha256=sha256(output))
         metadata_path.write_text(json.dumps(metadata, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         print(f"Saved {output}; failures={failures}; truncated_cases={truncated}")

@@ -1,0 +1,32 @@
+{
+  "started_at_utc": "2026-10-30T12:40:12.857256+00:00",
+  "backend": "gemini",
+  "case_count": 84,
+  "full_dataset": true,
+  "dataset_version": "vi-evidence-gold-v1",
+  "inputs_sha256": "1899b07f52585badf9d4909262495d62ab88a1cf1c6c80d5a9c32d65059a60f4",
+  "prompt_sha256": "0a91e0629ca2ddb9d514d23070e559c0bb4879fd097dff5068712b8e00a7b44e",
+  "runner_sha256": "30aa1a54bb5a58ff7343b3ec60c787d0c29d04cc7aa96d164a6865ce6e40e4e0",
+  "python": "3.13.14 (tags/v3.13.14:fd17997, Jun 10 2026, 13:03:48) [MSC v.1944 64 bit (AMD64)]",
+  "gold_labels_loaded": false,
+  "external_search": false,
+  "automatic_retries": 6,
+  "dry_run": false,
+  "model": "gemma-4-31b-it",
+  "generation": {
+    "temperature": null,
+    "max_output_tokens": 8192,
+    "timeout": 180.0,
+    "pause_seconds": 4.0,
+    "max_retries": 6,
+    "json_mode": "schema"
+  },
+  "client_sha256": "3b5724177e62013da70ccd93dd9071f019ed18cb4463233818d521ea8fdb0956",
+  "finished_at_utc": "2026-10-30T15:13:30.555600+00:00",
+  "failed_cases": 8,
+  "cases_with_truncated_pairs": null,
+  "retries_used": 145,
+  "reused_cases": 32,
+  "resumed_from": "outputs\\benchmark_gemma-4-31b-it_20261030_0714\\llm_gemma-4-31b-it.jsonl",
+  "predictions_sha256": "7780a987dc15f31889d5b3c18c7db4efbb267aec27d7c2a1756c43252e13db03"
+}
