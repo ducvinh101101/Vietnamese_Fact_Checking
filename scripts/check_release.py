@@ -57,9 +57,27 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def check_manifest_hash(path: Path, expected: str, fix_line_endings: bool = False) -> tuple[bool, str]:
+    """Repair only CRLF differences whose LF bytes match the frozen manifest."""
+    if not path.exists():
+        return False, "thiếu file"
+    raw = path.read_bytes()
+    if hashlib.sha256(raw).hexdigest() == expected:
+        return True, "khớp"
+    normalized = raw.replace(b"\r\n", b"\n")
+    if normalized != raw and hashlib.sha256(normalized).hexdigest() == expected:
+        if fix_line_endings:
+            path.write_bytes(normalized)
+            return sha256(path) == expected, "đã chuẩn hóa CRLF → LF; SHA-256 khớp manifest"
+        return False, "chỉ khác CRLF → chạy lại với --fix-line-endings để chuẩn hóa LF có kiểm tra hash"
+    return False, "nội dung khác manifest; không tự sửa — cần đối chiếu nguồn dữ liệu"
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--smoke", action="store_true", help="Nạp verifier theo config và chạy 1 claim mẫu")
+    parser.add_argument("--fix-line-endings", action="store_true",
+                        help="Chỉ sửa CRLF → LF khi byte LF khớp đúng SHA-256 manifest; không thay nội dung khác")
     args = parser.parse_args()
     check = Checklist()
 
@@ -119,17 +137,11 @@ def main() -> int:
     if manifest_path.exists():
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
         v2 = ROOT / "data" / "evidence" / "vifactcheck_passages_v2.jsonl"
-        if v2.exists():
-            raw = v2.read_bytes()
-            ok = sha256(v2) == manifest["corpus_sha256"]
-            hint = ""
-            if not ok and hashlib.sha256(raw.replace(b"\r\n", b"\n")).hexdigest() == manifest["corpus_sha256"]:
-                hint = "khác chỉ do CRLF (Git autocrlf) → git config core.autocrlf false; xóa file; git checkout -- data/evidence"
-            check.item(ok, "corpus v2 khớp SHA-256 manifest", hint or ("khớp" if ok else "nội dung đã đổi"))
+        ok, detail = check_manifest_hash(v2, manifest["corpus_sha256"], args.fix_line_endings)
+        check.item(ok, "corpus v2 khớp SHA-256 manifest", detail)
         policy = ROOT / "configs" / "evidence_source_policy.yaml"
-        ok = sha256(policy) == manifest["source_policy_sha256"]
-        check.item(ok, "evidence_source_policy.yaml khớp manifest",
-                   "khớp" if ok else "có thể do CRLF — xem .gitattributes")
+        ok, detail = check_manifest_hash(policy, manifest["source_policy_sha256"], args.fix_line_endings)
+        check.item(ok, "evidence_source_policy.yaml khớp manifest", detail)
     for split in ("dev", "test"):
         path = ROOT / "data" / "processed" / "vifactcheck_group_split" / f"{split}.parquet"
         check.item(path.exists(), f"split {split}", "" if path.exists() else "thiếu")
