@@ -23,6 +23,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from src.web_retriever import WebRetriever
+from src.system_builder import load_dotenv
 
 
 DEFAULT_QUERIES = (
@@ -143,6 +144,7 @@ def report_for_queries(
 
 
 def main() -> int:
+    load_dotenv(ROOT / ".env")
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--query", action="append", help="Query to validate; repeat at least four times.")
     parser.add_argument("--host", action="append", help="Allowlisted host corresponding to each --query.")

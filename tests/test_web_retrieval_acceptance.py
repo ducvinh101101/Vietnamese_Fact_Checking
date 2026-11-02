@@ -1,5 +1,6 @@
 import importlib.util
 from pathlib import Path
+import sys
 
 from src.schemas import Evidence, RetrievedEvidence
 
@@ -56,3 +57,16 @@ def test_acceptance_report_requires_four_allowlisted_domains(monkeypatch):
     serialized = str(report)
     assert "Nội dung passage" not in serialized
     assert report["acceptance"]["no_duplicate_content_per_url"] is True
+
+
+def test_acceptance_cli_loads_project_env(monkeypatch, tmp_path):
+    module = load_acceptance_module()
+    loaded = []
+    monkeypatch.setattr(module, "load_dotenv", lambda path: loaded.append(path))
+    monkeypatch.setattr(module, "report_for_queries", lambda *args: ({"acceptance": {"passed": True}}, True))
+    output = tmp_path / "acceptance.json"
+    monkeypatch.setattr(sys, "argv", ["acceptance", "--output", str(output)])
+
+    assert module.main() == 0
+    assert loaded == [module.ROOT / ".env"]
+    assert output.exists()

@@ -35,11 +35,11 @@ def validate(config):
     for source in policy['allowlist']:
         host = source['host']
         assert host == host.lower() and '*' not in host and '/' not in host
-        assert source['category'] in ['government', 'international', 'press']
+        assert source['category'] in ['government', 'international', 'press', 'corporate']
         assert source['name'] and source['scope']
         assert allowed_url(source['reference'], hosts)
     limits = config['limits']
-    assert limits['requests_per_claim'] == 1
+    assert 1 <= limits['requests_per_claim'] <= 3
     assert 0 < limits['monthly_credit_budget'] <= 900
     assert 0 < limits['requests_per_minute'] <= 10
     assert 0 < limits['timeout_seconds'] <= 30

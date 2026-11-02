@@ -81,6 +81,18 @@ def is_time_sensitive(claim: str) -> bool:
     return recency_class(claim) is not None
 
 
+def window_start(claim: str, reference: date, days: int) -> date:
+    cutoff = reference - timedelta(days=days)
+    text = claim.casefold()
+    if "tháng này" in text:
+        cutoff = max(cutoff, reference.replace(day=1))
+    elif "tuần này" in text:
+        cutoff = max(cutoff, reference - timedelta(days=reference.weekday()))
+    elif "năm nay" in text:
+        cutoff = max(cutoff, reference.replace(month=1, day=1))
+    return cutoff
+
+
 def enrich_query(claim: str, as_of: date | None = None) -> tuple[str, bool]:
     """Trả (truy vấn, đã_chèn). Chèn 'ngày dd/mm/yyyy' nếu claim thời sự."""
     if not is_time_sensitive(claim):
@@ -120,7 +132,7 @@ class TimeAwareRetriever:
             return search_time_window(
                 query,
                 top_k,
-                reference - timedelta(days=window),
+                window_start(claim, reference, window),
                 reference,
                 language="vi",
             )

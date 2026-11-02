@@ -35,6 +35,7 @@ def _evidence_record(item: RetrievedEvidence) -> dict[str, object]:
         "domain": evidence.domain,
         "title": evidence.title,
         "published_at": evidence.published_at,
+        "published_at_source": evidence.published_at_source,
         "retrieved_at": evidence.retrieved_at,
         "source_type": evidence.source_type,
         "content": evidence.content,

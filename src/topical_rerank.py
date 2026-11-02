@@ -88,6 +88,22 @@ def relevance(claim: str, passage: str) -> float:
     return score
 
 
+def eligible(claim: str, passage: str, minimum_coverage: float = 0.35) -> bool:
+    terms = _tokens(claim)
+    overlap = terms & _tokens(passage)
+    if not terms or len(overlap) < min(2, len(terms)) or len(overlap) / len(terms) < minimum_coverage:
+        return False
+    # Require complete multi-word proper names rather than accepting a different
+    # person who happens to share a surname. Numbers may differ in REFUTED evidence.
+    names = re.findall(r"\b[A-ZĐ][a-zà-ỹ]+(?:\s+[A-ZĐ][a-zà-ỹ]+){2,}\b", claim)
+    for name in names:
+        words = name.casefold().split()
+        prefix = " ".join(words[:2])
+        if prefix in passage.casefold() and name.casefold() not in passage.casefold():
+            return False
+    return True
+
+
 def canonical_url(url: str) -> str:
     """Chuẩn hóa URL để gộp CÙNG một bài: bỏ #fragment, tham số theo dõi (utm_*, fbclid...),
     'www.' và '/' cuối. Tham số khác (vd ?id=123) được giữ vì có thể định danh bài."""
@@ -100,6 +116,20 @@ def canonical_url(url: str) -> str:
     host = parts.netloc.casefold().removeprefix("www.")
     path = parts.path.rstrip("/")
     return urlunsplit((parts.scheme.casefold(), host, path, urlencode(sorted(kept)), "")).casefold()
+
+
+class RelevanceFilteredRetriever:
+    """Abstain on weak candidates while preserving the baseline ranking."""
+
+    def __init__(self, inner: Retriever, candidate_k: int = 20) -> None:
+        self.inner = inner
+        self.candidate_k = candidate_k
+
+    def search(self, claim: str, top_k: int = 3) -> list[RetrievedEvidence]:
+        if top_k < 1:
+            raise ValueError("top_k phải lớn hơn 0")
+        return [item for item in self.inner.search(claim, max(top_k, self.candidate_k))
+                if eligible(claim, item.evidence.content)][:top_k]
 
 
 class TopicalRerankRetriever:
@@ -132,6 +162,10 @@ class TopicalRerankRetriever:
         best: dict[str, tuple[float, RetrievedEvidence]] = {}
         for item in candidates:
             rel = relevance(claim, item.evidence.content)
+            # A passage with no topical overlap cannot be promoted into top 1
+            # merely by its upstream provider/BM25 rank.
+            if rel <= 0 or not eligible(claim, item.evidence.content):
+                continue
             key = self._url_key(item)
             current = best.get(key)
             if current is None or (rel, item.score) > (current[0], current[1].score):
@@ -139,9 +173,15 @@ class TopicalRerankRetriever:
 
         # Xếp bài theo (độ khớp, score gốc) giảm dần. Gán lại score = độ khớp để
         # pipeline thấy thứ tự giảm dần (pipeline yêu cầu score không tăng dần).
+        scale = max((abs(pair[1].score) for pair in best.values()), default=1.0) or 1.0
+        def combined(pair):
+            rel, item = pair
+            coverage = min(1.0, rel / max(1, len(_tokens(claim))))
+            return 0.85 * item.score / scale + 0.15 * coverage
+
         ranked = sorted(
             best.values(),
-            key=lambda pair: (-pair[0], -pair[1].score, pair[1].evidence.passage_id),
+            key=lambda pair: (-combined(pair), pair[1].evidence.passage_id),
         )
         result: list[RetrievedEvidence] = []
         for order, (rel, item) in enumerate(ranked[:top_k]):

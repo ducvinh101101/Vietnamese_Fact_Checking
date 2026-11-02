@@ -47,6 +47,7 @@ class Evidence:
     retrieved_at: str | None = None
     source_type: SourceType = "unknown"
     authority_score: float | None = None
+    published_at_source: str | None = None
 
 
 @dataclass(frozen=True)

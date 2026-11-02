@@ -99,6 +99,8 @@ def main() -> None:
     cited = {e for e in result.evidence_ids}
     if web_layer is not None and web_layer.last_enriched_query:
         print(f"[web] Claim thời sự — truy vấn web đã chèn ngày: {web_layer.last_enriched_query!r}", file=sys.stderr)
+        for attempt in getattr(web_layer.inner, "last_attempts", []):
+            print(f"[web] {attempt['stage']}: {attempt['status']} ({attempt['count']} passages)", file=sys.stderr)
     if gate.last_applied:
         cls_label = "theo-ngày" if gate.last_class == "today" else "hiện-tại"
         print(
@@ -143,6 +145,8 @@ def main() -> None:
         origin = "web" if str(e.passage_id).startswith("web-") else "local"
         star = "★" if e.passage_id in cited else " "
         when = f"  [đăng {e.published_at[:10]}]" if e.published_at else "  [ngày đăng: không rõ]"
+        if e.published_at_source:
+            when += f" [ngày từ {e.published_at_source}]"
         print(f" {star} [{rank}] ({origin}) {e.source}{when} — {e.url}")
         print(f"      {e.content[:160]}")
     if not any(e.evidence.passage_id in cited for e in retrieved):

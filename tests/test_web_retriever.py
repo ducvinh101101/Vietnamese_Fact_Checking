@@ -3,6 +3,7 @@ from datetime import date
 import gzip
 from pathlib import Path
 
+import pytest
 import yaml
 
 from src.web_retriever import WebRetriever, allowed_url, assert_public_dns, decode_html_response, extract_passages
@@ -63,7 +64,9 @@ def test_time_window_uses_news_and_server_side_date_filter(tmp_path):
         seen.update(payload)
         return {"results": []}
 
-    retriever = WebRetriever(config(tmp_path), api_key="key", provider_request=provider)
+    configured = config(tmp_path)
+    configured["limits"]["requests_per_claim"] = 1
+    retriever = WebRetriever(configured, api_key="key", provider_request=provider)
     assert retriever.search_time_window(
         "claim", 3, date(2026, 9, 23), date(2026, 10, 3), language="vi",
     ) == []
@@ -138,3 +141,83 @@ def test_web_retriever_respects_robots_txt(tmp_path):
     assert retriever.search("claim") == []
     assert not fetched
     assert retriever.last_status == "no_eligible_passages"
+
+
+def test_web_retriever_prefers_distinct_articles_before_extra_passages(tmp_path):
+    urls = ["https://vnexpress.net/first", "https://tuoitre.vn/second"]
+
+    def fetch(url, timeout):
+        paragraphs = "".join(
+            f"<p>Đoạn {index} của bài {url} cung cấp thông tin kiểm chứng riêng. "
+            + "Nội dung chi tiết từ trang gốc. " * 5 + "</p>"
+            for index in range(3)
+        )
+        return url, f"<article>{paragraphs}</article>"
+
+    retriever = WebRetriever(
+        config(tmp_path), api_key="key",
+        provider_request=lambda *_: {"results": [{"url": url} for url in urls]},
+        page_fetcher=fetch,
+        robots_fetcher=lambda *_: "User-agent: *\nAllow: /",
+    )
+    evidence = retriever.search("claim", top_k=2)
+    assert [item.evidence.url for item in evidence] == urls
+
+
+@pytest.mark.parametrize("results", [
+    {"results": "invalid"},
+    {"results": None},
+])
+def test_rejects_invalid_provider_result_list(tmp_path, results):
+    retriever = WebRetriever(config(tmp_path), api_key="key", provider_request=lambda *_: results)
+    assert retriever.search("claim") == []
+    assert retriever.last_status == "invalid_provider_response"
+
+
+def test_skips_rejected_and_duplicate_urls(tmp_path):
+    calls = []
+
+    def fetch(url, timeout):
+        calls.append(url)
+        return url, "<article><p>" + "Nội dung kiểm chứng từ bài báo gốc. " * 8 + "</p></article>"
+
+    retriever = WebRetriever(
+        config(tmp_path), api_key="key",
+        provider_request=lambda *_: {"results": [
+            {"url": "https://evil.example/a"},
+            {"url": "https://vnexpress.net/a#fragment"},
+            {"url": "https://vnexpress.net/a"},
+            {"url": "https://tuoitre.vn/b"},
+        ]}, page_fetcher=fetch, robots_fetcher=lambda *_: "User-agent: *\nAllow: /",
+    )
+    assert len(retriever.search("claim", top_k=2)) == 2
+    assert calls == ["https://vnexpress.net/a", "https://tuoitre.vn/b"]
+
+
+@pytest.mark.parametrize("redirect", [
+    "https://evil.example/article",
+    "http://vnexpress.net/article",
+    "https://vnexpress.net.evil.example/article",
+])
+def test_rejects_final_url_outside_policy(tmp_path, redirect):
+    retriever = WebRetriever(
+        config(tmp_path), api_key="key",
+        provider_request=lambda *_: {"results": [{"url": "https://vnexpress.net/a"}]},
+        page_fetcher=lambda *_: (redirect, "<p>" + "Nội dung bài báo gốc. " * 10 + "</p>"),
+        robots_fetcher=lambda *_: "User-agent: *\nAllow: /",
+    )
+    assert retriever.search("claim") == []
+    assert retriever.last_status == "no_eligible_passages"
+
+
+def test_corporate_source_is_identified_without_government_authority(tmp_path):
+    url = "https://petrolimex.com.vn/ndi/gia-xang.html"
+    retriever = WebRetriever(
+        config(tmp_path), api_key="key",
+        provider_request=lambda *_: {"results": [{"url": url}]},
+        page_fetcher=lambda *_: (url, "<p>" + "Petrolimex công bố giá bán lẻ xăng dầu. " * 8 + "</p>"),
+        robots_fetcher=lambda *_: "User-agent: *\nAllow: /",
+    )
+    result = retriever.search("giá xăng", top_k=1)
+    assert result[0].evidence.source_type == "other"
+    assert result[0].evidence.authority_score == 0.55

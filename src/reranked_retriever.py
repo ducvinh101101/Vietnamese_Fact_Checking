@@ -7,6 +7,7 @@ import re
 
 from src.retriever import BM25Retriever
 from src.schemas import RetrievedEvidence
+from src.topical_rerank import eligible
 
 
 SPACE = re.compile(r"\s+")
@@ -75,15 +76,17 @@ class MetadataRerankedRetriever:
         query = generate_query(claim)
         candidates = self.base.search(query, top_k=min(self.candidate_k, len(self.base.evidence_items)))
         filtered = filter_metadata(candidates, self.filters)
+        filtered = [item for item in filtered if eligible(query, item.evidence.content)]
         query_terms = set(query.casefold().split())
         overlap_weight = float(self.rerank["query_overlap_weight"])
         authority_weight = float(self.rerank["authority_weight"])
+        scale = max((abs(item.score) for item in candidates), default=1.0) or 1.0
 
         def score(item: RetrievedEvidence) -> tuple[float, str]:
             terms = set(item.evidence.content.casefold().split())
             overlap = len(query_terms & terms) / max(1, len(query_terms))
             authority = item.evidence.authority_score or 0.0
-            return (item.score + overlap_weight * overlap + authority_weight * authority, item.evidence.passage_id)
+            return (item.score / scale + overlap_weight * overlap + authority_weight * authority, item.evidence.passage_id)
 
         reranked = [RetrievedEvidence(item.evidence, score(item)[0]) for item in filtered]
         reranked.sort(key=lambda item: (-item.score, item.evidence.passage_id))

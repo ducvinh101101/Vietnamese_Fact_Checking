@@ -14,7 +14,7 @@ provider:
   # Tăng 10 -> 15: allowlist rộng hơn, cần nhiều kết quả hơn để có bài MỚI, CÓ NGÀY.
   max_results: 15
 limits:
-  requests_per_claim: 1
+  requests_per_claim: 3
   requests_per_minute: 10
   monthly_credit_budget: 900
   timeout_seconds: 15
@@ -31,6 +31,48 @@ source_policy:
   robots_failure: deny
   max_robots_bytes: 262144
   allowlist:
+    # Primary publishers: date is required for current claims; JS-only tables
+    # without dated HTML remain ineligible rather than using the fetch date.
+    - host: sjc.com.vn
+      name: Công ty Vàng bạc Đá quý Sài Gòn (SJC)
+      category: corporate
+      scope: Giá vàng do SJC công bố; yêu cầu mốc cập nhật trên nguồn
+      reference: https://sjc.com.vn/
+    - host: www.sjc.com.vn
+      name: Công ty Vàng bạc Đá quý Sài Gòn (SJC)
+      category: corporate
+      scope: Giá vàng do SJC công bố; yêu cầu mốc cập nhật trên nguồn
+      reference: https://www.sjc.com.vn/
+    - host: vietcombank.com.vn
+      name: Ngân hàng Vietcombank
+      category: corporate
+      scope: Tỷ giá và lãi suất do Vietcombank công bố; yêu cầu ngày cập nhật
+      reference: https://vietcombank.com.vn/
+    - host: www.vietcombank.com.vn
+      name: Ngân hàng Vietcombank
+      category: corporate
+      scope: Tỷ giá và lãi suất do Vietcombank công bố; yêu cầu ngày cập nhật
+      reference: https://www.vietcombank.com.vn/
+    - host: nchmf.gov.vn
+      name: Trung tâm Dự báo Khí tượng Thủy văn Quốc gia
+      category: government
+      scope: Bản tin khí tượng thủy văn có ngày phát hành
+      reference: https://nchmf.gov.vn/
+    - host: www.nchmf.gov.vn
+      name: Trung tâm Dự báo Khí tượng Thủy văn Quốc gia
+      category: government
+      scope: Bản tin khí tượng thủy văn có ngày phát hành
+      reference: https://www.nchmf.gov.vn/
+    - host: evn.com.vn
+      name: Tập đoàn Điện lực Việt Nam (EVN)
+      category: corporate
+      scope: Thông cáo giá điện và thông tin do EVN công bố
+      reference: https://evn.com.vn/
+    - host: www.evn.com.vn
+      name: Tập đoàn Điện lực Việt Nam (EVN)
+      category: corporate
+      scope: Thông cáo giá điện và thông tin do EVN công bố
+      reference: https://www.evn.com.vn/
     - host: baochinhphu.vn
       name: Báo Điện tử Chính phủ
       category: government
@@ -76,6 +118,16 @@ source_policy:
       category: government
       scope: Điều hành giá xăng dầu, thương mại, công nghiệp
       reference: https://moit.gov.vn/
+    - host: petrolimex.com.vn
+      name: Tập đoàn Xăng dầu Việt Nam (Petrolimex)
+      category: corporate
+      scope: Thông cáo giá bán lẻ xăng dầu của Petrolimex; chỉ xác nhận giá do doanh nghiệp công bố
+      reference: https://petrolimex.com.vn/
+    - host: www.petrolimex.com.vn
+      name: Tập đoàn Xăng dầu Việt Nam (Petrolimex)
+      category: corporate
+      scope: Thông cáo giá bán lẻ xăng dầu của Petrolimex; chỉ xác nhận giá do doanh nghiệp công bố
+      reference: https://www.petrolimex.com.vn/
     - host: mof.gov.vn
       name: Bộ Tài chính
       category: government

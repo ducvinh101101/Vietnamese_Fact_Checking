@@ -3,8 +3,9 @@ version: 1
 corpus: data/evidence/vifactcheck_passages_v2.jsonl
 candidate_k: 100
 rerank:
-  query_overlap_weight: 0.20
-  authority_weight: 0.05
+  # Scores are now normalized; these are bounded corrections, not raw BM25 units.
+  query_overlap_weight: 0.02
+  authority_weight: 0.005
 filters:
   allowed_source_types: [government, news]
   published_after: null

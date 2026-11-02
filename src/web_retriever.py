@@ -27,6 +27,7 @@ from urllib.robotparser import RobotFileParser
 import zlib
 
 from src.schemas import Evidence, RetrievedEvidence
+from src.topical_rerank import eligible, relevance
 
 
 class WebRetrievalError(RuntimeError):
@@ -48,6 +49,8 @@ class _PageTextParser(HTMLParser):
         self._in_title = False
         self._skip_depth = 0
         self._parts: list[str] = []
+        self._stack: list[tuple[str, bool, bool]] = []
+        self._content_parts: list[str] = []
         # Tín hiệu ngày đăng: meta tags (name/property/itemprop -> content),
         # thuộc tính datetime của <time>, và các blob JSON-LD (<script ld+json>).
         self.meta: dict[str, str] = {}
@@ -57,6 +60,12 @@ class _PageTextParser(HTMLParser):
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         tag = tag.lower()
+        attr = {k.lower(): (v or "") for k, v in attrs}
+        marker = attr.get("class", "") + " " + attr.get("id", "")
+        skipped = tag in self._SKIP or bool(re.search(r"sidebar|related|recommend|tin-lien-quan|box-tin", marker, re.I))
+        main = tag in {"article", "main"} or bool(re.search(r"article-body|article-content|detail-content|detail__content|contentdetail", marker, re.I))
+        if tag not in {"meta", "link", "img", "br", "hr", "input", "source", "wbr", "area", "base", "embed", "param", "track"}:
+            self._stack.append((tag, skipped, main))
         if tag == "meta":
             attr = {k.lower(): (v or "") for k, v in attrs}
             key = attr.get("property") or attr.get("name") or attr.get("itemprop")
@@ -73,12 +82,13 @@ class _PageTextParser(HTMLParser):
             attr = {k.lower(): (v or "") for k, v in attrs}
             if "ld+json" in attr.get("type", "").lower():
                 self._in_ldjson = True
-        if tag in self._SKIP:
+        if skipped:
             self._skip_depth += 1
         if tag == "title":
             self._in_title = True
         if self._skip_depth == 0 and tag in self._BLOCKS:
             self._parts.append("\n")
+            self._content_parts.append("\n")
 
     def handle_endtag(self, tag: str) -> None:
         tag = tag.lower()
@@ -86,10 +96,14 @@ class _PageTextParser(HTMLParser):
             self._in_title = False
         if tag == "script":
             self._in_ldjson = False
-        if tag in self._SKIP and self._skip_depth:
-            self._skip_depth -= 1
+        for index in range(len(self._stack) - 1, -1, -1):
+            if self._stack[index][0] == tag:
+                del self._stack[index:]
+                break
+        self._skip_depth = sum(entry[1] for entry in self._stack)
         if self._skip_depth == 0 and tag in self._BLOCKS:
             self._parts.append("\n")
+            self._content_parts.append("\n")
 
     def handle_data(self, data: str) -> None:
         if self._in_title:
@@ -98,10 +112,13 @@ class _PageTextParser(HTMLParser):
             self.ldjson_blobs.append(data)
         if self._skip_depth == 0:
             self._parts.append(data)
+            if any(entry[2] for entry in self._stack):
+                self._content_parts.append(data)
 
-    def paragraphs(self) -> list[str]:
+    def paragraphs(self, prefer_content: bool = False) -> list[str]:
+        parts = self._content_parts if prefer_content and "".join(self._content_parts).strip() else self._parts
         return [
-            normalized for part in "".join(self._parts).splitlines()
+            normalized for part in "".join(parts).splitlines()
             if (normalized := re.sub(r"\s+", " ", part).strip())
         ]
 
@@ -188,7 +205,7 @@ def extract_passages(html: str, minimum_chars: int, maximum_chars: int, max_pass
             seen_passages.add(fingerprint)
             passages.append(normalized[:maximum_chars])
 
-    for paragraph in parser.paragraphs():
+    for paragraph in parser.paragraphs(prefer_content=True):
         sentences = re.split(r"(?<=[.!?…])\s+", paragraph)
         chunk = ""
         for sentence in sentences:
@@ -239,7 +256,7 @@ def _normalize_date(raw: str | None) -> str | None:
 
     Chấp nhận ISO 8601 (có/không giờ, có 'Z'), dd/mm/yyyy và yyyy/mm/dd. Trả None
     nếu không parse được hoặc năm vô lý (ngoài 2000..năm sau)."""
-    if not raw:
+    if not isinstance(raw, str) or not raw:
         return None
     text = raw.strip()
     if not text:
@@ -328,6 +345,22 @@ def extract_published_at(html: str) -> str | None:
         normalized = _normalize_date(candidate)
         if normalized:
             return normalized
+    # Some Vietnamese publishers display a publication stamp in page text
+    # without machine-readable metadata (e.g. Petrolimex's "12:00 SA @ ...").
+    # Anchor to the timestamp so dates in the article body are not mistaken
+    # for the publication date.
+    stamp = re.compile(
+        r"\b\d{1,2}:\d{2}\s*(?:SA|CH)\s*@[^\n]{0,60}?-\s*"
+        r"(\d{1,2})\s+tháng\s+(\d{1,2}),?\s+(\d{4})\b",
+        re.IGNORECASE,
+    )
+    for paragraph in parser.paragraphs():
+        match = stamp.search(paragraph)
+        if match:
+            day, month, year = map(int, match.groups())
+            normalized = _normalize_date(f"{year:04d}-{month:02d}-{day:02d}")
+            if normalized:
+                return normalized
     return None
 
 
@@ -405,6 +438,7 @@ class WebRetriever:
             int(self.limits["monthly_credit_budget"]),  # type: ignore[index]
         )
         self.last_status = "not_run"
+        self.last_attempts: list[dict[str, object]] = []
 
     def _fetch_robots(self, page_url: str, timeout: float) -> str:
         """Fetch robots.txt from the exact approved host without redirects."""
@@ -422,7 +456,13 @@ class WebRetriever:
                 if len(raw) > int(self.policy["max_robots_bytes"]):  # type: ignore[index]
                     raise WebRetrievalError("robots.txt vượt giới hạn kích thước")
                 charset = response.headers.get_content_charset() or "utf-8"
-                return raw.decode(charset)
+                # Broken headers such as charset=utf-8,gbk are not a codec name.
+                for candidate in dict.fromkeys([charset.split(",")[0].strip(), "utf-8", "gbk"]):
+                    try:
+                        return raw.decode(candidate)
+                    except (LookupError, UnicodeDecodeError):
+                        continue
+                raise WebRetrievalError("Không giải mã được robots.txt")
         except HTTPError as error:
             if error.code == 404:
                 return ""
@@ -506,10 +546,23 @@ class WebRetriever:
         if language:
             options["language"] = language
             options["filter_by_language"] = True
-        return self._search(claim, top_k, options)
+        self.last_attempts = []
+        plain = re.sub(r"\s+ngày\s+\d{2}/\d{2}/\d{4}$", "", claim).strip()
+        primary_hosts = [host for host, entry in self.allowed_sources.items()
+                         if entry["category"] in {"government", "corporate"}]
+        attempts = [("dated_news", claim, options),
+                    ("plain_news", plain, options),
+                    ("primary_general", plain, {"topic": "general", "include_domains": primary_hosts or sorted(self.allowed_sources)})]
+        for stage, query, request_options in attempts[:int(self.limits.get("requests_per_claim", 1))]:
+            items = self._search(query, top_k, request_options, date_window=(start_date, end_date))
+            self.last_attempts.append({"stage": stage, "status": self.last_status, "count": len(items)})
+            if items or self.last_status in {"missing_api_key", "disabled", "local_only"}:
+                return items
+        return []
 
     def _search(self, claim: str, top_k: int,
-                provider_overrides: dict[str, object] | None = None) -> list[RetrievedEvidence]:
+                provider_overrides: dict[str, object] | None = None,
+                date_window: tuple[date, date] | None = None) -> list[RetrievedEvidence]:
         if top_k < 1:
             raise ValueError("top_k phải lớn hơn 0")
         if not self.enabled:
@@ -543,8 +596,6 @@ class WebRetriever:
         collected: list[RetrievedEvidence] = []
         seen_urls: set[str] = set()
         for rank, result in enumerate(results):
-            if len(collected) >= top_k:
-                break
             if not isinstance(result, dict) or not isinstance(result.get("url"), str):
                 continue
             url = canonical_url(result["url"])
@@ -565,15 +616,32 @@ class WebRetriever:
                     int(self.extraction["max_passages_per_page"]),
                 )
                 published_at = extract_published_at(html)
+                date_source = "page" if published_at else None
+                source_policy = self.allowed_sources[urlsplit(final_url).hostname or ""]
+                # Official live tables/bulletins need their own dated snapshot;
+                # the search index date cannot establish the table's validity.
+                require_page_date = source_policy["category"] == "corporate" or "nchmf.gov.vn" in final_url
+                if not published_at and not require_page_date:
+                    published_at = _normalize_date(result.get("published_date"))
+                    date_source = "tavily" if published_at else None
+                if date_window:
+                    published = date.fromisoformat(published_at[:10]) if published_at else None
+                    if published is None or not date_window[0] <= published <= date_window[1]:
+                        continue
             except WebRetrievalError:
                 continue
             source = self.allowed_sources[urlsplit(final_url).hostname or ""]
+            if final_url in seen_urls and final_url != url:
+                continue
+            seen_urls.add(final_url)
             base_score = float(result.get("score", 1.0))
             fetched_at = datetime.now(timezone.utc).isoformat()
             document_id = f"web-{sha256(final_url.encode('utf-8')).hexdigest()[:16]}"
-            for passage_index, passage in enumerate(passages):
-                if len(collected) >= top_k:
-                    break
+            passage_query = re.sub(r"\s+ngày\s+\d{2}/\d{2}/\d{4}$", "", claim)
+            ranked_passages = sorted(enumerate(passages), key=lambda pair: -relevance(passage_query, pair[1]))
+            for passage_index, passage in ranked_passages:
+                if date_window and not eligible(passage_query, passage):
+                    continue
                 evidence = Evidence(
                     document_id=document_id,
                     passage_id=f"{document_id}-p{passage_index + 1:02d}",
@@ -584,10 +652,19 @@ class WebRetriever:
                     article_id=document_id,
                     title=title or str(result.get("title") or ""),
                     published_at=published_at,
+                    published_at_source=date_source,
                     retrieved_at=fetched_at,
-                    source_type={"government": "government", "international": "international_org", "press": "news"}[source["category"]],
-                    authority_score={"government": 0.95, "international": 0.95, "press": 0.7}[source["category"]],
+                    source_type={"government": "government", "international": "international_org", "press": "news", "corporate": "other"}[source["category"]],
+                    authority_score={"government": 0.95, "international": 0.95, "press": 0.7, "corporate": 0.55}[source["category"]],
                 )
                 collected.append(RetrievedEvidence(evidence, base_score - rank * 0.001 - passage_index * 0.0001))
-        self.last_status = "ok" if collected else "no_eligible_passages"
-        return collected
+        # Give distinct articles a chance before taking extra passages from
+        # the same page. Provider rank still determines article order.
+        primary, remaining = [], []
+        documents: set[str] = set()
+        for item in collected:
+            (remaining if item.evidence.document_id in documents else primary).append(item)
+            documents.add(item.evidence.document_id)
+        selected = (primary + remaining)[:top_k]
+        self.last_status = "ok" if selected else "no_eligible_passages"
+        return selected

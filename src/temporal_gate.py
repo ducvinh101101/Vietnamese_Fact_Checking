@@ -25,7 +25,7 @@ from __future__ import annotations
 from datetime import date, datetime, timedelta
 
 from src.contracts import Retriever
-from src.query_enrichment import recency_class
+from src.query_enrichment import recency_class, window_start
 from src.schemas import RetrievedEvidence
 
 # Lệch múi giờ: bài đăng 'ngày mai' theo UTC vẫn là hôm nay ở VN; chỉ loại khi vượt hẳn.
@@ -104,7 +104,7 @@ class TemporalGateRetriever:
         # Chọn cửa sổ theo loại mốc: today hẹp, current rộng.
         window = self.window_today if cls == "today" else self.window_current
         reference = self.as_of or datetime.now().date()
-        cutoff = reference - timedelta(days=window)
+        cutoff = window_start(claim, reference, window)
         self.last_applied = True
         self.last_cutoff = cutoff
         self.last_class = cls

@@ -40,7 +40,7 @@ from src.query_enrichment import TimeAwareRetriever
 from src.reranked_retriever import MetadataRerankedRetriever
 from src.retriever import BM25Retriever
 from src.temporal_gate import TemporalGateRetriever
-from src.topical_rerank import TopicalRerankRetriever
+from src.topical_rerank import TopicalRerankRetriever, RelevanceFilteredRetriever
 from src.verdict_guard import GuardedVerifier
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -119,6 +119,7 @@ class FactCheckSystem:
                                 "fallback_reason": self.fallback_reason, "web_status": self.web_status}
         if self.web_layer is not None:
             info["web_enriched_query"] = self.web_layer.last_enriched_query
+            info["web_attempts"] = getattr(self.web_layer.inner, "last_attempts", [])
         if self.fusion is not None:
             info["web_error"] = self.fusion.last_web_error
         if self.gate is not None and self.gate.last_applied:
@@ -213,7 +214,7 @@ def build_system(options: SystemOptions | None = None, config: dict[str, Any] | 
         guard = bool(v.get("guard", False)) if options.guard is None else options.guard
         top_k = options.top_k or int(config["retrieval"]["top_k"])
         pipeline = FactCheckingPipeline(
-            evidence_path=str(root / config["paths"]["evidence_path"]), top_k=top_k,
+            retriever=RelevanceFilteredRetriever(BM25Retriever(load_evidence_jsonl(root / config["paths"]["evidence_path"]))), top_k=top_k,
             checker=verifier, guard=guard, minimal_pair=minimal_pair,
         )
         return FactCheckSystem(

@@ -51,6 +51,19 @@ def test_no_date_returns_none():
     assert extract_published_at(html) is None
 
 
+def test_vietnamese_visible_publication_stamp_without_metadata():
+    html = (
+        "<article><h1>Petrolimex điều chỉnh giá xăng dầu</h1>"
+        "<div>12:00 SA @ Chủ Nhật - 01 tháng 11, 2026</div>"
+        "<p>Quyết định cũ ngày 29/10/2026 được thay thế.</p></article>"
+    )
+    assert extract_published_at(html) == "2026-11-01T00:00:00"
+
+
+def test_article_event_date_is_not_publication_stamp():
+    assert extract_published_at("<p>Giá mới có hiệu lực ngày 01 tháng 11, 2026.</p>") is None
+
+
 def test_normalize_rejects_implausible_year():
     assert _normalize_date("1899-01-01") is None
     assert _normalize_date("không phải ngày") is None

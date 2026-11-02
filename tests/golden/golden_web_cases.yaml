@@ -59,7 +59,7 @@ cases:
       guard_downgraded: true
 
   - id: offtopic_world_oil_guard
-    issue: "Guard: bằng chứng chỉ nói giá dầu THẾ GIỚI -> lạc chủ đề giá bán lẻ -> NEI"
+    issue: "Rerank loại đoạn chỉ nói giá dầu THẾ GIỚI -> NEI"
     claim: "Giá xăng tăng từ chiều nay"
     verifier_says: SUPPORTED
     web:
@@ -68,7 +68,7 @@ cases:
         published_at: "2026-10-01"
     expect:
       label: NOT_ENOUGH_INFO
-      guard_downgraded: true
+      guard_downgraded: false
 
   - id: current_wide_window_support
     issue: "Cửa sổ 'current' rộng: bài vài tháng trước vẫn hợp lệ cho claim hiện tại"

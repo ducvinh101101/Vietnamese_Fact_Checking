@@ -75,3 +75,12 @@ def test_non_price_claim_uses_pure_overlap():
     a = "Hà Nội là thủ đô của Việt Nam."
     b = "Thành phố Hồ Chí Minh là trung tâm kinh tế."
     assert relevance(claim, a) > relevance(claim, b)
+
+
+def test_unrelated_high_score_cannot_be_top_one():
+    claim = "Bộ Y tế công bố lịch tiêm chủng"
+    out = TopicalRerankRetriever(_Inner([
+        _ev("noise", "https://x/noise", "Đội tuyển bóng đá giành chiến thắng.", 100.0),
+        _ev("match", "https://x/match", "Bộ Y tế công bố lịch tiêm chủng cho trẻ em.", 1.0),
+    ])).search(claim, top_k=2)
+    assert [item.evidence.passage_id for item in out] == ["match"]
