@@ -1,0 +1,61 @@
+{
+  "split": "dev",
+  "queries": 100,
+  "top_k": 5,
+  "index_build_seconds": 1.12,
+  "metric_caveat": "URL-level: không phải passage-level gold; silver = passage khớp nguyên văn.",
+  "retrievers": {
+    "bm25_v1": {
+      "url_recall@1": 0.96,
+      "url_recall@3": 0.98,
+      "url_recall@5": 0.99,
+      "url_mrr@5": 0.9725,
+      "silver_passage_recall@1": 0.51,
+      "silver_passage_recall@3": 0.54,
+      "silver_passage_recall@5": 0.55,
+      "latency_ms_p50": 72.81,
+      "latency_ms_p95": 158.91,
+      "contract_violations": [],
+      "contract_violation_count": 0
+    },
+    "bm25_v2": {
+      "url_recall@1": 0.96,
+      "url_recall@3": 0.98,
+      "url_recall@5": 0.99,
+      "url_mrr@5": 0.9725,
+      "silver_passage_recall@1": 0.51,
+      "silver_passage_recall@3": 0.54,
+      "silver_passage_recall@5": 0.55,
+      "latency_ms_p50": 65.95,
+      "latency_ms_p95": 125.26,
+      "contract_violations": [],
+      "contract_violation_count": 0
+    },
+    "reranked_v2": {
+      "url_recall@1": 0.96,
+      "url_recall@3": 0.98,
+      "url_recall@5": 0.99,
+      "url_mrr@5": 0.9725,
+      "silver_passage_recall@1": 0.51,
+      "silver_passage_recall@3": 0.54,
+      "silver_passage_recall@5": 0.55,
+      "latency_ms_p50": 72.71,
+      "latency_ms_p95": 125.03,
+      "contract_violations": [],
+      "contract_violation_count": 0
+    },
+    "fusion_local_v2": {
+      "url_recall@1": 0.96,
+      "url_recall@3": 0.98,
+      "url_recall@5": 0.99,
+      "url_mrr@5": 0.9725,
+      "silver_passage_recall@1": 0.51,
+      "silver_passage_recall@3": 0.54,
+      "silver_passage_recall@5": 0.55,
+      "latency_ms_p50": 79.84,
+      "latency_ms_p95": 146.08,
+      "contract_violations": [],
+      "contract_violation_count": 0
+    }
+  }
+}
