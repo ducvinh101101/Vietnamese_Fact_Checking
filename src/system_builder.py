@@ -156,6 +156,9 @@ def build_verifier(config: dict[str, Any], root: Path = ROOT, engine: str | None
     rule_based = RuleBasedFactChecker(float(v.get("support_threshold", 0.45)), v.get("refute_markers"))
     if engine == "rule_based":
         return rule_based, None
+    if engine in ("gemma", "gemini", "llm", "gemma_4"):
+        from src.llm_verifier import LLMVerifier
+        return LLMVerifier(), None
     if engine != "phobert":
         raise ValueError(f"Verifier không hỗ trợ: {engine}")
     from src.phobert_fact_checker import PhoBERTFactChecker  # import muộn: torch nặng

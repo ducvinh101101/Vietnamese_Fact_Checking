@@ -27,6 +27,10 @@ os.environ.setdefault("HF_HOME", str(ROOT / ".cache/huggingface"))
 load_dotenv(ROOT / ".env")
 
 MODES = {"Kho local (đã đánh giá)": "local", "Local + web (Tavily)": "hybrid"}
+MODELS = {
+    "PhoBERT Đề tài (Cục bộ CPU, < 0.3s)": "phobert",
+    "LLM Gemma 4 (Google Cloud, Suy luận sâu)": "gemma",
+}
 VERDICTS = {
     "SUPPORTED": ("supported", "✓", "ĐƯỢC ỦNG HỘ", "Bằng chứng truy xuất xác nhận phát biểu."),
     "REFUTED": ("refuted", "✕", "BỊ BÁC BỎ", "Bằng chứng truy xuất mâu thuẫn với phát biểu."),
@@ -80,10 +84,10 @@ CSS = """
 HERO = """
 <div id="hero">
   <h1>🔎 Kiểm chứng thông tin tiếng Việt</h1>
-  <p>Nhập một phát biểu — hệ thống tìm bằng chứng, đối chiếu bằng PhoBERT và trả kết luận kèm nguồn trích dẫn.</p>
+  <p>Nhập một phát biểu — hệ thống tìm bằng chứng, đối chiếu bằng PhoBERT hoặc LLM Gemma 4 và trả kết luận kèm nguồn trích dẫn.</p>
   <div class="chips">
     <span class="chip">BM25 + web allowlist</span><span class="chip">PhoBERT RT-V2 (ensemble)</span>
-    <span class="chip">Luật cặp-tối-thiểu</span><span class="chip">Test ViFactCheck: Macro-F1 72,3%</span>
+    <span class="chip">Tùy chọn LLM Gemma 4</span><span class="chip">Test ViFactCheck: Macro-F1 72,3%</span>
   </div>
 </div>
 <div class="disclaimer">⚠️ Bản thử nghiệm nghiên cứu, chưa xác nhận 80% ngoài thực tế. Điểm mô hình không phải
@@ -91,26 +95,27 @@ xác suất thông tin đúng — luôn mở nguồn gốc để kiểm tra.</di
 """
 
 
-@lru_cache(maxsize=4)
-def get_system(mode: str, as_of: date | None) -> FactCheckSystem:
+@lru_cache(maxsize=8)
+def get_system(mode: str, engine: str, as_of: date | None) -> FactCheckSystem:
     config = load_runtime_config(ROOT / "configs" / "config.yaml")
-    return build_system(SystemOptions(mode=mode, as_of=as_of), config=config, root=ROOT)
+    return build_system(SystemOptions(mode=mode, engine=engine, as_of=as_of), config=config, root=ROOT)
 
 
 def _e(value: object) -> str:
     return html.escape("" if value is None else str(value))
 
 
-def render_verdict(verdict: dict, mode: str) -> str:
+def render_verdict(verdict: dict, mode: str, engine: str) -> str:
     css, icon, title, meaning = VERDICTS.get(str(verdict["label"]), VERDICTS["NOT_ENOUGH_INFO"])
     score = max(0.0, min(1.0, float(verdict["confidence"])))
     mode_name = next(name for name, value in MODES.items() if value == mode)
+    engine_name = next(name for name, value in MODELS.items() if value == engine)
     return f"""
 <div class="verdict {css}">
   <div class="icon">{icon}</div>
   <div><div class="label">{title}</div><div class="meta">{_e(verdict['label'])} · {_e(meaning)}</div>
-       <div class="meta">Chế độ: {_e(mode_name)}</div></div>
-  <div class="score"><div class="meta">Điểm mô hình</div><div class="label">{score:.2f}</div>
+       <div class="meta">Nguồn: {_e(mode_name)} · <b>Mô hình: {_e(engine_name)}</b></div></div>
+  <div class="score"><div class="meta">Độ tự tin</div><div class="label">{score:.2f}</div>
        <div class="bar"><span style="width:{100 * score:.0f}%"></span></div></div>
 </div>
 <div class="note">{_e(verdict['explanation'])}</div>"""
@@ -161,12 +166,13 @@ def render_evidence(items: list[dict], cited_ids: set[str], empty: str) -> str:
     return "".join(cards)
 
 
-def check(claim: str, mode_label: str, use_date: bool, as_of_text: str):
+def check(claim: str, mode_label: str, model_label: str, use_date: bool, as_of_text: str):
     claim = (claim or "").strip()
     if not claim:
         gr.Warning("Vui lòng nhập phát biểu cần kiểm chứng.")
         return "", "", "", "", {}
     mode = MODES[mode_label]
+    engine = MODELS[model_label]
     as_of = None
     if mode == "hybrid" and use_date and as_of_text:
         try:
@@ -175,7 +181,7 @@ def check(claim: str, mode_label: str, use_date: bool, as_of_text: str):
             gr.Warning("Ngày tham chiếu phải có dạng YYYY-MM-DD.")
             return "", "", "", "", {}
     try:
-        system = get_system(mode, as_of)
+        system = get_system(mode, engine, as_of)
         response = system.check(claim)
     except (RuntimeError, ValueError, ConfigValidationError) as error:
         return f'<div class="note warn">{_e(error)}</div>', "", "", "", {}
@@ -194,12 +200,12 @@ def check(claim: str, mode_label: str, use_date: bool, as_of_text: str):
         retrieved += ("<details><summary><b>Bài bị neo thời gian loại</b> (quá cũ / không rõ ngày / sau ngày tham chiếu)"
                       f"</summary>{dropped}</details>")
     return (
-        render_verdict(response["verdict"], mode) + render_notes(diagnostics, system),
+        render_verdict(response["verdict"], mode, engine) + render_notes(diagnostics, system),
         render_evidence(response["citations"], cited_ids, "Không có đoạn nào được dùng để xác nhận hoặc bác bỏ."),
         retrieved,
         f"### Tìm thấy {response['retrieval']['retrieved_count']} đoạn · trích dẫn {len(response['citations'])}",
         {"settings": diagnostics.get("settings"), "web_enriched_query": diagnostics.get("web_enriched_query"),
-         "schema_version": response.get("schema_version")},
+         "schema_version": response.get("schema_version"), "model_engine": engine},
     )
 
 
@@ -216,8 +222,18 @@ def build_ui() -> gr.Blocks:
                     submit = gr.Button("Kiểm chứng", variant="primary", scale=3)
                     clear = gr.ClearButton(value="Xóa", scale=1)
             with gr.Column(scale=3):
-                mode = gr.Radio(list(MODES), value=next(iter(MODES)), label="Nguồn bằng chứng",
-                                info="Kho local là cấu hình đã đo; web dùng cho claim thời sự (cần TAVILY_API_KEY).")
+                model_choice = gr.Radio(
+                    list(MODELS),
+                    value=next(iter(MODELS)),
+                    label="Mô hình Phán quyết (Verifier)",
+                    info="PhoBERT chạy offline nhanh tức thì (<0.3s); Gemma 4 là LLM suy luận logic sâu.",
+                )
+                mode = gr.Radio(
+                    list(MODES),
+                    value=next(iter(MODES)),
+                    label="Nguồn bằng chứng",
+                    info="Kho local là cấu hình đã đo; web dùng cho claim thời sự (cần TAVILY_API_KEY).",
+                )
                 use_date = gr.Checkbox(label="Đặt ngày tham chiếu (chế độ web)", value=False)
                 as_of = gr.Textbox(label="Ngày tham chiếu (YYYY-MM-DD)", value=date.today().isoformat(), visible=False)
         gr.Examples(examples=[[case["claim"], next(k for k, v in MODES.items() if v == case["mode"])]
@@ -236,8 +252,9 @@ def build_ui() -> gr.Blocks:
 
         use_date.change(lambda on: gr.update(visible=on), use_date, as_of)
         outputs = [verdict, citations, retrieved, summary, details]
-        submit.click(check, [claim, mode, use_date, as_of], outputs)
-        claim.submit(check, [claim, mode, use_date, as_of], outputs)
+        inputs = [claim, mode, model_choice, use_date, as_of]
+        submit.click(check, inputs, outputs)
+        claim.submit(check, inputs, outputs)
         clear.add([claim, *outputs])
     return demo
 
