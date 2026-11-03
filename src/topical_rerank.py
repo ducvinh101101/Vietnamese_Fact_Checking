@@ -177,7 +177,7 @@ class TopicalRerankRetriever:
         def combined(pair):
             rel, item = pair
             coverage = min(1.0, rel / max(1, len(_tokens(claim))))
-            return 0.85 * item.score / scale + 0.15 * coverage
+            return 0.6 * item.score / scale + 0.4 * coverage
 
         ranked = sorted(
             best.values(),

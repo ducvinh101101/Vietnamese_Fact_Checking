@@ -45,6 +45,8 @@ load_dotenv(ROOT / ".env")
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--claim", required=True, help="Phát biểu cần kiểm chứng")
+    parser.add_argument("--source-url", action="append", default=[],
+                        help="URL nguồn để đọc trực tiếp; lặp lại tối đa 3 lần")
     parser.add_argument("--config", type=Path, default=ROOT / "configs/config.yaml")
     parser.add_argument("--top-k", type=int, default=5, help="Số bằng chứng đưa vào verifier và hiển thị")
     parser.add_argument("--candidate-k", type=int, default=20, help="Số ứng viên mỗi nguồn (local/web) lấy trước khi trộn RRF")
@@ -89,7 +91,17 @@ def main() -> None:
     fallback_reason = system.fallback_reason
     if not args.local_only and not system.settings.get("web"):
         print(f"[web] {system.web_status}", file=sys.stderr)
-    result, retrieved = pipeline.run(args.claim)
+    if args.source_url:
+        if web_layer is None:
+            parser.error("--source-url cần bật nhánh web")
+        if len(args.source_url) > 3:
+            parser.error("Chỉ nhận tối đa 3 --source-url")
+        web_layer.source_urls = tuple(args.source_url)
+    try:
+        result, retrieved = pipeline.run(args.claim)
+    finally:
+        if web_layer is not None:
+            web_layer.source_urls = ()
     if fallback_reason:
         print(
             "[runtime] PhoBERT bị Windows Application Control chặn; đang dùng rule-based fallback. "
@@ -127,6 +139,12 @@ def main() -> None:
             )
     if system.fusion is not None and system.fusion.last_web_error:
         print(f"[web] Nhánh web lỗi, đã lùi về local: {system.fusion.last_web_error}", file=sys.stderr)
+    if web_layer is not None:
+        for row in getattr(web_layer.inner, "last_candidates", []):
+            if row['status'] == 'rejected':
+                print(f"[web] Loại {row['url']}: {row.get('reason', 'không rõ')}", file=sys.stderr)
+        if getattr(web_layer.inner, "last_error", None):
+            print(f"[web] {web_layer.inner.last_error}", file=sys.stderr)
     if system.minimal_pair is not None and system.minimal_pair.last_reason:
         print(f"[minimal-pair] Đã điều chỉnh verdict: {system.minimal_pair.last_reason}", file=sys.stderr)
     if guard is not None and guard.last_downgraded:

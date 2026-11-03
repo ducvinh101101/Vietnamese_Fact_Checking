@@ -27,6 +27,7 @@ from urllib.robotparser import RobotFileParser
 import zlib
 
 from src.schemas import Evidence, RetrievedEvidence
+from src.query_enrichment import publication_date
 from src.topical_rerank import eligible, relevance
 
 
@@ -190,7 +191,8 @@ def decode_html_response(raw: bytes, content_encoding: str | None, header_charse
     raise WebRetrievalError("Không xác định được charset HTML nguồn web")
 
 
-def extract_passages(html: str, minimum_chars: int, maximum_chars: int, max_passages: int) -> tuple[str, list[str]]:
+def extract_passages(html: str, minimum_chars: int, maximum_chars: int, max_passages: int,
+                     query: str | None = None) -> tuple[str, list[str]]:
     parser = _PageTextParser()
     parser.feed(html)
     parser.close()
@@ -205,7 +207,12 @@ def extract_passages(html: str, minimum_chars: int, maximum_chars: int, max_pass
             seen_passages.add(fingerprint)
             passages.append(normalized[:maximum_chars])
 
-    for paragraph in parser.paragraphs(prefer_content=True):
+    paragraphs = parser.paragraphs(prefer_content=True)
+    # The standfirst is sometimes outside <article>, but is still publisher text.
+    description = parser.meta.get("og:description") or parser.meta.get("description")
+    if query and description and not any(description.strip() in p for p in paragraphs):
+        paragraphs.insert(0, description)
+    for paragraph in paragraphs:
         sentences = re.split(r"(?<=[.!?…])\s+", paragraph)
         chunk = ""
         for sentence in sentences:
@@ -216,9 +223,37 @@ def extract_passages(html: str, minimum_chars: int, maximum_chars: int, max_pass
             else:
                 chunk = candidate
         append_unique(chunk)
-        if len(passages) >= max_passages:
+        if query is None and len(passages) >= max_passages:
             break
+    if query:
+        # A title/standfirst claim can contain several facts spread over adjacent
+        # paragraphs. Keep their original order in bounded context windows.
+        for index, paragraph in enumerate(paragraphs):
+            context = paragraph
+            for following in paragraphs[index + 1:index + 5]:
+                if len(context) + len(following) + 1 > maximum_chars:
+                    break
+                context += " " + following
+                append_unique(context)
+        passages.sort(key=lambda passage: -relevance(query, passage))
     return title, passages[:max_passages]
+
+
+def search_queries(claim: str) -> list[str]:
+    """Bounded alternatives: full claim, short lead, distinctive content terms.
+
+    No LLM rewrite: negations, numbers and names remain in the original claim
+    used to rank passages and verify. These variants only discover candidate URLs.
+    """
+    plain = re.sub(r"\s+ngày\s+\d{2}/\d{2}/\d{4}$", "", claim).strip()
+    # normalize_text has already collapsed title/standfirst newlines in the UI.
+    lead = re.split(r"(?<=[.!?…])\s+|(?=\bMỗi\b)", plain, maxsplit=1)[0].strip()
+    lead = " ".join(lead.split()[:24])
+    from src.topical_rerank import _STOPWORDS
+    terms = list(dict.fromkeys(word for word in re.findall(r"[\wÀ-ỹ]+", plain)
+                              if word.casefold() not in _STOPWORDS))
+    keywords = " ".join(terms[:22])
+    return list(dict.fromkeys(q for q in (claim.strip(), lead, keywords) if q))
 
 
 # --- Trích xuất ngày đăng (published_at) cho bằng chứng web -------------------
@@ -439,6 +474,10 @@ class WebRetriever:
         )
         self.last_status = "not_run"
         self.last_attempts: list[dict[str, object]] = []
+        self.last_candidates: list[dict[str, object]] = []
+        self.last_error: str | None = None
+        self._page_cache: dict[str, tuple[str, str]] = {}
+        self._provider_count = 0
 
     def _fetch_robots(self, page_url: str, timeout: float) -> str:
         """Fetch robots.txt from the exact approved host without redirects."""
@@ -492,7 +531,9 @@ class WebRetriever:
         try:
             with build_opener(_NoRedirect()).open(request, timeout=timeout) as response:
                 return json.loads(response.read().decode("utf-8"))
-        except (HTTPError, URLError, TimeoutError, json.JSONDecodeError) as error:
+        except HTTPError as error:
+            raise WebRetrievalError(f"Tavily trả HTTP {error.code}; kiểm tra key, quota hoặc tham số") from error
+        except (URLError, TimeoutError, json.JSONDecodeError) as error:
             raise WebRetrievalError("Search provider không trả kết quả hợp lệ") from error
 
     def _fetch_page(self, url: str, timeout: float) -> tuple[str, str]:
@@ -522,12 +563,13 @@ class WebRetriever:
                 raise WebRetrievalError("Hết thời gian hoặc không tải được trang nguồn web") from error
         raise WebRetrievalError("Trang web chuyển hướng quá nhiều lần")
 
-    def search(self, claim: str, top_k: int = 3) -> list[RetrievedEvidence]:
+    def search(self, claim: str, top_k: int = 3, *, source_urls: tuple[str, ...] = ()) -> list[RetrievedEvidence]:
         """Search without a publication-date restriction."""
-        return self._search(claim, top_k)
+        return self._run_search(claim, top_k, source_urls=source_urls)
 
     def search_time_window(self, claim: str, top_k: int, start_date: date,
-                           end_date: date, *, language: str | None = None) -> list[RetrievedEvidence]:
+                           end_date: date, *, language: str | None = None,
+                           source_urls: tuple[str, ...] = ()) -> list[RetrievedEvidence]:
         """Search fresh news only, using Tavily's server-side date filter.
 
         The page is still fetched and its own publication metadata is extracted;
@@ -546,29 +588,79 @@ class WebRetriever:
         if language:
             options["language"] = language
             options["filter_by_language"] = True
-        self.last_attempts = []
+        return self._run_search(claim, top_k, options, (start_date, end_date), source_urls)
+
+    def _run_search(self, claim: str, top_k: int, options: dict[str, object] | None = None,
+                    date_window: tuple[date, date] | None = None,
+                    source_urls: tuple[str, ...] = ()) -> list[RetrievedEvidence]:
+        if top_k < 1:
+            raise ValueError("top_k phải lớn hơn 0")
+        self.last_attempts, self.last_candidates = [], []
+        self.last_error = None
+        self._page_cache = {}
+        queries = search_queries(claim)
         plain = re.sub(r"\s+ngày\s+\d{2}/\d{2}/\d{4}$", "", claim).strip()
-        primary_hosts = [host for host, entry in self.allowed_sources.items()
-                         if entry["category"] in {"government", "corporate"}]
-        attempts = [("dated_news", claim, options),
-                    ("plain_news", plain, options),
-                    ("primary_general", plain, {"topic": "general", "include_domains": primary_hosts or sorted(self.allowed_sources)})]
+        if date_window:
+            # A general-index fallback must retain press sources. Date checks
+            # still run against the original page even without a server filter.
+            attempts = [("dated_news", queries[0], options),
+                        ("plain_news", queries[1] if len(queries) > 1 else plain, options),
+                        ("general_fallback", queries[1] if len(queries) > 1 else plain,
+                         {"topic": "general", "include_published_date": True})]
+        else:
+            attempts = [(f"general_{index + 1}", query, options) for index, query in enumerate(queries)]
+        collected: dict[tuple[str, str], RetrievedEvidence] = {}
+
+        def merge(items: list[RetrievedEvidence]) -> None:
+            for item in items:
+                key = (item.evidence.url, item.evidence.content)
+                previous = collected.get(key)
+                if previous is None or item.score > previous.score:
+                    collected[key] = item
+
+        if source_urls:
+            if len(source_urls) > 3:
+                raise ValueError("Chỉ nhận tối đa 3 URL nguồn cho mỗi lần kiểm chứng")
+            items = self._search(claim, top_k, date_window=date_window, original_claim=claim,
+                                 results_override=[{"url": url, "score": 1.0} for url in source_urls])
+            merge(items)
+            self.last_attempts.append({"stage": "direct_urls", "status": self.last_status, "count": len(items)})
         for stage, query, request_options in attempts[:int(self.limits.get("requests_per_claim", 1))]:
-            items = self._search(query, top_k, request_options, date_window=(start_date, end_date))
-            self.last_attempts.append({"stage": stage, "status": self.last_status, "count": len(items)})
-            if items or self.last_status in {"missing_api_key", "disabled", "local_only"}:
-                return items
-        return []
+            # A weak hit must not suppress the next query. One near-complete
+            # passage is sufficient to stop discovery, regardless of verdict.
+            if any(eligible(plain, i.evidence.content, minimum_coverage=0.85) for i in collected.values()):
+                break
+            items = self._search(query, max(top_k, 20), request_options, date_window,
+                                 original_claim=claim)
+            merge(items)
+            self.last_attempts.append({"stage": stage, "query": query, "status": self.last_status,
+                                       "provider_results": self._provider_count, "count": len(items)})
+            if self.last_status in {"missing_api_key", "disabled", "local_only", "invalid_provider_response"}:
+                break
+        ranked = sorted(collected.values(), key=lambda i: (
+            -relevance(plain, i.evidence.content), -i.score, i.evidence.passage_id))
+        primary, remaining, documents = [], [], set()
+        for item in ranked:
+            (remaining if item.evidence.document_id in documents else primary).append(item)
+            documents.add(item.evidence.document_id)
+        selected = (primary + remaining)[:top_k]
+        if selected:
+            self.last_status = "ok"
+        # Only HTML in memory for this call; no content is persisted.
+        self._page_cache.clear()
+        return selected
 
     def _search(self, claim: str, top_k: int,
                 provider_overrides: dict[str, object] | None = None,
-                date_window: tuple[date, date] | None = None) -> list[RetrievedEvidence]:
+                date_window: tuple[date, date] | None = None, *, original_claim: str | None = None,
+                results_override: list[dict[str, object]] | None = None) -> list[RetrievedEvidence]:
+        self._provider_count = 0
         if top_k < 1:
             raise ValueError("top_k phải lớn hơn 0")
         if not self.enabled:
             self.last_status = "disabled"
             return []
-        if not self.api_key:
+        if not self.api_key and results_override is None:
             self.last_status = "missing_api_key"
             return []
         payload = {
@@ -584,28 +676,42 @@ class WebRetriever:
         if provider_overrides:
             payload.update(provider_overrides)
         try:
-            self.ledger.reserve()
-            response = self.provider_request(payload, self.api_key, float(self.limits["timeout_seconds"]))
-        except WebRetrievalError:
+            if results_override is None:
+                self.ledger.reserve()
+                response = self.provider_request(payload, self.api_key, float(self.limits["timeout_seconds"]))
+            else:
+                response = {"results": results_override}
+        except WebRetrievalError as error:
+            self.last_error = str(error)
             self.last_status = "local_only"
             return []
-        results = response.get("results", [])
+        results = response.get("results", []) if isinstance(response, dict) else None
         if not isinstance(results, list):
             self.last_status = "invalid_provider_response"
             return []
         collected: list[RetrievedEvidence] = []
+        self._provider_count = len(results)
         seen_urls: set[str] = set()
+        passage_query = re.sub(r"\s+ngày\s+\d{2}/\d{2}/\d{4}$", "", original_claim or claim)
         for rank, result in enumerate(results):
             if not isinstance(result, dict) or not isinstance(result.get("url"), str):
                 continue
             url = canonical_url(result["url"])
-            if url in seen_urls or not allowed_url(url, set(self.allowed_sources)):
+            record: dict[str, object] = {"url": url, "query": claim, "status": "rejected"}
+            self.last_candidates.append(record)
+            if url in seen_urls:
+                record["reason"] = "URL trùng trong kết quả tìm kiếm"
+                continue
+            if not allowed_url(url, set(self.allowed_sources)):
+                record["reason"] = "URL không phải HTTPS hoặc hostname chưa có trong allowlist"
                 continue
             seen_urls.add(url)
             try:
-                if not self._robots_allow(url, float(self.limits["timeout_seconds"])):
-                    raise WebRetrievalError("robots.txt không cho phép tải trang nguồn")
-                final_url, html = self.page_fetcher(url, float(self.limits["timeout_seconds"]))
+                if url not in self._page_cache:
+                    if not self._robots_allow(url, float(self.limits["timeout_seconds"])):
+                        raise WebRetrievalError("robots.txt không cho phép tải hoặc không đọc được robots.txt")
+                    self._page_cache[url] = self.page_fetcher(url, float(self.limits["timeout_seconds"]))
+                final_url, html = self._page_cache[url]
                 final_url = canonical_url(final_url)
                 if not allowed_url(final_url, set(self.allowed_sources)):
                     raise WebRetrievalError("Trang cuối cùng ngoài allowlist")
@@ -614,6 +720,7 @@ class WebRetriever:
                     int(self.extraction["minimum_passage_chars"]),
                     int(self.extraction["maximum_passage_chars"]),
                     int(self.extraction["max_passages_per_page"]),
+                    query=passage_query,
                 )
                 published_at = extract_published_at(html)
                 date_source = "page" if published_at else None
@@ -625,20 +732,24 @@ class WebRetriever:
                     published_at = _normalize_date(result.get("published_date"))
                     date_source = "tavily" if published_at else None
                 if date_window:
-                    published = date.fromisoformat(published_at[:10]) if published_at else None
+                    published = publication_date(published_at)
+                    record["published_at"] = published_at
                     if published is None or not date_window[0] <= published <= date_window[1]:
+                        record["reason"] = "Không rõ ngày xuất bản" if published is None else "Ngày xuất bản ngoài cửa sổ kiểm chứng"
                         continue
-            except WebRetrievalError:
+            except WebRetrievalError as error:
+                record["reason"] = str(error)
                 continue
             source = self.allowed_sources[urlsplit(final_url).hostname or ""]
             if final_url in seen_urls and final_url != url:
+                record["reason"] = "Trùng trang sau chuyển hướng"
                 continue
             seen_urls.add(final_url)
             base_score = float(result.get("score", 1.0))
             fetched_at = datetime.now(timezone.utc).isoformat()
             document_id = f"web-{sha256(final_url.encode('utf-8')).hexdigest()[:16]}"
-            passage_query = re.sub(r"\s+ngày\s+\d{2}/\d{2}/\d{4}$", "", claim)
             ranked_passages = sorted(enumerate(passages), key=lambda pair: -relevance(passage_query, pair[1]))
+            accepted = 0
             for passage_index, passage in ranked_passages:
                 if date_window and not eligible(passage_query, passage):
                     continue
@@ -658,6 +769,11 @@ class WebRetriever:
                     authority_score={"government": 0.95, "international": 0.95, "press": 0.7, "corporate": 0.55}[source["category"]],
                 )
                 collected.append(RetrievedEvidence(evidence, base_score - rank * 0.001 - passage_index * 0.0001))
+                accepted += 1
+            record.update({"status": "accepted" if accepted else "rejected", "final_url": final_url,
+                           "passages": accepted, "published_at": published_at})
+            if not accepted:
+                record["reason"] = "Không có đoạn đủ dài, khớp phát biểu trong nội dung trang gốc"
         # Give distinct articles a chance before taking extra passages from
         # the same page. Provider rank still determines article order.
         primary, remaining = [], []

@@ -47,9 +47,10 @@ def get_system(mode: str, engine: str = "phobert", as_of: date | None = None) ->
 
 
 @st.cache_data(show_spinner=False, ttl=900)
-def run_cached(mode: str, engine: str, claim: str, as_of: date | None = None) -> dict[str, object]:
+def run_cached(mode: str, engine: str, claim: str, as_of: date | None = None,
+               source_urls: tuple[str, ...] = ()) -> dict[str, object]:
     """Cache response JSON-safe theo (chế độ, model, claim); model được cache riêng. Web: hết hạn 15 phút."""
-    return get_system(mode, engine, as_of).check(claim)
+    return get_system(mode, engine, as_of).check(claim, source_urls=source_urls)
 
 
 def show_evidence(item: dict, key_prefix: str) -> None:
@@ -90,6 +91,8 @@ with st.sidebar:
 example = st.selectbox("Ví dụ nhanh", list(EXAMPLES))
 claim = st.text_area("Phát biểu cần kiểm chứng", value=EXAMPLES[example],
                      placeholder="Nhập một phát biểu tiếng Việt…", max_chars=2000)
+source_urls_text = st.text_area("URL nguồn (tùy chọn, mỗi dòng một URL, tối đa 3)",
+                                help="Dùng ở chế độ Local + web để đọc trực tiếp bài mới đăng từ nguồn được phép.")
 if st.button("Kiểm chứng", type="primary"):
     if not claim.strip():
         st.warning("Vui lòng nhập phát biểu cần kiểm chứng.")
@@ -104,7 +107,8 @@ if st.button("Kiểm chứng", type="primary"):
             if mode == "hybrid" and system.web_status:
                 (st.info if system.settings.get("web") else st.warning)(system.web_status)
             with st.spinner("Đang truy xuất bằng chứng và kiểm chứng…"):
-                response = run_cached(mode, model_engine, claim, as_of)
+                response = run_cached(mode, model_engine, claim, as_of,
+                                      tuple(url.strip() for url in source_urls_text.splitlines() if url.strip()))
             verdict = response["verdict"]
             retrieval = response["retrieval"]
             citations = response["citations"]
@@ -125,13 +129,15 @@ if st.button("Kiểm chứng", type="primary"):
             gate = diagnostics.get("temporal_gate")
             if gate:
                 st.info(
-                    f"Claim thời sự ({'theo ngày' if gate['recency_class'] == 'today' else 'hiện tại'}): chỉ nhận "
-                    f"bằng chứng từ {gate['cutoff']} (cửa sổ {gate['window_days']} ngày). Giữ {gate['kept']}; "
+                    f"Lọc thời gian ({gate['recency_class']}), ngày neo {gate['anchor_date']}: nhận bài "
+                    f"từ {gate['cutoff']} đến {gate['end_date']}. Giữ {gate['kept']}; "
                     f"loại {gate['dropped_stale']} quá cũ, {gate['dropped_undated']} không rõ ngày, "
                     f"{gate['dropped_future']} sau ngày tham chiếu."
                 )
             if diagnostics.get("web_error"):
                 st.warning(f"Nhánh web lỗi, đã lùi về kho local: {diagnostics['web_error']}")
+            if diagnostics.get("web_search_error"):
+                st.warning(f"Tìm kiếm web: {diagnostics['web_search_error']}")
 
             st.subheader("Nhánh verifier: citation dùng cho kết luận")
             if not citations:
@@ -150,8 +156,7 @@ if st.button("Kiểm chứng", type="primary"):
                         st.caption(f"[{row['reason']}] ({row['origin']}) {row['source']} · "
                                    f"{(row['published_at'] or 'không rõ')[:10]} · {row['url']}")
             with st.expander("Chi tiết kỹ thuật (để báo cáo/gỡ lỗi)"):
-                st.json({"settings": diagnostics.get("settings"), "web_enriched_query": diagnostics.get("web_enriched_query"),
-                         "schema_version": response.get("schema_version")})
+                st.json({**diagnostics, "schema_version": response.get("schema_version")})
             st.caption("Pipeline và kết quả claim được cache trong phiên Streamlit; sửa config/model cần bấm Clear cache rồi chạy lại.")
         except (RuntimeError, ValueError, ConfigValidationError) as error:
             st.error(str(error))

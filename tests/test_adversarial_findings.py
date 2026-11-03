@@ -371,8 +371,14 @@ def test_fix_tracking_params_collapse_but_real_query_params_do_not():
     assert len(TopicalRerankRetriever(inner).search("Giá xăng tăng", 5)) == 2
 
 
-def test_fix_gate_keeps_evidence_one_day_ahead_for_timezone_skew():
+def test_gate_rejects_future_bare_date_instead_of_assuming_timezone_skew():
     inner = StaticRetriever([ev("tz", "giá xăng tăng", published_at="2026-03-02")])
+    gate = TemporalGateRetriever(inner, as_of=date(2026, 3, 1), window_today=10)
+    assert gate.search("Giá xăng tăng chiều nay", 3) == []
+
+
+def test_gate_converts_explicit_timezone_to_vietnam_date():
+    inner = StaticRetriever([ev("tz", "giá xăng tăng", published_at="2026-03-02T00:30:00+14:00")])
     gate = TemporalGateRetriever(inner, as_of=date(2026, 3, 1), window_today=10)
     assert [i.evidence.passage_id for i in gate.search("Giá xăng tăng chiều nay", 3)] == ["tz"]
 

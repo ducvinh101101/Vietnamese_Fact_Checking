@@ -22,24 +22,15 @@ Nguyên tắc:
 
 from __future__ import annotations
 
-from datetime import date, datetime, timedelta
+from datetime import date, datetime
 
 from src.contracts import Retriever
-from src.query_enrichment import recency_class, window_start
+from src.query_enrichment import publication_date, resolve_time_scope
 from src.schemas import RetrievedEvidence
-
-# Lệch múi giờ: bài đăng 'ngày mai' theo UTC vẫn là hôm nay ở VN; chỉ loại khi vượt hẳn.
-FUTURE_TOLERANCE_DAYS = 1
-
 
 def _published_date(value: str | None) -> date | None:
     """Đọc phần NGÀY từ published_at ISO; trả None nếu thiếu/không hợp lệ."""
-    if not value:
-        return None
-    try:
-        return datetime.fromisoformat(value.strip().replace("Z", "+00:00")).date()
-    except ValueError:
-        return None
+    return publication_date(value)
 
 
 class TemporalGateRetriever:
@@ -52,7 +43,8 @@ class TemporalGateRetriever:
     def __init__(self, inner: Retriever, as_of: date | None = None,
                  window_days: int = 30, window_today: int | None = None,
                  window_current: int | None = None, candidate_k: int = 20,
-                 drop_unknown_dates: bool = True, enabled: bool = True) -> None:
+                 drop_unknown_dates: bool = True, enabled: bool = True,
+                 force_reference: bool = False) -> None:
         if window_days < 0:
             raise ValueError("window_days không được âm")
         if candidate_k < 1:
@@ -81,6 +73,9 @@ class TemporalGateRetriever:
         self.last_kept = 0
         # Danh sách (lý do, RetrievedEvidence) bị loại, để runner in chẩn đoán.
         self.last_dropped_items: list[tuple[str, RetrievedEvidence]] = []
+        self.force_reference = force_reference
+        self.last_end: date | None = None
+        self.last_anchor: date | None = None
 
     def search(self, claim: str, top_k: int = 3) -> list[RetrievedEvidence]:
         if top_k < 1:
@@ -95,20 +90,25 @@ class TemporalGateRetriever:
         self.last_dropped_future = 0
         self.last_kept = 0
         self.last_dropped_items = []
+        self.last_end = None
+        self.last_anchor = None
 
         # Claim phi thời sự hoặc gate tắt: không can thiệp.
-        cls = recency_class(claim)
-        if not self.enabled or cls is None:
+        reference = self.as_of or datetime.now().date()
+        scope = resolve_time_scope(claim, reference, self.window_today, self.window_current,
+                                   force_reference=self.force_reference) if self.enabled else None
+        if scope is None:
             return self.inner.search(claim, top_k)
 
         # Chọn cửa sổ theo loại mốc: today hẹp, current rộng.
-        window = self.window_today if cls == "today" else self.window_current
-        reference = self.as_of or datetime.now().date()
-        cutoff = window_start(claim, reference, window)
+        window = self.window_current if scope.kind == "current" else self.window_today
+        cutoff = scope.start
         self.last_applied = True
         self.last_cutoff = cutoff
-        self.last_class = cls
+        self.last_class = scope.kind
         self.last_window = window
+        self.last_end = scope.end
+        self.last_anchor = scope.anchor
 
         candidates = self.inner.search(claim, max(top_k, self.candidate_k))
         kept: list[RetrievedEvidence] = []
@@ -121,7 +121,7 @@ class TemporalGateRetriever:
                     continue
                 kept.append(item)
                 continue
-            if published > reference + timedelta(days=FUTURE_TOLERANCE_DAYS):
+            if published > scope.end:
                 self.last_dropped_future += 1
                 self.last_dropped_items.append(("sau ngày tham chiếu", item))
                 continue

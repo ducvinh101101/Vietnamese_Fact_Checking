@@ -108,6 +108,16 @@ source_policy:
       category: press
       scope: Tin thời sự và chương trình phát thanh của cơ quan báo chí quốc gia
       reference: https://vov.vn/
+    - host: congly.vn
+      name: Báo Công lý
+      category: press
+      scope: Tin pháp luật, Quốc hội và thời sự; kiểm tác giả, ngày đăng và nội dung gốc
+      reference: https://congly.vn/
+    - host: www.congly.vn
+      name: Báo Công lý
+      category: press
+      scope: Tin pháp luật, Quốc hội và thời sự; kiểm tác giả, ngày đăng và nội dung gốc
+      reference: https://www.congly.vn/
     # --- Mở rộng allowlist 2026-10-03: thêm nguồn uy tín. Khớp hostname CHÍNH XÁC,
     # không wildcard; nhiều báo phục vụ cả apex và www nên liệt kê cả hai biến thể
     # để tránh bị loại sau redirect. Nguồn press có authority thấp hơn gov/quốc tế;

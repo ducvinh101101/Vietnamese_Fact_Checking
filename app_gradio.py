@@ -130,6 +130,11 @@ def render_notes(diagnostics: dict, system: FactCheckSystem) -> str:
         notes.append(("" if system.settings.get("web") else "warn", system.web_status))
     if diagnostics.get("web_error"):
         notes.append(("warn", f"Nhánh web lỗi, đã lùi về kho local: {diagnostics['web_error']}"))
+    if diagnostics.get("web_search_error"):
+        notes.append(("warn", f"Tìm kiếm web: {diagnostics['web_search_error']}"))
+    if diagnostics.get("web_search_status") == "no_eligible_passages":
+        notes.append(("warn", "Không lấy được đoạn web phù hợp. Xem lý do từng URL ở Chi tiết kỹ thuật; "
+                               "với bài mới đăng, có thể nhập URL nguồn trực tiếp."))
     if diagnostics.get("minimal_pair_reason"):
         notes.append(("", f"Luật cặp-tối-thiểu đã điều chỉnh verdict ({diagnostics['minimal_pair_reason']}): phát biểu "
                           "gần trùng một câu trong nguồn nhưng khác số/chiều/phủ định, hoặc trùng nguyên văn."))
@@ -137,9 +142,9 @@ def render_notes(diagnostics: dict, system: FactCheckSystem) -> str:
         notes.append(("", f"Guard đã hạ verdict xuống NEI: {diagnostics['guard_reason']}."))
     gate = diagnostics.get("temporal_gate")
     if gate:
-        kind = "theo ngày" if gate["recency_class"] == "today" else "hiện tại"
-        notes.append(("", f"Claim thời sự ({kind}): chỉ nhận bằng chứng từ {gate['cutoff']} (cửa sổ {gate['window_days']} "
-                          f"ngày). Giữ {gate['kept']}; loại {gate['dropped_stale']} quá cũ, {gate['dropped_undated']} "
+        notes.append(("", f"Lọc theo thời gian ({gate['recency_class']}): ngày neo {gate.get('anchor_date')}; "
+                          f"nhận bài từ {gate['cutoff']} đến {gate.get('end_date')}. "
+                          f"Giữ {gate['kept']}; loại {gate['dropped_stale']} quá cũ, {gate['dropped_undated']} "
                           f"không rõ ngày, {gate['dropped_future']} sau ngày tham chiếu."))
     return "".join(f'<div class="note {kind}">{_e(text)}</div>' for kind, text in notes)
 
@@ -166,7 +171,8 @@ def render_evidence(items: list[dict], cited_ids: set[str], empty: str) -> str:
     return "".join(cards)
 
 
-def check(claim: str, mode_label: str, model_label: str, use_date: bool, as_of_text: str):
+def check(claim: str, mode_label: str, model_label: str, use_date: bool, as_of_text: str,
+          source_urls_text: str = ""):
     claim = (claim or "").strip()
     if not claim:
         gr.Warning("Vui lòng nhập phát biểu cần kiểm chứng.")
@@ -182,7 +188,8 @@ def check(claim: str, mode_label: str, model_label: str, use_date: bool, as_of_t
             return "", "", "", "", {}
     try:
         system = get_system(mode, engine, as_of)
-        response = system.check(claim)
+        source_urls = tuple(url.strip() for url in source_urls_text.splitlines() if url.strip())
+        response = system.check(claim, source_urls=source_urls)
     except (RuntimeError, ValueError, ConfigValidationError) as error:
         return f'<div class="note warn">{_e(error)}</div>', "", "", "", {}
     diagnostics = response.get("diagnostics", {})
@@ -204,8 +211,7 @@ def check(claim: str, mode_label: str, model_label: str, use_date: bool, as_of_t
         render_evidence(response["citations"], cited_ids, "Không có đoạn nào được dùng để xác nhận hoặc bác bỏ."),
         retrieved,
         f"### Tìm thấy {response['retrieval']['retrieved_count']} đoạn · trích dẫn {len(response['citations'])}",
-        {"settings": diagnostics.get("settings"), "web_enriched_query": diagnostics.get("web_enriched_query"),
-         "schema_version": response.get("schema_version"), "model_engine": engine},
+        {**diagnostics, "schema_version": response.get("schema_version"), "model_engine": engine},
     )
 
 
@@ -218,6 +224,9 @@ def build_ui() -> gr.Blocks:
             with gr.Column(scale=5):
                 claim = gr.Textbox(label="Phát biểu cần kiểm chứng", lines=4, max_length=2000,
                                    placeholder="Ví dụ: Tổng thống Brazil Lula hoãn chuyến thăm 6 ngày tới Trung Quốc…")
+                source_urls = gr.Textbox(label="URL nguồn (tùy chọn, mỗi dòng một URL, tối đa 3)", lines=2,
+                                        placeholder="https://vnexpress.net/...",
+                                        info="Dùng ở chế độ Local + web để đọc trực tiếp bài mới đăng. Nguồn cần nằm trong danh sách được phép.")
                 with gr.Row():
                     submit = gr.Button("Kiểm chứng", variant="primary", scale=3)
                     clear = gr.ClearButton(value="Xóa", scale=1)
@@ -252,10 +261,10 @@ def build_ui() -> gr.Blocks:
 
         use_date.change(lambda on: gr.update(visible=on), use_date, as_of)
         outputs = [verdict, citations, retrieved, summary, details]
-        inputs = [claim, mode, model_choice, use_date, as_of]
+        inputs = [claim, mode, model_choice, use_date, as_of, source_urls]
         submit.click(check, inputs, outputs)
         claim.submit(check, inputs, outputs)
-        clear.add([claim, *outputs])
+        clear.add([claim, source_urls, *outputs])
     return demo
 
 
@@ -263,5 +272,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--share", action="store_true", help="Tạo link công khai tạm thời (gradio.live)")
     parser.add_argument("--port", type=int, default=7860)
+    parser.add_argument("--no-browser", action="store_true", help="Không tự mở tab trình duyệt")
     args = parser.parse_args()
-    build_ui().queue(default_concurrency_limit=1).launch(server_port=args.port, share=args.share, inbrowser=True)
+    build_ui().queue(default_concurrency_limit=1).launch(server_port=args.port, share=args.share,
+                                                       inbrowser=not args.no_browser)

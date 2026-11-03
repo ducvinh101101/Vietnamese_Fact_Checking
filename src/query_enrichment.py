@@ -14,7 +14,8 @@ Nguyên tắc quan trọng — chỉ sửa truy vấn, KHÔNG sửa claim gửi 
 
 from __future__ import annotations
 
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
+from dataclasses import dataclass
 import re
 
 from src.contracts import Retriever
@@ -27,6 +28,7 @@ from src.schemas import RetrievedEvidence
 _TODAY_MARKERS = (
     "hôm nay", "chiều nay", "sáng nay", "trưa nay", "tối nay", "đêm nay",
     "hôm qua", "ngày mai", "sáng mai", "chiều mai", "tối mai",
+    "phiên đầu tuần", "chốt phiên", "cuối tuần qua",
 )
 _CURRENT_MARKERS = (
     "hiện nay", "hiện tại", "bây giờ", "mới nhất", "gần đây", "mới đây",
@@ -93,6 +95,72 @@ def window_start(claim: str, reference: date, days: int) -> date:
     return cutoff
 
 
+@dataclass(frozen=True)
+class TimeScope:
+    kind: str
+    anchor: date
+    start: date
+    end: date
+    reason: str
+
+
+def publication_date(value: str | None) -> date | None:
+    """Interpret an offset timestamp in Vietnam; a bare date stays a date."""
+    if not value:
+        return None
+    try:
+        stamp = datetime.fromisoformat(value.strip().replace('Z', '+00:00'))
+        if stamp.tzinfo is not None:
+            stamp = stamp.astimezone(timezone(timedelta(hours=7)))
+        return stamp.date()
+    except ValueError:
+        return None
+
+
+_EVENT_DATE = re.compile(
+    r"\b(?P<iso>\d{4}-\d{1,2}-\d{1,2})\b"
+    r"|\b(?P<day>\d{1,2})[/-](?P<month>\d{1,2})(?:[/-](?P<year>\d{4}))?(?![\d/-])\b"
+    r"|ngày\s+(?P<vd>\d{1,2})\s+tháng\s+(?P<vm>\d{1,2})(?:\s+năm\s+(?P<vy>\d{4}))?",
+    re.IGNORECASE,
+)
+
+
+def resolve_time_scope(claim: str, reference: date, window_today: int = 10,
+                       window_current: int = 365, *, force_reference: bool = False) -> TimeScope | None:
+    """One publication window shared by search and the post-retrieval gate.
+
+    A date without a year uses the reference year, never the machine's year.
+    Publication proximity is a retrieval constraint, not proof of an event date.
+    """
+    match = _EVENT_DATE.search(claim)
+    if match:
+        try:
+            if match['iso']:
+                year, month, day = map(int, match['iso'].split('-'))
+            else:
+                year = int(match['year'] or match['vy'] or reference.year)
+                month = int(match['month'] or match['vm'])
+                day = int(match['day'] or match['vd'])
+            anchor = date(year, month, day)
+        except ValueError as error:
+            raise ValueError("Ngày trong phát biểu không hợp lệ") from error
+        # Do not use evidence unavailable at the reference date. A future event
+        # may still be reported in advance, so cap its publication window there.
+        end = min(reference, anchor + timedelta(days=window_today))
+        start = min(end, anchor - timedelta(days=window_today))
+        return TimeScope("dated", anchor, start, end, "Ngày sự kiện; thiếu năm thì dùng năm tham chiếu")
+    kind = recency_class(claim)
+    # Historical year/month claims must not be silently reinterpreted as current.
+    if kind is None and _ABSOLUTE_DATE.search(claim.casefold()):
+        return None
+    if kind is None and not force_reference:
+        return None
+    kind = kind or "reference"
+    days = window_current if kind == "current" else window_today
+    return TimeScope(kind, reference, window_start(claim, reference, days), reference,
+                     "Ngày tham chiếu được chọn" if kind == "reference" else "Mốc thời gian trong phát biểu")
+
+
 def enrich_query(claim: str, as_of: date | None = None) -> tuple[str, bool]:
     """Trả (truy vấn, đã_chèn). Chèn 'ngày dd/mm/yyyy' nếu claim thời sự."""
     if not is_time_sensitive(claim):
@@ -109,7 +177,8 @@ class TimeAwareRetriever:
     """
 
     def __init__(self, inner: Retriever, as_of: date | None = None, enabled: bool = True,
-                 window_today: int = 10, window_current: int = 365) -> None:
+                 window_today: int = 10, window_current: int = 365,
+                 force_reference: bool = False) -> None:
         if window_today < 0 or window_current < 0:
             raise ValueError("cửa sổ tìm kiếm web không được âm")
         self.inner = inner
@@ -118,22 +187,32 @@ class TimeAwareRetriever:
         self.window_today = window_today
         self.window_current = window_current
         self.last_enriched_query: str | None = None
+        self.force_reference = force_reference
+        self.source_urls: tuple[str, ...] = ()
+        self.last_scope: TimeScope | None = None
 
     def search(self, claim: str, top_k: int = 3) -> list[RetrievedEvidence]:
+        reference = self.as_of or datetime.now().date()
+        scope = resolve_time_scope(claim, reference, self.window_today, self.window_current,
+                                   force_reference=self.force_reference) if self.enabled else None
+        self.last_scope = scope
         query, enriched = (enrich_query(claim, self.as_of) if self.enabled else (claim, False))
+        if scope and not enriched and scope.kind in {"dated", "reference"}:
+            stamp = f"ngày {scope.anchor:%d/%m/%Y}"
+            query = claim if stamp in claim else f"{claim} {stamp}"
+            enriched = query != claim
         self.last_enriched_query = query if enriched else None
         # WebRetriever exposes this opt-in capability.  Keep the Retriever
         # protocol unchanged so non-web retrievers remain compatible.
         search_time_window = getattr(self.inner, "search_time_window", None)
-        recency = recency_class(claim)
-        if enriched and recency is not None and callable(search_time_window):
-            reference = self.as_of or datetime.now().date()
-            window = self.window_today if recency == "today" else self.window_current
+        extra = {"source_urls": self.source_urls} if self.source_urls else {}
+        if scope is not None and callable(search_time_window):
             return search_time_window(
                 query,
                 top_k,
-                window_start(claim, reference, window),
-                reference,
+                scope.start,
+                scope.end,
                 language="vi",
+                **extra,
             )
-        return self.inner.search(query, top_k)
+        return self.inner.search(query, top_k, **extra)

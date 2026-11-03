@@ -27,6 +27,7 @@ from dataclasses import dataclass, field
 from datetime import date
 from pathlib import Path
 from typing import Any
+from threading import RLock
 
 import yaml
 
@@ -105,13 +106,31 @@ class FactCheckSystem:
     guard: GuardedVerifier | None = None
     minimal_pair: MinimalPairVerifier | None = None
     settings: dict[str, Any] = field(default_factory=dict)
+    _check_lock: Any = field(default_factory=RLock, init=False, repr=False)
 
-    def check(self, claim: str) -> dict[str, Any]:
+    def check(self, claim: str, source_urls: tuple[str, ...] = ()) -> dict[str, Any]:
         """Chạy pipeline, trả JSON contract W3-03 + ``origin`` từng bằng chứng + ``diagnostics``."""
-        response = self.pipeline.run_json(claim)
+        # UI resource caches share this mutable retriever across requests.
+        with self._check_lock:
+            return self._check(claim, source_urls)
+
+    def _check(self, claim: str, source_urls: tuple[str, ...]) -> dict[str, Any]:
+        if source_urls and self.web_layer is None:
+            raise ValueError("URL nguồn cần chế độ Local + web và cấu hình web khả dụng")
+        if self.web_layer is not None:
+            self.web_layer.source_urls = tuple(source_urls)
+        try:
+            response = self.pipeline.run_json(claim)
+        finally:
+            if self.web_layer is not None:
+                self.web_layer.source_urls = ()
         for record in [*response["retrieval"]["evidence"], *response["citations"]]:
             record["origin"] = "web" if str(record["passage_id"]).startswith("web-") else "local"
         response["diagnostics"] = self.diagnostics()
+        selected_urls = {row['url'] for row in response['retrieval']['evidence'] if row['origin'] == 'web'}
+        for row in response['diagnostics'].get('web_candidates', []):
+            if row.get('status') == 'accepted':
+                row['selected_for_verifier'] = row.get('final_url', row['url']) in selected_urls
         return response
 
     def diagnostics(self) -> dict[str, Any]:
@@ -120,12 +139,17 @@ class FactCheckSystem:
         if self.web_layer is not None:
             info["web_enriched_query"] = self.web_layer.last_enriched_query
             info["web_attempts"] = getattr(self.web_layer.inner, "last_attempts", [])
+            info["web_candidates"] = [dict(row) for row in getattr(self.web_layer.inner, "last_candidates", [])]
+            info["web_search_status"] = getattr(self.web_layer.inner, "last_status", None)
+            info["web_search_error"] = getattr(self.web_layer.inner, "last_error", None)
         if self.fusion is not None:
             info["web_error"] = self.fusion.last_web_error
         if self.gate is not None and self.gate.last_applied:
             info["temporal_gate"] = {
                 "recency_class": self.gate.last_class,
                 "cutoff": self.gate.last_cutoff.isoformat() if self.gate.last_cutoff else None,
+                "end_date": self.gate.last_end.isoformat() if self.gate.last_end else None,
+                "anchor_date": self.gate.last_anchor.isoformat() if self.gate.last_anchor else None,
                 "window_days": self.gate.last_window,
                 "kept": self.gate.last_kept,
                 "dropped_stale": self.gate.last_dropped_stale,
@@ -178,7 +202,7 @@ def build_verifier(config: dict[str, Any], root: Path = ROOT, engine: str | None
 
 
 def load_web_retriever(root: Path = ROOT) -> tuple[Any | None, str]:
-    """WebRetriever từ configs/web_retrieval.yaml (bật lúc chạy). Không có key -> (None, lý do)."""
+    """Build web retrieval; without an API key only direct source URLs work."""
     from src.web_retriever import WebRetriever
 
     config = deepcopy(yaml.safe_load((root / "configs" / "web_retrieval.yaml").read_text(encoding="utf-8")))
@@ -187,7 +211,8 @@ def load_web_retriever(root: Path = ROOT) -> tuple[Any | None, str]:
     config["cache"]["directory"] = str(root / ".cache" / "web_retrieval")
     key_env = config["provider"]["api_key_env"]
     if not os.environ.get(key_env):
-        return None, f"Thiếu biến môi trường {key_env} (đặt trong .env hoặc PowerShell); đang chạy chỉ với kho local."
+        return WebRetriever(config), (f"Thiếu biến môi trường {key_env}; không tìm kiếm Tavily. "
+                                      "Vẫn có thể đọc URL nguồn trực tiếp hoặc dùng kho local.")
     hosts = len(config["source_policy"]["allowlist"])
     return WebRetriever(config), f"Web bật: Tavily, chỉ nhận {hosts} nguồn trong allowlist."
 
@@ -247,12 +272,14 @@ def build_system(options: SystemOptions | None = None, config: dict[str, Any] | 
     web_layer = None
     if web is not None:
         web_layer = TimeAwareRetriever(web, as_of=options.as_of, enabled=options.time_enrich,
-                                       window_today=options.window_today, window_current=options.window_current)
+                                       window_today=options.window_today, window_current=options.window_current,
+                                       force_reference=options.as_of is not None)
     fusion = FusionRetriever(local, web_layer or web, candidate_k=options.candidate_k)
     gate = TemporalGateRetriever(
         fusion, as_of=options.as_of, window_today=options.window_today, window_current=options.window_current,
         candidate_k=options.candidate_k, drop_unknown_dates=not options.keep_undated,
         enabled=options.temporal_gate,
+        force_reference=options.as_of is not None,
     )
     retriever = TopicalRerankRetriever(gate, candidate_k=options.candidate_k, enabled=options.topical_rerank)
     guard = True if options.guard is None else options.guard
@@ -266,7 +293,8 @@ def build_system(options: SystemOptions | None = None, config: dict[str, Any] | 
         minimal_pair=_find(pipeline.checker, MinimalPairVerifier),
         settings={"top_k": top_k, "guard": guard, "minimal_pair": minimal_pair,
                   "evidence_view": v.get("evidence_view", "passage"), "corpus": corpus,
-                  "web": web is not None, "temporal_gate": options.temporal_gate,
+                  "web": web is not None and bool(getattr(web, "api_key", True)),
+                  "temporal_gate": options.temporal_gate,
                   "window_today": options.window_today, "window_current": options.window_current,
                   "topical_rerank": options.topical_rerank},
     )

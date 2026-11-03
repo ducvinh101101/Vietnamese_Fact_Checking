@@ -335,14 +335,16 @@ class TestWebRetrieverSearch:
 
     def test_payload_never_requests_raw_content_or_answer(self, tmp_path):
         seen = {}
+        queries = []
 
         def provider(payload, key, timeout):
             seen.update(payload)
+            queries.append(payload["query"])
             assert timeout == 15.0
             return {"results": []}
 
         make(tmp_path, provider).search("Giá xăng hôm nay", 3)
-        assert seen["query"] == "Giá xăng hôm nay"
+        assert queries[0] == "Giá xăng hôm nay"
         assert seen["include_raw_content"] is False and seen["include_answer"] is False
         assert seen["auto_parameters"] is False
         assert seen["max_results"] == 15
@@ -477,8 +479,6 @@ class TestWebRetrieverSearch:
     def test_null_provider_score_does_not_crash(self, tmp_path):
         assert make(tmp_path, [{"url": "https://vnexpress.net/x", "score": None}]).search("c", 1)
 
-    @pytest.mark.xfail(strict=True, raises=AttributeError,
-                       reason="BUG: provider trả JSON không phải object (vd list) -> AttributeError .get")
     def test_non_object_provider_response_is_controlled(self, tmp_path):
         retriever = make(tmp_path, lambda *_: [])
         assert retriever.search("c") == []
@@ -526,7 +526,7 @@ AS_OF = date(2026, 11, 1)
 
 
 class TestTimeAwareRetriever:
-    @pytest.mark.parametrize("claim", ["Hà Nội là thủ đô Việt Nam", "Giá xăng ngày 15/3/2023 tăng",
+    @pytest.mark.parametrize("claim", ["Hà Nội là thủ đô Việt Nam",
                                        "Cựu tổng thống Obama thăm Việt Nam năm 2016"])
     def test_non_time_sensitive_uses_plain_search(self, claim):
         web = FakeWeb([])
