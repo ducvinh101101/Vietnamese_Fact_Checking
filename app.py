@@ -24,6 +24,10 @@ MODE_LABELS = {
     "local": "Kho local (đã đánh giá)",
     "hybrid": "Local + web (Tavily, allowlist)",
 }
+MODEL_LABELS = {
+    "phobert": "PhoBERT Đề tài (Cục bộ CPU, < 0.3s)",
+    "gemma": "LLM Gemma 4 (Google Cloud, Suy luận sâu)",
+}
 EXAMPLES = {"— Chọn ví dụ —": ""} | {
     f"{case['id']} · {case['title']} (kỳ vọng {case['expected']}{', chế độ web' if case['mode'] == 'hybrid' else ''})":
         case["claim"]
@@ -37,15 +41,15 @@ LABEL_STYLE = {
 
 
 @st.cache_resource(show_spinner="Đang nạp mô hình và kho bằng chứng…")
-def get_system(mode: str, as_of: date | None = None) -> FactCheckSystem:
+def get_system(mode: str, engine: str = "phobert", as_of: date | None = None) -> FactCheckSystem:
     config = load_runtime_config(ROOT / "configs" / "config.yaml")
-    return build_system(SystemOptions(mode=mode, as_of=as_of), config=config, root=ROOT)
+    return build_system(SystemOptions(mode=mode, engine=engine, as_of=as_of), config=config, root=ROOT)
 
 
 @st.cache_data(show_spinner=False, ttl=900)
-def run_cached(mode: str, claim: str, as_of: date | None = None) -> dict[str, object]:
-    """Cache response JSON-safe theo (chế độ, claim); model được cache riêng. Web: hết hạn 15 phút."""
-    return get_system(mode, as_of).check(claim)
+def run_cached(mode: str, engine: str, claim: str, as_of: date | None = None) -> dict[str, object]:
+    """Cache response JSON-safe theo (chế độ, model, claim); model được cache riêng. Web: hết hạn 15 phút."""
+    return get_system(mode, engine, as_of).check(claim)
 
 
 def show_evidence(item: dict, key_prefix: str) -> None:
@@ -62,11 +66,12 @@ def show_evidence(item: dict, key_prefix: str) -> None:
 
 st.set_page_config(page_title="Kiểm chứng thông tin tiếng Việt", page_icon="🔎", layout="wide")
 st.title("🔎 Kiểm chứng thông tin tiếng Việt")
-st.caption("Retrieval → verifier → citation. Kết quả là hỗ trợ tham khảo; luôn mở nguồn gốc để kiểm tra.")
+st.caption("Retrieval → verifier (PhoBERT / LLM Gemma 4) → citation. Kết quả là hỗ trợ tham khảo; luôn mở nguồn gốc để kiểm tra.")
 st.warning("⚠️ Bản thử nghiệm nghiên cứu, chưa xác nhận 80% ngoài thực tế. Luôn kiểm tra đối chiếu nguồn gốc trích dẫn.")
 
 with st.sidebar:
     st.header("Cấu hình")
+    model_engine = st.radio("Mô hình phán quyết", list(MODEL_LABELS), format_func=MODEL_LABELS.get)
     mode = st.radio("Nguồn bằng chứng", list(MODE_LABELS), format_func=MODE_LABELS.get)
     as_of = None
     if mode == "hybrid":
@@ -90,7 +95,7 @@ if st.button("Kiểm chứng", type="primary"):
         st.warning("Vui lòng nhập phát biểu cần kiểm chứng.")
     else:
         try:
-            system = get_system(mode, as_of)
+            system = get_system(mode, model_engine, as_of)
             if system.fallback_reason:
                 st.warning(
                     "PhoBERT hiện bị Windows Application Control chặn; hệ thống đang chạy chế độ "
@@ -99,16 +104,17 @@ if st.button("Kiểm chứng", type="primary"):
             if mode == "hybrid" and system.web_status:
                 (st.info if system.settings.get("web") else st.warning)(system.web_status)
             with st.spinner("Đang truy xuất bằng chứng và kiểm chứng…"):
-                response = run_cached(mode, claim, as_of)
+                response = run_cached(mode, model_engine, claim, as_of)
             verdict = response["verdict"]
             retrieval = response["retrieval"]
             citations = response["citations"]
             diagnostics = response.get("diagnostics", {})
             icon, kind, meaning = LABEL_STYLE.get(str(verdict["label"]), ("", "info", ""))
             getattr(st, kind)(f"{icon} **{verdict['label']}** — {meaning}")
-            col_score, col_mode = st.columns(2)
+            col_score, col_mode, col_eng = st.columns(3)
             col_score.metric("Điểm mô hình", f"{float(verdict['confidence']):.2f}")
-            col_mode.metric("Chế độ", MODE_LABELS[mode])
+            col_mode.metric("Nguồn bằng chứng", MODE_LABELS[mode])
+            col_eng.metric("Mô hình", MODEL_LABELS[model_engine].split()[0])
             st.caption("Điểm mô hình không phải xác suất thông tin đúng trong thực tế.")
             st.write(str(verdict["explanation"]))
             if diagnostics.get("minimal_pair_reason"):
