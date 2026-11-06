@@ -1,0 +1,37 @@
+1. Môi trường
+  ✓ Python >= 3.11 — 3.12.10
+  ✓ thư viện yaml
+  ✓ thư viện rank_bm25
+  ✓ thư viện pandas
+  ✓ thư viện sklearn
+  ✓ thư viện streamlit
+  ✓ thư viện pytest
+  ✓ thư viện torch (cho PhoBERT)
+  ✓ thư viện transformers (cho PhoBERT)
+  ✓ thư viện py_vncorenlp (cho PhoBERT)
+2. Cấu hình
+  ✓ configs/config.yaml hợp lệ
+     engine=phobert · model=models/rt_v2_balanced/best_model · evidence_view=ensemble · minimal_pair=True · guard=False
+3. Mô hình
+  ✓ checkpoint models/rt_v2_balanced/best_model — đủ file
+  ✓ VnCoreNLP tại models/vncorenlp — có jar + wordsegmenter
+  ✓ Java cho VnCoreNLP — C:\Users\tmqua\AppData\Local\Programs\Eclipse Adoptium\jdk-21.0.12.101-hotspot\bin\java.EXE
+4. Dữ liệu
+  ✓ kho bằng chứng data/evidence/vifactcheck_passages.jsonl — 6484 KB
+  ✓ corpus v2 khớp SHA-256 manifest — khớp
+  ✓ evidence_source_policy.yaml khớp manifest — khớp
+  ✓ split dev
+  ✓ split test
+5. Web (tùy chọn)
+  ✓ TAVILY_API_KEY — có (không in giá trị)
+6. Số liệu báo cáo
+  ✓ outputs/metrics/w4_02_local_end_to_end_test.json — Macro-F1 59.49%
+  ✓ outputs/metrics/final_local_end_to_end_test.json — Macro-F1 72.31%
+  ✓ outputs/metrics/final_vs_baselines_test.json — có
+  ✓ outputs/metrics/rt_v2_balanced_e2e_dev.json — Macro-F1 70.75%
+7. Chạy thử verifier
+2026-11-06 15:46:31 INFO  WordSegmenter:24 - Loading Word Segmentation model
+  ✓ pipeline chạy được với phobert — verdict NOT_ENOUGH_INFO, 3 bằng chứng
+
+Kết luận: SẴN SÀNG
+[0m

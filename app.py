@@ -73,7 +73,7 @@ st.warning("⚠️ Bản thử nghiệm nghiên cứu, chưa xác nhận 80% ngo
 with st.sidebar:
     st.header("Cấu hình")
     model_engine = st.radio("Mô hình phán quyết", list(MODEL_LABELS), format_func=MODEL_LABELS.get)
-    mode = st.radio("Nguồn bằng chứng", list(MODE_LABELS), format_func=MODE_LABELS.get)
+    mode = st.radio("Nguồn bằng chứng", list(MODE_LABELS), index=list(MODE_LABELS).index('hybrid'), format_func=MODE_LABELS.get)
     as_of = None
     if mode == "hybrid":
         if st.checkbox("Đặt ngày tham chiếu (mặc định: hôm nay)"):
@@ -91,8 +91,6 @@ with st.sidebar:
 example = st.selectbox("Ví dụ nhanh", list(EXAMPLES))
 claim = st.text_area("Phát biểu cần kiểm chứng", value=EXAMPLES[example],
                      placeholder="Nhập một phát biểu tiếng Việt…", max_chars=2000)
-source_urls_text = st.text_area("URL nguồn (tùy chọn, mỗi dòng một URL, tối đa 3)",
-                                help="Dùng ở chế độ Local + web để đọc trực tiếp bài mới đăng từ nguồn được phép.")
 if st.button("Kiểm chứng", type="primary"):
     if not claim.strip():
         st.warning("Vui lòng nhập phát biểu cần kiểm chứng.")
@@ -107,8 +105,7 @@ if st.button("Kiểm chứng", type="primary"):
             if mode == "hybrid" and system.web_status:
                 (st.info if system.settings.get("web") else st.warning)(system.web_status)
             with st.spinner("Đang truy xuất bằng chứng và kiểm chứng…"):
-                response = run_cached(mode, model_engine, claim, as_of,
-                                      tuple(url.strip() for url in source_urls_text.splitlines() if url.strip()))
+                response = run_cached(mode, model_engine, claim, as_of)
             verdict = response["verdict"]
             retrieval = response["retrieval"]
             citations = response["citations"]

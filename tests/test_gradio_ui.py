@@ -21,6 +21,8 @@ def test_ui_builds_with_all_modes_and_examples():
     demo = app_gradio.build_ui()
     assert isinstance(demo, gr.Blocks)
     assert set(app_gradio.MODES.values()) == {"local", "hybrid"}
+    assert all(not str(c.get('props', {}).get('label', '')).startswith('URL nguồn')
+               for c in demo.get_config_file()['components'])
 
 
 def test_check_renders_verdict_citations_and_details(rule_based):

@@ -1,0 +1,12 @@
+{
+  "description": "Small diagnostic sample, selected before RSS implementation; exact source retrieval, not verdict accuracy. Four of six cases come from configured feeds, so this is not a representative benchmark.",
+  "as_of": "2026-11-03",
+  "cases": [
+    {"id": "user_gold", "claim": "Giá vàng thế giới tăng mạnh, thoát đáy một năm. Mỗi ounce vàng có thời điểm tăng gần 100 USD trong phiên đầu tuần, lên sát 4.000 USD, nhờ giá dầu giảm gần 8%.", "expected_url": "https://vnexpress.net/gia-vang-the-gioi-tang-manh-thoat-day-mot-nam-5139951.html"},
+    {"id": "user_parliament", "claim": "Ngày 3/11, Quốc hội thảo luận tại hội trường về 4 dự án luật liên quan đến trưng mua, trưng dụng tài sản; sở hữu trí tuệ; đấu giá tài sản và điện lực.", "expected_url": "https://congly.vn/hom-nay-quoc-hoi-thao-luan-4-du-an-luat-quan-trong-545920.html"},
+    {"id": "google_foldable", "claim": "Google sẽ bắt đầu đánh giá mức độ tối ưu của ứng dụng trên điện thoại gập từ năm 2027.", "expected_url": "https://dantri.com.vn/cong-nghe/google-thuc-day-ung-dung-toi-uu-cho-dien-thoai-gap-android-20261102231316901.htm"},
+    {"id": "teacher", "claim": "Thầy Trần Tấn Kha bỏ ngành kỹ sư để theo nghề giáo và mỗi ngày ăn sáng cùng học trò.", "expected_url": "https://tuoitre.vn/thay-giao-gen-z-bo-nghe-ky-su-moi-ngay-cung-an-sang-lam-bo-cua-35-hoc-tro-100261102152127001.htm"},
+    {"id": "phone", "claim": "Lỗi màn hình có thể ảnh hưởng đến hàng nghìn iPhone Duo theo chuyên gia Mark Gurman.", "expected_url": "https://vnexpress.net/loi-man-hinh-co-the-anh-huong-den-hang-nghin-iphone-duo-5139911.html"},
+    {"id": "cpi", "claim": "Tính chung 10 tháng năm 2026, CPI tăng 4,57% so với cùng kỳ năm trước.", "expected_url": "https://vov.vn/kinh-te/cpi-10-thang-tang-457-nhom-hang-nao-gay-ap-luc-lon-nhat-post1346822.vov"}
+  ]
+}

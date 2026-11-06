@@ -15,6 +15,7 @@ from src.query_enrichment import window_start
 def config(tmp_path):
     cfg = yaml.safe_load(Path("configs/web_retrieval.yaml").read_text(encoding="utf-8"))
     cfg["enabled"] = True
+    cfg["discovery"]["enabled"] = False
     cfg["cache"]["directory"] = str(tmp_path)
     return cfg
 
@@ -90,7 +91,7 @@ def test_fallback_filters_stale_and_uses_provider_date(config):
     )
     items = retriever.search_time_window("Giá vàng hôm nay ngày 02/11/2026", 2, date(2026, 10, 23), date(2026, 11, 2))
     assert len(calls) == 3
-    assert calls[1]["query"] == "Giá vàng hôm nay"
+    assert calls[1]["query"].strip('"') == "Giá vàng hôm nay"
     assert calls[2]["topic"] == "general"
     assert items and items[0].evidence.published_at_source == "tavily"
     assert retriever.last_attempts[-1]["count"] > 0

@@ -11,8 +11,24 @@ provider:
   auto_parameters: false
   include_answer: false
   include_raw_content: false
-  # Tăng 10 -> 15: allowlist rộng hơn, cần nhiều kết quả hơn để có bài MỚI, CÓ NGÀY.
-  max_results: 15
+  # A wider candidate pool; final page/date/topic checks still apply.
+  max_results: 20
+discovery:
+  enabled: true
+  # Recent publisher URLs complement the search index; snippets are not evidence.
+  max_feeds: 6
+  max_candidates: 6
+  ttl_seconds: 300
+  timeout_seconds: 4
+  feeds:
+    - https://vnexpress.net/rss/kinh-doanh.rss
+    - https://vnexpress.net/rss/tin-moi-nhat.rss
+    - https://congly.vn/rss/trang-chu
+    - https://dantri.com.vn/rss/home.rss
+    - https://tuoitre.vn/rss/tin-moi-nhat.rss
+    - https://vov.vn/rss/kinh-te.rss
+  sitemap_templates:
+    - 'https://congly.vn/sitemap-article-{date}.xml'
 limits:
   requests_per_claim: 3
   requests_per_minute: 10
@@ -21,6 +37,11 @@ limits:
   max_retries: 1
   retry_statuses: [429, 500, 502, 503, 504]
   fail_to: local_only
+fetching:
+  workers: 5
+  max_pages_per_claim: 24
+  max_pages_per_request: 8
+  timeout_seconds: 6
 source_policy:
   match: exact_hostname
   https_only: true

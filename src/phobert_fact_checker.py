@@ -167,7 +167,7 @@ class PhoBERTFactChecker:
         explanation = {
             "SUPPORTED": "PhoBERT đánh giá phát biểu được bằng chứng đã trích dẫn ủng hộ.",
             "REFUTED": "PhoBERT đánh giá phát biểu mâu thuẫn với bằng chứng đã trích dẫn.",
-            "NOT_ENOUGH_INFO": "PhoBERT không tìm thấy bằng chứng đủ mạnh để kết luận ủng hộ hoặc bác bỏ.",
+            "NOT_ENOUGH_INFO": "PhoBERT chưa xác định được quan hệ ủng hộ hoặc bác bỏ từ các đoạn đã truy xuất.",
         }[label]
         if decision.reason == "low_confidence":
             explanation = "Điểm tổng hợp chưa đạt ngưỡng kết luận; cần kiểm tra thêm bằng chứng."

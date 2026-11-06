@@ -1,4 +1,4 @@
-# Kết quả demo (W4-04) — 2026-10-30T20:44:46
+# Kết quả demo (W4-04) — 2026-11-06T15:46:46
 
 Quan sát định tính trên các ca chọn sẵn (src/demo_cases.py); không phải số đo chất lượng.
 

@@ -32,6 +32,7 @@ from difflib import SequenceMatcher
 from src.contracts import Verifier
 from src.evidence_focus import split_sentences
 from src.schemas import RetrievedEvidence, VerificationResult
+from src.verbatim import verbatim_span
 
 MIN_CLAIM_TOKENS = 6
 MIN_COVERAGE = 0.8          # tỉ lệ âm tiết của claim phải khớp với câu nguồn
@@ -194,17 +195,30 @@ def refine(claim: str, result: VerificationResult, evidence_items: list[Retrieve
 class MinimalPairVerifier:
     """Bọc một Verifier: sau khi verifier trả verdict, áp luật cặp-tối-thiểu."""
 
-    def __init__(self, inner: Verifier, enabled: bool = True, upgrade_exact: bool = True) -> None:
+    def __init__(self, inner: Verifier, enabled: bool = True, upgrade_exact: bool = True,
+                 complete_web_span: bool = False) -> None:
         self.inner = inner
         self.enabled = enabled
         self.upgrade_exact = upgrade_exact
         self.last_reason: str | None = None
+        self.complete_web_span = complete_web_span
+        self.last_base_result: VerificationResult | None = None
 
     def verify(self, claim: str, evidence_items: list[RetrievedEvidence]) -> VerificationResult:
         result = self.inner.verify(claim, evidence_items)
+        self.last_base_result = result
         self.last_reason = None
         if not self.enabled:
             return result
-        refined, reason = refine(claim, result, evidence_items, self.upgrade_exact)
+        if self.complete_web_span and self.upgrade_exact and result.label == 'NOT_ENOUGH_INFO':
+            for item in evidence_items:
+                e = item.evidence
+                if e.passage_id.startswith('web-') and verbatim_span(claim, e.content) is not None:
+                    self.last_reason = 'complete_verbatim_support'
+                    return VerificationResult('SUPPORTED', 0.9, [e.passage_id],
+                        'Toàn bộ phát biểu trùng nguyên văn một câu hoặc các câu liên tiếp trong nguồn đã truy xuất. '
+                        'Kết luận dựa trên đoạn nguồn được trích dẫn.')
+        refined, reason = refine(claim, result, evidence_items,
+                                 self.upgrade_exact and not self.complete_web_span)
         self.last_reason = reason
         return refined

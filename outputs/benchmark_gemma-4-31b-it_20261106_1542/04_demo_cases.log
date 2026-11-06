@@ -1,0 +1,9 @@
+2026-11-06 15:46:40 INFO  WordSegmenter:24 - Loading Word Segmentation model
+✓ D1 [local] kỳ vọng SUPPORTED        → SUPPORTED        (0.99)  Có trong kho, đúng nguyên văn
+✓ D2 [local] kỳ vọng REFUTED          → REFUTED          (0.99)  Đổi một con số
+✓ D3 [local] kỳ vọng REFUTED          → REFUTED          (0.85)  Thêm phủ định
+✓ D4 [local] kỳ vọng REFUTED          → REFUTED          (0.99)  Claim sai trong test ViFactCheck
+✓ D5 [local] kỳ vọng NOT_ENOUGH_INFO  → NOT_ENOUGH_INFO  (0.99)  Kho không đủ thông tin
+
+Đã ghi D:\Vietnamese_Fact_Checking\outputs\demo\demo_cases.md và demo_cases.json
+[0m

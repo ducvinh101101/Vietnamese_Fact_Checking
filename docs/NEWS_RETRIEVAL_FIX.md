@@ -8,16 +8,36 @@ Chế độ Local + web dùng chung một cửa sổ ngày cho tìm kiếm và l
 - Ngày đăng gần ngày sự kiện là điều kiện chọn nguồn, không tự chứng minh sự kiện đúng ngày đó.
 - Bài không rõ ngày hoặc ngoài cửa sổ bị loại. Ngày đăng từ trang được ưu tiên hơn ngày từ chỉ mục.
 
-Tavily thử tối đa ba lượt trong quota sẵn có: phát biểu đầy đủ, câu dẫn ngắn,
-rồi câu dẫn ở chỉ mục general. Nhánh cuối vẫn nhận các nguồn báo chí trong
-allowlist. Các lượt được hợp nhất; kết quả khớp yếu không chặn lượt tiếp theo.
+Hệ thống tìm URL ứng viên qua RSS của VnExpress, Công lý, Dân Trí, Tuổi Trẻ,
+VOV và sitemap theo ngày của Công lý. Khi chưa đủ khớp, Tavily thử tối đa ba
+lượt trong quota sẵn có: phát biểu đầy đủ, cụm dẫn nguyên văn, rồi từ khóa.
+Các lượt general mở phạm vi khám phá URL; bước tải trang vẫn chỉ nhận nguồn
+trong allowlist. Các lượt được hợp nhất; kết quả khớp yếu không chặn lượt tiếp theo.
 Toàn bộ nội dung trang được xét trước khi chọn tối đa ba đoạn; đoạn liền kề có
 thể được giữ chung để cung cấp ngữ cảnh, trong giới hạn độ dài cũ.
 
-Ô **URL nguồn** nhận tối đa ba URL, mỗi dòng một URL. Dùng ô này khi bài mới
-đăng chưa xuất hiện trong chỉ mục tìm kiếm. Không cần Tavily API key cho URL
-trực tiếp; vẫn áp dụng allowlist, HTTPS, DNS, redirect, robots.txt và lọc ngày.
-Công lý (`congly.vn`, `www.congly.vn`) đã được thêm vào allowlist.
+Giao diện chỉ nhận phát biểu và các tùy chọn kiểm chứng; đã bỏ ô URL nguồn theo
+yêu cầu người dùng. URL đáp án chỉ được dùng để chấm kiểm thử hoặc chẩn đoán
+nội bộ, không được đưa vào lượt đo khả năng tự tìm nguồn.
+
+Các trang được tải song song có giới hạn (5 luồng, tối đa 8 trang/lượt và 24
+trang/phát biểu), robots.txt được cache ngắn theo hostname. Lỗi kết nối ngắt
+giữa chừng của một trang không làm mất toàn bộ kết quả. Tiêu đề và ngày từ RSS
+chỉ dùng để khám phá URL; đoạn bằng chứng vẫn phải được đọc từ bài gốc.
+
+Câu trùng nguyên văn ngắn hơn 120 ký tự được giữ lại. Tiêu đề nằm ngoài vùng
+article và phần tóm tắt từ metadata cũng được xét. Đoạn trùng đầy đủ được ưu
+tiên trước các đoạn chỉ trùng từ khóa. Nhánh hybrid giữ đủ ứng viên của cả hai
+nguồn trước khi lọc ngày, tránh việc local chiếm hết chỗ của web.
+
+Luật đối chiếu nguyên văn ở hybrid nhận cả các câu liên tiếp, giữ nguyên số,
+đơn vị, phủ định và thứ tự. Không nâng NEI chỉ vì một cụm từ nằm trong câu dài
+hơn có thêm điều kiện hoặc ngữ cảnh phủ định. Tìm được đúng bài nhưng thiếu
+đoạn chứng minh đầy đủ vẫn có thể dẫn đến NEI.
+
+Ca người dùng: “Nạn nhân tử vong trong vụ cháy trường Kim Liên là học sinh lớp 6”.
+Bộ lọc yêu cầu đúng tên cơ sở, nên tin tử vong khác ở Củ Chi không đủ điều kiện.
+Các cụm sự kiện như “vụ cháy” kích hoạt neo thời gian kể cả khi chưa chọn ngày.
 
 Trong **Chi tiết kỹ thuật**:
 
@@ -25,6 +45,8 @@ Trong **Chi tiết kỹ thuật**:
 - `web_candidates`: URL được nhận hoặc bị loại và lý do.
 - `web_search_status`, `web_search_error`: trạng thái provider/quota.
 - `temporal_gate`: ngày neo, cửa sổ, các nguồn local/web bị loại.
+- `model_verdict`: kết quả mô hình trước guard; `verdict_before_text_rules`: kết quả trước luật nguyên văn.
+- `outcome_stage`: phân biệt không có đoạn, mô hình NEI, guard hạ kết luận và kết luận quyết đoán.
 
 Không thấy URL trong `web_candidates` nghĩa là lượt tìm kiếm chưa trả URL đó,
 không thể suy ra trang không tồn tại hoặc phát biểu sai. Kết quả NEI vẫn hợp lệ
@@ -36,11 +58,15 @@ Khởi động lại Gradio sau khi cập nhật:
 .\.venv312\Scripts\python.exe app_gradio.py --no-browser
 ```
 
-CLI cũng nhận `--source-url` (lặp tối đa ba lần). Ví dụ:
+API/CLI vẫn hỗ trợ URL cố định để phân tích riêng bước đọc và verifier. Không
+trộn phép đo này với chất lượng tự tìm nguồn.
 
-```powershell
-.\.venv312\Scripts\python.exe scripts/run_web_fact_check.py --claim "Ngày 3/11, Quốc hội thảo luận 4 dự án luật" --as-of 2026-11-03 --source-url https://congly.vn/hom-nay-quoc-hoi-thao-luan-4-du-an-luat-quan-trong-545920.html
-```
+Đo tự tìm nguồn bằng `scripts/evaluate_web_discovery.py`; script chỉ gửi claim,
+đối chiếu expected_url sau khi nhận kết quả. Mẫu sáu câu là mẫu chẩn đoán nhỏ,
+có thiên lệch về các báo được cấu hình RSS, không phải benchmark đại diện.
+RSS và chỉ mục thay đổi theo thời gian: các lượt trước/sau chạy khác ngày không
+chứng minh một mức cải thiện tổng quát. Cần tập giữ riêng có nhãn đoạn bằng chứng
+và nhiều chủ đề trước khi công bố Recall@k hoặc chất lượng kết luận ngoài thực tế.
 
 Kiểm thử hồi quy không cần API key/mạng:
 

@@ -25,6 +25,7 @@ PARLIAMENT = ("Ngày 3/11, Quốc hội thảo luận tại hội trường về
 def cfg(tmp_path):
     config = yaml.safe_load(Path("configs/web_retrieval.yaml").read_text(encoding="utf-8"))
     config['enabled'] = True
+    config['discovery']['enabled'] = False
     config['cache']['directory'] = str(tmp_path / 'cache')
     return config
 
@@ -88,13 +89,13 @@ def test_general_fallback_keeps_press_and_filters_by_original_page_date(cfg):
         calls.append(payload)
         if payload['topic'] == 'news':
             return {'results': []}
-        assert 'vnexpress.net' in payload['include_domains']
+        assert payload['include_domains'] == []  # discovery is broad; page allowlist still enforced
         return {'results': [{'url': 'https://vnexpress.net/exact'}]}
     web = WebRetriever(cfg, api_key='key', provider_request=provider,
                        page_fetcher=lambda url, *_: (url, article(GOLD)), robots_fetcher=lambda *_: '')
     assert web.search_time_window(GOLD, 5, date(2026, 10, 24), REFERENCE)
-    assert len(calls) == 3
-    assert web.last_attempts[-1]['stage'] == 'general_fallback'
+    assert len(calls) == 2
+    assert web.last_attempts[-1]['stage'] == 'general_lead'
 
 
 def test_direct_url_bypasses_index_and_key_but_not_date_or_allowlist(cfg):
@@ -118,6 +119,7 @@ def test_direct_url_stale_or_robots_denied_remains_rejected(cfg):
                                       source_urls=('https://vnexpress.net/old',))
     assert 'ngoài cửa sổ' in web.last_candidates[0]['reason']
     web.robots_fetcher = lambda *_: 'User-agent: *\nDisallow: /'
+    web._robots_cache.clear()
     assert not web.search(GOLD, source_urls=('https://vnexpress.net/blocked',))
     assert 'robots.txt' in web.last_candidates[0]['reason']
 

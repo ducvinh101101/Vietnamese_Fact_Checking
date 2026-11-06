@@ -1,0 +1,44 @@
+{
+  "model": "gemma-4-31b-it",
+  "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+  "started": "2026-11-06T15:42:26.890517",
+  "out": "D:\\Vietnamese_Fact_Checking\\outputs\\benchmark_gemma-4-31b-it_20261106_1542",
+  "steps": [
+    {
+      "name": "pytest",
+      "rc": 1,
+      "seconds": 238.1,
+      "log": "01_pytest.log"
+    },
+    {
+      "name": "validate_gold",
+      "rc": 0,
+      "seconds": 1.2,
+      "log": "02_validate_gold.log"
+    },
+    {
+      "name": "check_release_smoke",
+      "rc": 0,
+      "seconds": 9.6,
+      "log": "03_check_release_smoke.log"
+    },
+    {
+      "name": "demo_cases",
+      "rc": 0,
+      "seconds": 11.4,
+      "log": "04_demo_cases.log"
+    },
+    {
+      "name": "phobert_verifier",
+      "rc": 0,
+      "seconds": 18.1,
+      "log": "05_phobert_verifier.log"
+    },
+    {
+      "name": "phobert_project_rules",
+      "rc": 0,
+      "seconds": 18.1,
+      "log": "06_phobert_project_rules.log"
+    }
+  ]
+}

@@ -127,6 +127,11 @@ class FactCheckSystem:
         for record in [*response["retrieval"]["evidence"], *response["citations"]]:
             record["origin"] = "web" if str(record["passage_id"]).startswith("web-") else "local"
         response["diagnostics"] = self.diagnostics()
+        label = response['verdict']['label']
+        response['diagnostics']['outcome_stage'] = (
+            'no_evidence' if not response['retrieval']['retrieved_count'] else
+            'guard_abstained' if label == 'NOT_ENOUGH_INFO' and response['diagnostics'].get('guard_reason') else
+            'verifier_abstained' if label == 'NOT_ENOUGH_INFO' else 'decisive')
         selected_urls = {row['url'] for row in response['retrieval']['evidence'] if row['origin'] == 'web'}
         for row in response['diagnostics'].get('web_candidates', []):
             if row.get('status') == 'accepted':
@@ -166,8 +171,16 @@ class FactCheckSystem:
             }
         if self.guard is not None and self.guard.last_downgraded:
             info["guard_reason"] = self.guard.last_reason
+        if self.guard is not None and self.guard.last_model_result is not None:
+            model = self.guard.last_model_result
+            info['model_verdict'] = {'label': model.label, 'confidence': model.confidence,
+                                     'explanation': model.explanation}
         if self.minimal_pair is not None and self.minimal_pair.last_reason:
             info["minimal_pair_reason"] = self.minimal_pair.last_reason
+        if self.minimal_pair is not None and self.minimal_pair.last_base_result is not None:
+            base = self.minimal_pair.last_base_result
+            info['verdict_before_text_rules'] = {'label': base.label, 'confidence': base.confidence,
+                                                'explanation': base.explanation}
         return info
 
 
@@ -277,15 +290,18 @@ def build_system(options: SystemOptions | None = None, config: dict[str, Any] | 
     fusion = FusionRetriever(local, web_layer or web, candidate_k=options.candidate_k)
     gate = TemporalGateRetriever(
         fusion, as_of=options.as_of, window_today=options.window_today, window_current=options.window_current,
-        candidate_k=options.candidate_k, drop_unknown_dates=not options.keep_undated,
+        candidate_k=2 * options.candidate_k, drop_unknown_dates=not options.keep_undated,
         enabled=options.temporal_gate,
         force_reference=options.as_of is not None,
     )
-    retriever = TopicalRerankRetriever(gate, candidate_k=options.candidate_k, enabled=options.topical_rerank)
+    retriever = TopicalRerankRetriever(gate, candidate_k=2 * options.candidate_k, enabled=options.topical_rerank)
     guard = True if options.guard is None else options.guard
     top_k = options.top_k or 5
     pipeline = FactCheckingPipeline(retriever=retriever, checker=verifier, top_k=top_k,
                                     guard=guard, minimal_pair=minimal_pair)
+    pair_layer = _find(pipeline.checker, MinimalPairVerifier)
+    if pair_layer is not None:
+        pair_layer.complete_web_span = True
     return FactCheckSystem(
         pipeline, "hybrid", fallback_reason, web_status=web_status, web_layer=web_layer,
         fusion=fusion, gate=gate,

@@ -29,6 +29,7 @@ _TODAY_MARKERS = (
     "hôm nay", "chiều nay", "sáng nay", "trưa nay", "tối nay", "đêm nay",
     "hôm qua", "ngày mai", "sáng mai", "chiều mai", "tối mai",
     "phiên đầu tuần", "chốt phiên", "cuối tuần qua",
+    "vụ cháy", "vụ nổ", "vụ sạt lở", "vụ tai nạn",
 )
 _CURRENT_MARKERS = (
     "hiện nay", "hiện tại", "bây giờ", "mới nhất", "gần đây", "mới đây",

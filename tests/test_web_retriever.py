@@ -13,6 +13,7 @@ def config(tmp_path):
     loaded = yaml.safe_load((Path(__file__).resolve().parents[1] / "configs/web_retrieval.yaml").read_text(encoding="utf-8"))
     loaded = deepcopy(loaded)
     loaded["enabled"] = True
+    loaded["discovery"]["enabled"] = False
     loaded["cache"]["directory"] = str(tmp_path / "cache")
     return loaded
 

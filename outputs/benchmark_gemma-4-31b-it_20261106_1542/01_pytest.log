@@ -1,0 +1,117 @@
+........................................................................ [ 12%]
+.............................ss..........F.............................. [ 25%]
+........................................................................ [ 37%]
+...................................F.................................... [ 50%]
+.......................xx............................................... [ 62%]
+.....................................................................x.. [ 75%]
+....................x................................................... [ 88%]
+....................................................................     [100%]
+================================== FAILURES ===================================
+_________________________ test_all_golden_cases_pass __________________________
+
+    def test_all_golden_cases_pass():
+        defaults, cases = load_cases()
+        assert cases, "Không nạp được golden cases"
+        failures = []
+        for case in cases:
+            r = evaluate_case(case, defaults)
+            if not r["ok"]:
+                failures.append(f"{r['id']}: " + "; ".join(r["failures"]))
+>       assert not failures, "Golden FAIL:\n" + "\n".join(failures)
+E       AssertionError: Golden FAIL:
+E         absolute_date_not_gated: gate_applied: cần False, được True
+E       assert not ['absolute_date_not_gated: gate_applied: cần False, được True']
+
+tests\test_golden_web_verification.py:25: AssertionError
+_______________ test_regression_bug_02_windows_cp1252_encoding ________________
+
+    @pytest.mark.slow
+    def test_regression_bug_02_windows_cp1252_encoding():
+        """BUG-02: scripts/run_golden_eval.py in cp1252 subprocess must not crash with UnicodeEncodeError."""
+        golden_script = ROOT / "scripts" / "run_golden_eval.py"
+        if not golden_script.exists():
+            pytest.skip("scripts/run_golden_eval.py not found.")
+    
+        env = os.environ.copy()
+        env["PYTHONIOENCODING"] = "cp1252"
+        env["PYTHONUTF8"] = "0"
+    
+        proc = subprocess.run(
+            [sys.executable, str(golden_script)],
+            env=env,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",      # đọc output con bằng UTF-8 (không để parent tự chọn cp1252)
+            errors="replace",      # không cho thread đọc stdout của parent vỡ vì byte lạ
+        )
+    
+        err = proc.stderr or ""
+        assert "UnicodeEncodeError" not in err, f"BUG-02 VIOLATION: UnicodeEncodeError occurred:\n{err}"
+>       assert proc.returncode == 0, f"Process exited with non-zero code {proc.returncode}:\nStdout:\n{proc.stdout}\nStderr:\n{err}"
+E       AssertionError: Process exited with non-zero code 1:
+E         Stdout:
+E         ======================================================================
+E         GOLDEN TEST — chuỗi RAG web -> xác minh (deterministic)
+E         ======================================================================
+E         [PASS] fresh_retail_support         Freshness + grounding: có bài giá bán lẻ MỚI, đúng chiều -> SUPPORTED
+E         [PASS] stale_only_nei               Neo thời gian: chỉ còn bài CŨ -> NEI, không SUPPORTED bằng bài cũ
+E         [PASS] mixed_direction_guard        Guard: bằng chứng 'trái chiều' -> không được SUPPORTED claim 'tăng'
+E         [PASS] offtopic_world_oil_guard     Rerank loại đoạn chỉ nói giá dầu THẾ GIỚI -> NEI
+E         [PASS] current_wide_window_support  Cửa sổ 'current' rộng: bài vài tháng trước vẫn hợp lệ cho claim hiện tại
+E         [PASS] current_window_drops_too_old Cửa sổ 'current': bài quá 1 năm vẫn bị loại -> NEI
+E         [PASS] url_collapse_pick_retail     Gộp URL + rerank: cùng 1 bài -> 1 dòng, chọn đoạn bán lẻ thay vì đoạn thế giới
+E         [PASS] undated_web_dropped          Đọc ngày web: bài KHÔNG rõ ngày bị loại cho claim thời sự -> NEI
+E         [PASS] historical_not_gated         Claim phi thời sự: không neo thời gian, bài cũ vẫn hợp lệ
+E         [PASS] web_empty_fallback_local     Khả năng chịu lỗi: web rỗng -> fallback local (fusion fail_to local)
+E         [FAIL] absolute_date_not_gated      Claim có ngày tuyệt đối -> không coi là thời sự, không neo thời gian
+E                 └─ gate_applied: cần False, được True
+E         ----------------------------------------------------------------------
+E         10/11 case PASS
+E         
+E         Stderr:
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['D:\\Vietnamese_Fact_Checking\\.venv312\\Scripts\\python.exe', 'D:\\Vietnamese_Fact_Checking\\s...alse, được True\n----------------------------------------------------------------------\n10/11 case PASS\n", stderr='').returncode
+
+tests\test_regression_fixed_bugs.py:65: AssertionError
+============================== warnings summary ===============================
+tests/test_gradio_ui.py::test_ui_builds_with_all_modes_and_examples
+  D:\Vietnamese_Fact_Checking\app_gradio.py:221: DeprecationWarning: The 'theme' parameter in the Blocks constructor will be removed in Gradio 6.0. You will need to pass 'theme' to Blocks.launch() instead.
+    with gr.Blocks(theme=theme, css=CSS, title="Kiểm chứng thông tin tiếng Việt") as demo:
+
+tests/test_gradio_ui.py::test_ui_builds_with_all_modes_and_examples
+  D:\Vietnamese_Fact_Checking\app_gradio.py:221: DeprecationWarning: The 'css' parameter in the Blocks constructor will be removed in Gradio 6.0. You will need to pass 'css' to Blocks.launch() instead.
+    with gr.Blocks(theme=theme, css=CSS, title="Kiểm chứng thông tin tiếng Việt") as demo:
+
+tests/test_gradio_ui.py::test_ui_builds_with_all_modes_and_examples
+tests/test_gradio_ui.py::test_ui_builds_with_all_modes_and_examples
+tests/test_gradio_ui.py::test_ui_builds_with_all_modes_and_examples
+tests/test_gradio_ui.py::test_ui_builds_with_all_modes_and_examples
+  D:\Vietnamese_Fact_Checking\.venv312\Lib\site-packages\gradio\component_meta.py:189: DeprecationWarning: The default value of 'padding' in gr.HTML will be changed from True to False in Gradio 6.0. You will need to explicitly set padding=True if you want to keep the padding.
+    return fn(self, **kwargs)
+
+tests/test_gradio_ui.py::test_ui_builds_with_all_modes_and_examples
+  D:\Vietnamese_Fact_Checking\.venv312\Lib\site-packages\gradio\helpers.py:445: DeprecationWarning: The 'show_api' parameter in event listeners will be removed in Gradio 6.0. You will need to use the 'api_visibility' parameter instead. To replicate show_api=False, in Gradio 6.0, use api_visibility='undocumented'.
+    self.load_input_event = self.dataset.click(
+
+tests/test_gradio_ui.py::test_ui_builds_with_all_modes_and_examples
+  D:\Vietnamese_Fact_Checking\.venv312\Lib\site-packages\gradio\helpers.py:85: DeprecationWarning: The 'show_api' parameter in event listeners will be removed in Gradio 6.0. You will need to use the 'api_visibility' parameter instead. To replicate show_api=False, in Gradio 6.0, use api_visibility='undocumented'.
+    examples_obj.create()
+
+tests/test_gradio_ui.py::test_ui_builds_with_all_modes_and_examples
+  D:\Vietnamese_Fact_Checking\.venv312\Lib\site-packages\gradio\components\clear_button.py:105: DeprecationWarning: The 'show_api' parameter in event listeners will be removed in Gradio 6.0. You will need to use the 'api_visibility' parameter instead. To replicate show_api=False, in Gradio 6.0, use api_visibility='undocumented'.
+    self.click(
+
+tests/test_gradio_ui.py::test_ui_builds_with_all_modes_and_examples
+  D:\Vietnamese_Fact_Checking\app_gradio.py:267: DeprecationWarning: The 'show_api' parameter in event listeners will be removed in Gradio 6.0. You will need to use the 'api_visibility' parameter instead. To replicate show_api=False, in Gradio 6.0, use api_visibility='undocumented'.
+    clear.add([claim, source_urls, *outputs])
+
+tests/test_gradio_ui.py::test_blank_claim_returns_empty_outputs
+  D:\Vietnamese_Fact_Checking\.venv312\Lib\site-packages\gradio\helpers.py:1141: UserWarning: Vui lòng nhập phát biểu cần kiểm chứng.
+    warnings.warn(message)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_golden_web_verification.py::test_all_golden_cases_pass - As...
+FAILED tests/test_regression_fixed_bugs.py::test_regression_bug_02_windows_cp1252_encoding
+2 failed, 564 passed, 2 skipped, 4 xfailed, 11 warnings in 234.11s (0:03:54)

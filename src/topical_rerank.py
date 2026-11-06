@@ -24,6 +24,7 @@ from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 from src.contracts import Retriever
 from src.schemas import RetrievedEvidence
+from src.verbatim import verbatim_span
 
 _SPACE = re.compile(r"\s+")
 _TERM = re.compile(r"\d+(?:[.,]\d+)*|\w+", re.UNICODE)
@@ -92,6 +93,14 @@ def eligible(claim: str, passage: str, minimum_coverage: float = 0.35) -> bool:
     terms = _tokens(claim)
     overlap = terms & _tokens(passage)
     if not terms or len(overlap) < min(2, len(terms)) or len(overlap) / len(terms) < minimum_coverage:
+        return False
+    # Generic accident/death vocabulary must not substitute for the named
+    # institution in a claim (e.g. a school fire versus a different fatality).
+    institutions = re.findall(
+        r'(?i:trường|bệnh viện|công ty|tập đoàn)\s+(?:(?:THCS|THPT|TNHH|CP)\s+)?'
+        r'([A-ZĐ][^\W\d_]+(?:\s+[A-ZĐ][^\W\d_]+){1,3})', claim)
+    passage_words = ' '.join(_TERM.findall(passage.casefold()))
+    if any(' '.join(_TERM.findall(name.casefold())) not in passage_words for name in institutions):
         return False
     # Require complete multi-word proper names rather than accepting a different
     # person who happens to share a surname. Numbers may differ in REFUTED evidence.
@@ -168,7 +177,8 @@ class TopicalRerankRetriever:
                 continue
             key = self._url_key(item)
             current = best.get(key)
-            if current is None or (rel, item.score) > (current[0], current[1].score):
+            if current is None or (verbatim_span(claim, item.evidence.content) is not None, rel, item.score) > (
+                    verbatim_span(claim, current[1].evidence.content) is not None, current[0], current[1].score):
                 best[key] = (rel, item)
 
         # Xếp bài theo (độ khớp, score gốc) giảm dần. Gán lại score = độ khớp để
@@ -181,7 +191,8 @@ class TopicalRerankRetriever:
 
         ranked = sorted(
             best.values(),
-            key=lambda pair: (-combined(pair), pair[1].evidence.passage_id),
+            key=lambda pair: (verbatim_span(claim, pair[1].evidence.content) is None,
+                              -combined(pair), pair[1].evidence.passage_id),
         )
         result: list[RetrievedEvidence] = []
         for order, (rel, item) in enumerate(ranked[:top_k]):

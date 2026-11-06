@@ -133,13 +133,15 @@ def render_notes(diagnostics: dict, system: FactCheckSystem) -> str:
     if diagnostics.get("web_search_error"):
         notes.append(("warn", f"Tìm kiếm web: {diagnostics['web_search_error']}"))
     if diagnostics.get("web_search_status") == "no_eligible_passages":
-        notes.append(("warn", "Không lấy được đoạn web phù hợp. Xem lý do từng URL ở Chi tiết kỹ thuật; "
-                               "với bài mới đăng, có thể nhập URL nguồn trực tiếp."))
+        notes.append(("warn", "Chưa lấy được đoạn web phù hợp. Xem truy vấn và lý do từng bài bị loại ở Chi tiết kỹ thuật."))
     if diagnostics.get("minimal_pair_reason"):
         notes.append(("", f"Luật cặp-tối-thiểu đã điều chỉnh verdict ({diagnostics['minimal_pair_reason']}): phát biểu "
                           "gần trùng một câu trong nguồn nhưng khác số/chiều/phủ định, hoặc trùng nguyên văn."))
     if diagnostics.get("guard_reason"):
         notes.append(("", f"Guard đã hạ verdict xuống NEI: {diagnostics['guard_reason']}."))
+    elif diagnostics.get('outcome_stage') == 'verifier_abstained':
+        notes.append(('', 'Đã có đoạn bằng chứng đưa vào mô hình, nhưng mô hình chưa xác định được quan hệ '
+                          'ủng hộ hoặc bác bỏ. Xem các đoạn truy xuất và kết quả mô hình trong Chi tiết kỹ thuật.'))
     gate = diagnostics.get("temporal_gate")
     if gate:
         notes.append(("", f"Lọc theo thời gian ({gate['recency_class']}): ngày neo {gate.get('anchor_date')}; "
@@ -171,8 +173,7 @@ def render_evidence(items: list[dict], cited_ids: set[str], empty: str) -> str:
     return "".join(cards)
 
 
-def check(claim: str, mode_label: str, model_label: str, use_date: bool, as_of_text: str,
-          source_urls_text: str = ""):
+def check(claim: str, mode_label: str, model_label: str, use_date: bool, as_of_text: str):
     claim = (claim or "").strip()
     if not claim:
         gr.Warning("Vui lòng nhập phát biểu cần kiểm chứng.")
@@ -188,8 +189,7 @@ def check(claim: str, mode_label: str, model_label: str, use_date: bool, as_of_t
             return "", "", "", "", {}
     try:
         system = get_system(mode, engine, as_of)
-        source_urls = tuple(url.strip() for url in source_urls_text.splitlines() if url.strip())
-        response = system.check(claim, source_urls=source_urls)
+        response = system.check(claim)
     except (RuntimeError, ValueError, ConfigValidationError) as error:
         return f'<div class="note warn">{_e(error)}</div>', "", "", "", {}
     diagnostics = response.get("diagnostics", {})
@@ -224,9 +224,6 @@ def build_ui() -> gr.Blocks:
             with gr.Column(scale=5):
                 claim = gr.Textbox(label="Phát biểu cần kiểm chứng", lines=4, max_length=2000,
                                    placeholder="Ví dụ: Tổng thống Brazil Lula hoãn chuyến thăm 6 ngày tới Trung Quốc…")
-                source_urls = gr.Textbox(label="URL nguồn (tùy chọn, mỗi dòng một URL, tối đa 3)", lines=2,
-                                        placeholder="https://vnexpress.net/...",
-                                        info="Dùng ở chế độ Local + web để đọc trực tiếp bài mới đăng. Nguồn cần nằm trong danh sách được phép.")
                 with gr.Row():
                     submit = gr.Button("Kiểm chứng", variant="primary", scale=3)
                     clear = gr.ClearButton(value="Xóa", scale=1)
@@ -239,7 +236,7 @@ def build_ui() -> gr.Blocks:
                 )
                 mode = gr.Radio(
                     list(MODES),
-                    value=next(iter(MODES)),
+                    value=next(name for name, value in MODES.items() if value == 'hybrid'),
                     label="Nguồn bằng chứng",
                     info="Kho local là cấu hình đã đo; web dùng cho claim thời sự (cần TAVILY_API_KEY).",
                 )
@@ -261,10 +258,10 @@ def build_ui() -> gr.Blocks:
 
         use_date.change(lambda on: gr.update(visible=on), use_date, as_of)
         outputs = [verdict, citations, retrieved, summary, details]
-        inputs = [claim, mode, model_choice, use_date, as_of, source_urls]
+        inputs = [claim, mode, model_choice, use_date, as_of]
         submit.click(check, inputs, outputs)
         claim.submit(check, inputs, outputs)
-        clear.add([claim, source_urls, *outputs])
+        clear.add([claim, *outputs])
     return demo
 
 

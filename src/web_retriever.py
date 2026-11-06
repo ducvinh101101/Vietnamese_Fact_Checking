@@ -8,17 +8,22 @@ remain later retrieval tasks.
 from __future__ import annotations
 
 from contextlib import contextmanager
-from datetime import date, datetime, timezone
+from concurrent.futures import ThreadPoolExecutor
+from datetime import date, datetime, timedelta, timezone
+from email.utils import parsedate_to_datetime
 import gzip
 from hashlib import sha256
 from html.parser import HTMLParser
+from http.client import HTTPException
 from ipaddress import ip_address
 import json
+from math import isfinite
 import os
 from pathlib import Path
 import re
 import socket
 import time
+from threading import Lock
 from typing import Callable
 from urllib.error import HTTPError, URLError
 from urllib.parse import urljoin, urlsplit, urlunsplit
@@ -28,7 +33,11 @@ import zlib
 
 from src.schemas import Evidence, RetrievedEvidence
 from src.query_enrichment import publication_date
+from src.news_discovery import NewsDiscovery
 from src.topical_rerank import eligible, relevance
+from src.verbatim import verbatim_span
+from src.evidence_focus import split_sentences
+from src.evidence_focus import sentence_score
 
 
 class WebRetrievalError(RuntimeError):
@@ -58,6 +67,8 @@ class _PageTextParser(HTMLParser):
         self.time_values: list[str] = []
         self.ldjson_blobs: list[str] = []
         self._in_ldjson = False
+        self.headlines: list[str] = []
+        self._headline_parts: list[str] | None = None
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         tag = tag.lower()
@@ -87,6 +98,8 @@ class _PageTextParser(HTMLParser):
             self._skip_depth += 1
         if tag == "title":
             self._in_title = True
+        if tag == 'h1' and self._skip_depth == 0:
+            self._headline_parts = []
         if self._skip_depth == 0 and tag in self._BLOCKS:
             self._parts.append("\n")
             self._content_parts.append("\n")
@@ -97,6 +110,9 @@ class _PageTextParser(HTMLParser):
             self._in_title = False
         if tag == "script":
             self._in_ldjson = False
+        if tag == 'h1' and self._headline_parts is not None:
+            self.headlines.append(''.join(self._headline_parts).strip())
+            self._headline_parts = None
         for index in range(len(self._stack) - 1, -1, -1):
             if self._stack[index][0] == tag:
                 del self._stack[index:]
@@ -107,6 +123,8 @@ class _PageTextParser(HTMLParser):
             self._content_parts.append("\n")
 
     def handle_data(self, data: str) -> None:
+        if self._headline_parts is not None and self._skip_depth == 0:
+            self._headline_parts.append(data)
         if self._in_title:
             self.title += data
         if self._in_ldjson:
@@ -203,7 +221,8 @@ def extract_passages(html: str, minimum_chars: int, maximum_chars: int, max_pass
     def append_unique(passage: str) -> None:
         normalized = re.sub(r"\s+", " ", passage).strip()
         fingerprint = normalized.casefold()
-        if len(normalized) >= minimum_chars and fingerprint not in seen_passages:
+        exact = query is not None and verbatim_span(query, normalized) is not None
+        if (len(normalized) >= minimum_chars or exact) and fingerprint not in seen_passages:
             seen_passages.add(fingerprint)
             passages.append(normalized[:maximum_chars])
 
@@ -212,8 +231,17 @@ def extract_passages(html: str, minimum_chars: int, maximum_chars: int, max_pass
     description = parser.meta.get("og:description") or parser.meta.get("description")
     if query and description and not any(description.strip() in p for p in paragraphs):
         paragraphs.insert(0, description)
+    headline = parser.headlines[0] if parser.headlines else parser.meta.get('og:title')
+    if query and headline and not any(headline in p for p in paragraphs):
+        paragraphs.insert(0, headline)
     for paragraph in paragraphs:
-        sentences = re.split(r"(?<=[.!?…])\s+", paragraph)
+        sentences = split_sentences(paragraph)
+        if query:
+            # Do not bury a copied sentence inside a longer chunk, or discard it
+            # solely because it is shorter than the generic 120-character floor.
+            for sentence in sentences:
+                if verbatim_span(query, sentence) is not None:
+                    append_unique(sentence)
         chunk = ""
         for sentence in sentences:
             candidate = f"{chunk} {sentence}".strip()
@@ -235,7 +263,7 @@ def extract_passages(html: str, minimum_chars: int, maximum_chars: int, max_pass
                     break
                 context += " " + following
                 append_unique(context)
-        passages.sort(key=lambda passage: -relevance(query, passage))
+        passages.sort(key=lambda passage: (verbatim_span(query, passage) is None, -relevance(query, passage)))
     return title, passages[:max_passages]
 
 
@@ -250,7 +278,7 @@ def search_queries(claim: str) -> list[str]:
     lead = re.split(r"(?<=[.!?…])\s+|(?=\bMỗi\b)", plain, maxsplit=1)[0].strip()
     lead = " ".join(lead.split()[:24])
     from src.topical_rerank import _STOPWORDS
-    terms = list(dict.fromkeys(word for word in re.findall(r"[\wÀ-ỹ]+", plain)
+    terms = list(dict.fromkeys(word for word in re.findall(r"\d+(?:[.,]\d+)*%?|[^\W\d_]+", plain)
                               if word.casefold() not in _STOPWORDS))
     keywords = " ".join(terms[:22])
     return list(dict.fromkeys(q for q in (claim.strip(), lead, keywords) if q))
@@ -302,6 +330,11 @@ def _normalize_date(raw: str | None) -> str | None:
         parsed = datetime.fromisoformat(text.replace("Z", "+00:00"))
     except ValueError:
         parsed = None
+    if parsed is None:
+        try:
+            parsed = parsedate_to_datetime(text)
+        except (ValueError, TypeError, OverflowError):
+            pass
     # 2) yyyy-mm-dd / yyyy/mm/dd ở đầu chuỗi (một số trang gắn thêm chữ phía sau).
     if parsed is None:
         match = _YMD.search(text)
@@ -454,7 +487,8 @@ class WebRetriever:
     def __init__(self, config: dict[str, object], api_key: str | None = None,
                  provider_request: Callable[[dict[str, object], str, float], dict[str, object]] | None = None,
                  page_fetcher: Callable[[str, float], tuple[str, str]] | None = None,
-                 robots_fetcher: Callable[[str, float], str] | None = None) -> None:
+                 robots_fetcher: Callable[[str, float], str] | None = None,
+                 feed_fetcher: Callable[[str, float], tuple[str, str]] | None = None) -> None:
         self.config = config
         self.provider = config["provider"]  # type: ignore[assignment]
         self.limits = config["limits"]  # type: ignore[assignment]
@@ -476,8 +510,37 @@ class WebRetriever:
         self.last_attempts: list[dict[str, object]] = []
         self.last_candidates: list[dict[str, object]] = []
         self.last_error: str | None = None
-        self._page_cache: dict[str, tuple[str, str]] = {}
+        self._page_cache: dict[str, tuple[str, str] | WebRetrievalError] = {}
+        self._robots_cache: dict[str, tuple[float, str | None]] = {}
+        self._robots_locks: dict[str, Lock] = {}
         self._provider_count = 0
+        self.discovery = NewsDiscovery(config.get('discovery', {}), feed_fetcher or self._fetch_feed,
+                                       lambda url: allowed_url(url, set(self.allowed_sources)), _normalize_date)
+
+    def _prefetch_pages(self, results: list, claim: str) -> None:
+        fetching = self.config.get('fetching', {})
+        # Reserve budget for later queries. Lightweight snippet scoring only
+        # chooses which pages to fetch; snippets never become evidence.
+        ranked_results = sorted((r for r in results if isinstance(r, dict)),
+                                key=lambda r: -sentence_score(claim, str(r.get('title') or '') + ' ' + str(r.get('content') or '')))
+        pending = list(dict.fromkeys(canonical_url(r['url']) for r in ranked_results
+                       if isinstance(r, dict) and isinstance(r.get('url'), str)
+                       and allowed_url(r['url'], set(self.allowed_sources))
+                       and canonical_url(r['url']) not in self._page_cache))
+        remaining = min(int(fetching.get('max_pages_per_request', 20)),
+                        max(0, int(fetching.get('max_pages_per_claim', 60)) - len(self._page_cache)))
+        timeout = min(float(self.limits['timeout_seconds']), float(fetching.get('timeout_seconds', 8)))
+        def fetch(url):
+            try:
+                if not self._robots_allow(url, timeout):
+                    raise WebRetrievalError('robots.txt không cho phép tải hoặc không đọc được robots.txt')
+                return url, self.page_fetcher(url, timeout)
+            except (WebRetrievalError, OSError, HTTPException) as error:
+                return url, WebRetrievalError(str(error))
+        workers = max(1, min(6, int(fetching.get('workers', 1))))
+        with ThreadPoolExecutor(max_workers=workers) as pool:
+            for url, outcome in pool.map(fetch, pending[:remaining]):
+                self._page_cache[url] = outcome
 
     def _fetch_robots(self, page_url: str, timeout: float) -> str:
         """Fetch robots.txt from the exact approved host without redirects."""
@@ -506,14 +569,27 @@ class WebRetriever:
             if error.code == 404:
                 return ""
             raise WebRetrievalError("Không tải được robots.txt") from error
-        except (URLError, TimeoutError, UnicodeDecodeError, LookupError) as error:
+        except (URLError, TimeoutError, UnicodeDecodeError, LookupError, HTTPException) as error:
             raise WebRetrievalError("Không tải hoặc giải mã được robots.txt") from error
 
     def _robots_allow(self, page_url: str, timeout: float) -> bool:
         if not bool(self.policy.get("obey_robots_txt", True)):
             return True
         try:
-            robots = self.robots_fetcher(page_url, timeout)
+            host = urlsplit(page_url).hostname or ''
+            with self._robots_locks.setdefault(host, Lock()):
+                cached = self._robots_cache.get(host)
+                if cached and time.monotonic() - cached[0] < (300 if cached[1] is not None else 30):
+                    robots = cached[1]
+                else:
+                    try:
+                        robots = self.robots_fetcher(page_url, timeout)
+                    except WebRetrievalError:
+                        self._robots_cache[host] = (time.monotonic(), None)
+                        raise
+                    self._robots_cache[host] = (time.monotonic(), robots)
+                if robots is None:
+                    raise WebRetrievalError('Không tải được robots.txt')
             parser = RobotFileParser()
             parser.parse(robots.splitlines())
             return parser.can_fetch("VietnameseFactChecking", page_url)
@@ -533,20 +609,32 @@ class WebRetriever:
                 return json.loads(response.read().decode("utf-8"))
         except HTTPError as error:
             raise WebRetrievalError(f"Tavily trả HTTP {error.code}; kiểm tra key, quota hoặc tham số") from error
-        except (URLError, TimeoutError, json.JSONDecodeError) as error:
+        except (URLError, TimeoutError, json.JSONDecodeError, HTTPException) as error:
             raise WebRetrievalError("Search provider không trả kết quả hợp lệ") from error
 
     def _fetch_page(self, url: str, timeout: float) -> tuple[str, str]:
+        return self._fetch_resource(url, timeout, ('text/html',))
+
+    def _fetch_feed(self, url: str, timeout: float) -> tuple[str, str]:
+        if not self._robots_allow(url, timeout):
+            raise WebRetrievalError('robots.txt không cho phép tải RSS')
+        return self._fetch_resource(url, timeout, ('application/xml', 'text/xml', 'application/rss+xml', 'application/atom+xml'),
+                                    check_robots=True)
+
+    def _fetch_resource(self, url: str, timeout: float, content_types: tuple[str, ...],
+                        *, check_robots: bool = False) -> tuple[str, str]:
         current = canonical_url(url)
         for _ in range(int(self.extraction["max_redirects"]) + 1):  # type: ignore[index]
             if not allowed_url(current, set(self.allowed_sources)):
                 raise WebRetrievalError("Redirect đi tới nguồn ngoài allowlist")
+            if check_robots and current != canonical_url(url) and not self._robots_allow(current, timeout):
+                raise WebRetrievalError('robots.txt không cho phép tải RSS sau chuyển hướng')
             assert_public_dns(urlsplit(current).hostname or "")
             request = Request(current, headers={"User-Agent": "VietnameseFactChecking/1.0", "Accept-Encoding": "gzip, deflate"})
             try:
                 with build_opener(_NoRedirect()).open(request, timeout=timeout) as response:
-                    if not response.headers.get_content_type().startswith("text/html"):
-                        raise WebRetrievalError("Nguồn web không trả HTML")
+                    if response.headers.get_content_type() not in content_types:
+                        raise WebRetrievalError("Nguồn web trả định dạng nội dung không phù hợp")
                     raw = response.read(int(self.extraction["max_page_bytes"]) + 1)  # type: ignore[index]
                     if len(raw) > int(self.extraction["max_page_bytes"]):  # type: ignore[index]
                         raise WebRetrievalError("Trang web vượt giới hạn kích thước")
@@ -559,7 +647,7 @@ class WebRetriever:
                 if error.code not in {301, 302, 303, 307, 308} or not error.headers.get("Location"):
                     raise WebRetrievalError("Không tải được trang nguồn web") from error
                 current = canonical_url(urljoin(current, error.headers["Location"]))
-            except (URLError, TimeoutError) as error:
+            except (URLError, TimeoutError, HTTPException) as error:
                 raise WebRetrievalError("Hết thời gian hoặc không tải được trang nguồn web") from error
         raise WebRetrievalError("Trang web chuyển hướng quá nhiều lần")
 
@@ -599,16 +687,25 @@ class WebRetriever:
         self.last_error = None
         self._page_cache = {}
         queries = search_queries(claim)
+        lead = queries[1] if len(queries) > 1 else queries[0]
+        quoted_lead = '"' + lead.replace('"', '') + '"'
         plain = re.sub(r"\s+ngày\s+\d{2}/\d{2}/\d{4}$", "", claim).strip()
         if date_window:
             # A general-index fallback must retain press sources. Date checks
             # still run against the original page even without a server filter.
+            # The second request uses the general index: news-only and strict
+            # index date/language filters can hide Vietnamese articles whose
+            # publisher HTML has a perfectly valid date. Always recheck it here.
             attempts = [("dated_news", queries[0], options),
-                        ("plain_news", queries[1] if len(queries) > 1 else plain, options),
-                        ("general_fallback", queries[1] if len(queries) > 1 else plain,
-                         {"topic": "general", "include_published_date": True})]
+                        ("general_lead", quoted_lead,
+                         {"topic": "general", "include_published_date": True, "exact_match": True,
+                          "include_domains": []}),
+                        ("general_terms", queries[-1],
+                         {"topic": "general", "include_published_date": True, "include_domains": []})]
         else:
-            attempts = [(f"general_{index + 1}", query, options) for index, query in enumerate(queries)]
+            attempts = [(f"general_{index + 1}", quoted_lead if index == 1 else query,
+                         {**(options or {}), 'exact_match': True, 'include_domains': []} if index == 1 else options)
+                        for index, query in enumerate(queries)]
         collected: dict[tuple[str, str], RetrievedEvidence] = {}
 
         def merge(items: list[RetrievedEvidence]) -> None:
@@ -625,10 +722,25 @@ class WebRetriever:
                                  results_override=[{"url": url, "score": 1.0} for url in source_urls])
             merge(items)
             self.last_attempts.append({"stage": "direct_urls", "status": self.last_status, "count": len(items)})
+        strong_match = lambda: any(eligible(plain, i.evidence.content, minimum_coverage=0.85)
+                                   for i in collected.values())
+        discovery_config = self.config.get('discovery', {})
+        # Live feeds cannot reconstruct old news. Keep historical retrieval on
+        # the search index instead of spending requests on irrelevant feeds.
+        recent = date_window is None or abs((datetime.now().date() - date_window[1]).days) <= 14
+        if self.enabled and discovery_config.get('enabled') and not strong_match():
+            reference = date_window[1] if date_window else datetime.now().date()
+            days = (reference, reference - timedelta(days=1))
+            candidates = self.discovery.search(plain, date_window, sitemap_days=days, include_feeds=recent)
+            items = self._search(plain, max(top_k, 20), date_window=date_window, original_claim=claim,
+                                 results_override=candidates)
+            merge(items)
+            self.last_attempts.append({'stage': 'publisher_rss', 'status': self.last_status, 'count': len(items),
+                                       'discovered_urls': len(candidates), 'feeds': self.discovery.last_feeds})
         for stage, query, request_options in attempts[:int(self.limits.get("requests_per_claim", 1))]:
             # A weak hit must not suppress the next query. One near-complete
             # passage is sufficient to stop discovery, regardless of verdict.
-            if any(eligible(plain, i.evidence.content, minimum_coverage=0.85) for i in collected.values()):
+            if strong_match():
                 break
             items = self._search(query, max(top_k, 20), request_options, date_window,
                                  original_claim=claim)
@@ -638,6 +750,7 @@ class WebRetriever:
             if self.last_status in {"missing_api_key", "disabled", "local_only", "invalid_provider_response"}:
                 break
         ranked = sorted(collected.values(), key=lambda i: (
+            verbatim_span(plain, i.evidence.content) is None,
             -relevance(plain, i.evidence.content), -i.score, i.evidence.passage_id))
         primary, remaining, documents = [], [], set()
         for item in ranked:
@@ -691,6 +804,7 @@ class WebRetriever:
             return []
         collected: list[RetrievedEvidence] = []
         self._provider_count = len(results)
+        self._prefetch_pages(results, original_claim or claim)
         seen_urls: set[str] = set()
         passage_query = re.sub(r"\s+ngày\s+\d{2}/\d{2}/\d{4}$", "", original_claim or claim)
         for rank, result in enumerate(results):
@@ -708,10 +822,11 @@ class WebRetriever:
             seen_urls.add(url)
             try:
                 if url not in self._page_cache:
-                    if not self._robots_allow(url, float(self.limits["timeout_seconds"])):
-                        raise WebRetrievalError("robots.txt không cho phép tải hoặc không đọc được robots.txt")
-                    self._page_cache[url] = self.page_fetcher(url, float(self.limits["timeout_seconds"]))
-                final_url, html = self._page_cache[url]
+                    raise WebRetrievalError('Đã đạt giới hạn số trang tải cho mỗi phát biểu')
+                outcome = self._page_cache[url]
+                if isinstance(outcome, WebRetrievalError):
+                    raise outcome
+                final_url, html = outcome
                 final_url = canonical_url(final_url)
                 if not allowed_url(final_url, set(self.allowed_sources)):
                     raise WebRetrievalError("Trang cuối cùng ngoài allowlist")
@@ -730,7 +845,7 @@ class WebRetriever:
                 require_page_date = source_policy["category"] == "corporate" or "nchmf.gov.vn" in final_url
                 if not published_at and not require_page_date:
                     published_at = _normalize_date(result.get("published_date"))
-                    date_source = "tavily" if published_at else None
+                    date_source = str(result.get('_date_source') or 'tavily') if published_at else None
                 if date_window:
                     published = publication_date(published_at)
                     record["published_at"] = published_at
@@ -745,7 +860,12 @@ class WebRetriever:
                 record["reason"] = "Trùng trang sau chuyển hướng"
                 continue
             seen_urls.add(final_url)
-            base_score = float(result.get("score", 1.0))
+            try:
+                base_score = float(result.get("score", 1.0))
+                if not isfinite(base_score):
+                    base_score = 0.0
+            except (TypeError, ValueError):
+                base_score = 0.0
             fetched_at = datetime.now(timezone.utc).isoformat()
             document_id = f"web-{sha256(final_url.encode('utf-8')).hexdigest()[:16]}"
             ranked_passages = sorted(enumerate(passages), key=lambda pair: -relevance(passage_query, pair[1]))

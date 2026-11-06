@@ -42,6 +42,7 @@ LONG = "Nội dung kiểm chứng chi tiết từ trang nguồn chính thống. 
 def web_config(tmp_path: Path) -> dict:
     loaded = deepcopy(yaml.safe_load((ROOT / "configs/web_retrieval.yaml").read_text(encoding="utf-8")))
     loaded["enabled"] = True
+    loaded["discovery"]["enabled"] = False
     loaded["cache"]["directory"] = str(tmp_path / "cache")
     return loaded
 
@@ -347,7 +348,7 @@ class TestWebRetrieverSearch:
         assert queries[0] == "Giá xăng hôm nay"
         assert seen["include_raw_content"] is False and seen["include_answer"] is False
         assert seen["auto_parameters"] is False
-        assert seen["max_results"] == 15
+        assert seen["max_results"] == 20
         assert "api_key" not in seen and "key" not in json.dumps(seen).lower().replace("auto_parameters", "")
 
     def test_government_source_metadata(self, tmp_path):
@@ -474,8 +475,6 @@ class TestWebRetrieverSearch:
         scores = [item.score for item in result]
         assert scores == sorted(scores, reverse=True), scores
 
-    @pytest.mark.xfail(strict=True, raises=TypeError,
-                       reason="BUG: provider trả \"score\": null -> float(None) TypeError làm sập cả search")
     def test_null_provider_score_does_not_crash(self, tmp_path):
         assert make(tmp_path, [{"url": "https://vnexpress.net/x", "score": None}]).search("c", 1)
 

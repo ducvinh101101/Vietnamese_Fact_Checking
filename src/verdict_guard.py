@@ -219,9 +219,11 @@ class GuardedVerifier:
         self.focus_coverage = focus_coverage
         self.last_downgraded = False
         self.last_reason: str | None = None
+        self.last_model_result: VerificationResult | None = None
 
     def verify(self, claim: str, evidence_items: list[RetrievedEvidence]) -> VerificationResult:
         result = self.inner.verify(claim, evidence_items)
+        self.last_model_result = result
         self.last_downgraded = False
         self.last_reason = None
         if not self.enabled:

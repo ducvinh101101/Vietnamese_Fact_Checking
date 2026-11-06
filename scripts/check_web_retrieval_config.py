@@ -44,6 +44,22 @@ def validate(config):
     assert 0 < limits['requests_per_minute'] <= 10
     assert 0 < limits['timeout_seconds'] <= 30
     assert limits['max_retries'] <= 1 and limits['fail_to'] == 'local_only'
+    discovery = config.get('discovery', {})
+    if discovery:
+        assert 1 <= discovery['max_feeds'] <= 6
+        assert 1 <= discovery['max_candidates'] <= 10
+        assert 60 <= discovery['ttl_seconds'] <= 900
+        assert 0 < discovery['timeout_seconds'] <= 8
+        assert all(allowed_url(url, hosts) for url in discovery['feeds'])
+        assert len(discovery.get('sitemap_templates', [])) <= 2
+        assert all(allowed_url(template.format(date='2026-11-03', year=2026, month=11, day=3), hosts)
+                   for template in discovery.get('sitemap_templates', []))
+    fetching = config.get('fetching', {})
+    if fetching:
+        assert 1 <= fetching['workers'] <= 6
+        assert 1 <= fetching['max_pages_per_claim'] <= 60
+        assert 1 <= fetching['max_pages_per_request'] <= fetching['max_pages_per_claim']
+        assert 0 < fetching['timeout_seconds'] <= limits['timeout_seconds']
     cache = config['cache']
     assert cache['directory'] == '.cache/web_retrieval'
     assert all(cache[k] is False for k in ['persist_provider_responses', 'persist_page_content', 'commit_to_git'])

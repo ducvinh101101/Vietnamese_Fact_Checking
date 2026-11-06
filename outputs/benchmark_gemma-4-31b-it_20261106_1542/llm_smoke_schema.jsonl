@@ -1,0 +1,2 @@
+{"id": "vg001", "label": "NOT_ENOUGH_INFO", "evidence_ids": [], "explanation": "Thông báo chỉ đề cập đến việc yêu cầu đăng ký khi dùng máy ảnh chuyên dụng, không cung cấp thông tin về việc chụp ảnh bằng điện thoại.", "latency_seconds": 13.1313}
+{"id": "vg002", "label": "NOT_ENOUGH_INFO", "evidence_ids": [], "explanation": "Evidence e1 cho biết nhóm Sóng đổi giờ sinh hoạt và số thành viên tăng, nhưng rõ ràng nói rằng không xác định nguyên nhân của mức tăng.", "latency_seconds": 48.071}
