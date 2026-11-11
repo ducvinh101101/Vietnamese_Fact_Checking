@@ -226,6 +226,8 @@ class GuardedVerifier:
         self.last_model_result = result
         self.last_downgraded = False
         self.last_reason = None
+        if result.status == 'error':
+            return result
         if not self.enabled:
             return result
         reason = guard_reason(claim, result, evidence_items, self.min_relevance, self.focus_coverage)

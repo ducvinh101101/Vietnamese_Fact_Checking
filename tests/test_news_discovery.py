@@ -4,6 +4,8 @@ from threading import Barrier
 from datetime import date
 import json
 from pathlib import Path
+import unicodedata
+from urllib.parse import urlsplit
 
 import pytest
 import yaml
@@ -64,6 +66,43 @@ def test_feed_errors_do_not_discard_other_publishers():
     assert discovery.last_feeds[0]['error'] == 'Timeout RSS'
 
 
+def test_topic_routing_uses_new_publishers_with_a_fixed_request_budget():
+    cfg = {
+        'feeds': [FEED], 'core_feed_count': 1, 'max_feeds': 3,
+        'feed_catalog': [
+            {'url': 'https://health.example/news.xml', 'topics': ['bệnh viện']},
+            {'url': 'https://www.health.example/other.xml', 'topics': ['bệnh viện']},
+            {'url': 'https://education.example/news.xml', 'topics': ['học sinh']},
+            {'url': 'https://broad.example/news.xml', 'topics': []},
+        ],
+    }
+    discovery = NewsDiscovery(cfg, None, None, None)
+    claim = 'Bệnh viện công bố thông tin mới'
+    feeds = discovery.select_feeds(claim)
+    assert len(feeds) == 3 and feeds[0] == FEED
+    assert any('health.example' in url for url in feeds)
+    assert 'https://broad.example/news.xml' in feeds
+    assert len({urlsplit(u).hostname.removeprefix('www.') for u in feeds}) == 3
+    assert discovery.last_feed_pool_size == 5
+    assert discovery.select_feeds(claim) == feeds
+    decomposed = unicodedata.normalize('NFD', claim)
+    assert any('health.example' in url for url in discovery.select_feeds(decomposed))
+    assert 'https://education.example/news.xml' in discovery.select_feeds('Học sinh đi học')
+
+
+def test_topic_routing_fills_budget_from_same_publisher_when_needed():
+    discovery = NewsDiscovery({
+        'feeds': [FEED], 'max_feeds': 3, 'core_feed_count': 1,
+        'feed_catalog': [
+            {'url': 'https://vnexpress.net/rss/giao-duc.rss', 'topics': ['học sinh']},
+            {'url': 'https://vnexpress.net/rss/suc-khoe.rss', 'topics': ['y tế']},
+        ],
+    }, None, None, None)
+    assert len(discovery.select_feeds('Học sinh')) == 3
+    discovery.config['max_feeds'] = 1
+    assert discovery.select_feeds('Học sinh') == [FEED]
+
+
 def test_feed_redirect_outside_allowlist_is_rejected():
     discovery = NewsDiscovery({'feeds': [FEED]}, lambda *_: ('https://evil.example/', rss()),
                                lambda u: u.startswith('https://vnexpress.net/'), _normalize_date)
@@ -77,6 +116,7 @@ def config(tmp_path):
     cfg['enabled'] = True
     cfg['cache']['directory'] = str(tmp_path)
     cfg['discovery']['feeds'] = [FEED]
+    cfg['discovery'].pop('feed_catalog', None)
     return cfg
 
 

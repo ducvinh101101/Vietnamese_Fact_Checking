@@ -83,6 +83,39 @@ def test_weak_first_hit_does_not_stop_shorter_queries(cfg):
     assert any(i.evidence.url.endswith('/weak') for i in items)  # merge, don't replace
 
 
+def test_short_headline_retries_when_keywords_describe_different_events(cfg):
+    claim = 'VĐV Việt Nam đầu tiên giành vé dự Olympic 2028'
+    weak_url = 'https://tuoitre.vn/olympic'
+    exact_url = 'https://vnexpress.net/olympic'
+    weak_text = ('Trịnh Thu Vinh giành vé dự Olympic 2028 sau khi đoạt huy chương bạc. '
+                 'Trước đó, các VĐV Việt Nam đã mang về tấm huy chương đồng đầu tiên ở giải thế giới.')
+    cfg['fetching']['max_pages_per_request'] = 1
+    calls = []
+    fetched = []
+
+    def provider(payload, *_):
+        calls.append(payload)
+        if len(calls) == 1:
+            return {'results': [{'url': weak_url}]}
+        return {'results': [
+            {'url': 'https://tuoitre.vn/other', 'content': claim},
+            {'url': exact_url, 'title': claim},
+        ]}
+
+    def fetch(url, *_):
+        fetched.append(url)
+        html = f'<h1>{claim}</h1><p>Trịnh Thu Vinh giành vé sau khi đoạt huy chương bạc.</p>'
+        return url, article(weak_text) if url == weak_url else f'<article>{html}</article>'
+
+    web = WebRetriever(cfg, api_key='key', provider_request=provider,
+                       page_fetcher=fetch, robots_fetcher=lambda *_: '')
+    items = web.search(claim, 5)
+    assert [call['query'] for call in calls] == [claim, f'"{claim}"']
+    assert calls[1]['exact_match'] is True
+    assert fetched == [weak_url, exact_url]
+    assert items[0].evidence.url == exact_url and items[0].evidence.content == claim
+
+
 def test_general_fallback_keeps_press_and_filters_by_original_page_date(cfg):
     calls = []
     def provider(payload, *_):
@@ -171,3 +204,35 @@ def test_web_and_gate_agree_on_vietnam_date_at_timezone_boundary(cfg):
         def search(self, *_):
             return items
     assert TemporalGateRetriever(Inner(), as_of=REFERENCE).search(GOLD)
+
+
+def test_long_claim_query_keeps_distinctive_details_from_tail():
+    from src.web_retriever import search_queries
+    claim = ('Sự bùng nổ của trí tuệ nhân tạo AI đang tạo ra bước ngoặt cho ngành bán dẫn toàn cầu, '
+             'thúc đẩy các nhà sản xuất chuyển hướng phát triển những dòng chip tiên tiến có giá trị và biên lợi nhuận cao.')
+    assert 'biên lợi nhuận cao' in search_queries(claim)[-1]
+    assert 'chip' in search_queries(claim)[-1]
+
+
+def test_baovanhoa_source_is_allowlisted_and_exact_passage_survives(cfg):
+    claim = ('Sự bùng nổ của trí tuệ nhân tạo AI đang tạo ra bước ngoặt cho ngành bán dẫn toàn cầu, '
+             'thúc đẩy các nhà sản xuất chuyển hướng phát triển những dòng chip tiên tiến có giá trị và biên lợi nhuận cao.')
+    url = 'https://baovanhoa.vn/nhu-cau-chip-nho-toan-cau-bung-no.html'
+    cfg['limits']['requests_per_claim'] = 1
+    web = WebRetriever(cfg, api_key='fake', provider_request=lambda *_: {'results': [{'url': url}]},
+                        page_fetcher=lambda url, _: (url, article(claim)), robots_fetcher=lambda *_: '')
+    found = web.search(claim, 5)
+    assert found and found[0].evidence.url == url and found[0].evidence.content == claim
+
+
+def test_article_header_standfirst_is_not_mistaken_for_site_navigation():
+    from src.web_retriever import extract_passages
+    claim = ('Sự bùng nổ của trí tuệ nhân tạo AI đang tạo ra bước ngoặt cho ngành bán dẫn toàn cầu, '
+             'thúc đẩy các nhà sản xuất chuyển hướng phát triển những dòng chip tiên tiến có giá trị và biên lợi nhuận cao.')
+    html = (f'<header><p>Nội dung điều hướng bị bỏ qua. {claim}</p></header>'
+            f'<header class="article__header"><h1>Nhu cầu chip nhớ bùng nổ</h1>'
+            f'<p class="article__sapo">VHO - {claim}</p></header>'
+            '<article><p>Nội dung thân bài có bối cảnh khác. ' + 'Thông tin bổ sung. ' * 15 + '</p></article>')
+    _, passages = extract_passages(html, 120, 800, 3, query=claim)
+    assert any(claim in p and 'VHO' in p for p in passages)
+    assert all('điều hướng' not in p for p in passages)

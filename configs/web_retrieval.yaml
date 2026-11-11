@@ -16,17 +16,819 @@ provider:
 discovery:
   enabled: true
   # Recent publisher URLs complement the search index; snippets are not evidence.
-  max_feeds: 6
+  max_feeds: 12
   max_candidates: 6
   ttl_seconds: 300
   timeout_seconds: 4
   feeds:
-    - https://vnexpress.net/rss/kinh-doanh.rss
     - https://vnexpress.net/rss/tin-moi-nhat.rss
     - https://congly.vn/rss/trang-chu
     - https://dantri.com.vn/rss/home.rss
     - https://tuoitre.vn/rss/tin-moi-nhat.rss
+    - https://vnexpress.net/rss/kinh-doanh.rss
     - https://vov.vn/rss/kinh-te.rss
+    - https://baovanhoa.vn/rss/tin-moi.rss
+    - https://baovanhoa.vn/sitemaps/news.xml
+  core_feed_count: 4
+  feed_topics:
+    https://vnexpress.net/rss/kinh-doanh.rss:
+    - kinh tế
+    - giá
+    - vàng
+    - xăng
+    - doanh nghiệp
+    - chip
+    - AI
+    https://vnexpress.net/rss/tin-moi-nhat.rss: []
+    https://congly.vn/rss/trang-chu:
+    - tòa án
+    - luật
+    - quốc hội
+    - vụ cháy
+    https://dantri.com.vn/rss/home.rss: []
+    https://tuoitre.vn/rss/tin-moi-nhat.rss: []
+    https://vov.vn/rss/kinh-te.rss:
+    - kinh tế
+    - GDP
+    - CPI
+    - lạm phát
+    - giá
+    - lãi suất
+    - doanh nghiệp
+    - chip
+    https://baovanhoa.vn/rss/tin-moi.rss:
+    - văn hóa
+    - du lịch
+    - AI
+    - chip
+    - bán dẫn
+    https://baovanhoa.vn/sitemaps/news.xml:
+    - văn hóa
+    - du lịch
+    - AI
+    - chip
+    - bán dẫn
+  feed_catalog:
+  - url: https://baochinhphu.vn/home.rss
+    topics: []
+  - url: https://baolamdong.vn/rss/trang-chu
+    topics:
+    - Lâm Đồng
+  - url: https://baolangson.vn/rss/news/bao-ve-nen-tang-tu-tuong-cua-dang.rss
+    topics:
+    - Lạng Sơn
+  - url: https://baolangson.vn/rss/news/chinh-tri.rss
+    topics:
+    - chính phủ
+    - quốc hội
+    - chính sách
+    - bộ trưởng
+    - luật
+    - Lạng Sơn
+  - url: https://baolangson.vn/rss/news/dai-bieu-dan-cu-voi-cu-tri.rss
+    topics:
+    - Lạng Sơn
+  - url: https://baolangson.vn/rss/news/hoi-thi-bao-cao-vien-tuyen-truyen-vien-gioi-toan-quoc-nam-2026.rss
+    topics:
+    - Lạng Sơn
+  - url: https://baolangson.vn/rss/news/huong-toi-dai-hoi-dang-bo-cac-cap-nhiem-ky-2025-2030.rss
+    topics:
+    - Lạng Sơn
+  - url: https://baolangson.vn/rss/news/kinh-te.rss
+    topics:
+    - kinh tế
+    - GDP
+    - CPI
+    - lạm phát
+    - giá
+    - lãi suất
+    - doanh nghiệp
+    - chip
+    - Lạng Sơn
+  - url: https://baolangson.vn/rss/news/theo-guong-bac.rss
+    topics:
+    - Lạng Sơn
+  - url: https://baolangson.vn/rss/news/xay-dung-dang.rss
+    topics:
+    - Lạng Sơn
+  - url: https://baotayninh.vn/rss/news/dai-doan-ket.rss
+    topics:
+    - Tây Ninh
+  - url: https://baotayninh.vn/rss/news/he-thong-chinh-tri-nhan-su-moi.rss
+    topics:
+    - chính phủ
+    - quốc hội
+    - chính sách
+    - bộ trưởng
+    - luật
+    - Tây Ninh
+  - url: https://baotayninh.vn/rss/news/kinh-te.rss
+    topics:
+    - kinh tế
+    - GDP
+    - CPI
+    - lạm phát
+    - giá
+    - lãi suất
+    - doanh nghiệp
+    - chip
+    - Tây Ninh
+  - url: https://baotayninh.vn/rss/news/san-pham-dich-vu.rss
+    topics:
+    - Tây Ninh
+  - url: https://baotayninh.vn/rss/news/thoi-su-chinh-tri.rss
+    topics:
+    - chính phủ
+    - quốc hội
+    - chính sách
+    - bộ trưởng
+    - luật
+    - vụ cháy
+    - tai nạn
+    - Tây Ninh
+  - url: https://baotayninh.vn/rss/news/trong-nuoc.rss
+    topics:
+    - Tây Ninh
+  - url: https://baotayninh.vn/rss/news/trong-tinh.rss
+    topics:
+    - Tây Ninh
+  - url: https://baotayninh.vn/rss/news/van-de-su-kien.rss
+    topics:
+    - Tây Ninh
+  - url: https://baothainguyen.vn/rss/ban-doc/nhip-cau-nhan-ai.xml
+    topics:
+    - Thái Nguyên
+  - url: https://baothainguyen.vn/rss/tieu-diem.xml
+    topics:
+    - Thái Nguyên
+  - url: https://baothainguyen.vn/rss/van-nghe-thai-nguyen/but-ky-phong-su.xml
+    topics:
+    - Thái Nguyên
+  - url: https://baothainguyen.vn/rss/van-nghe-thai-nguyen/cung-quan-tam.xml
+    topics:
+    - Thái Nguyên
+  - url: https://baothainguyen.vn/rss/van-nghe-thai-nguyen/nghe-thuat.xml
+    topics:
+    - Thái Nguyên
+  - url: https://baothainguyen.vn/rss/van-nghe-thai-nguyen/nghien-cuu---trao-doi.xml
+    topics:
+    - Thái Nguyên
+  - url: https://baothainguyen.vn/rss/van-nghe-thai-nguyen/sang-tac-van-hoc.xml
+    topics:
+    - Thái Nguyên
+  - url: https://baothainguyen.vn/rss/video/ban-tin-thoi-su.xml
+    topics:
+    - vụ cháy
+    - tai nạn
+    - quốc hội
+    - chính phủ
+    - chính sách
+    - Thái Nguyên
+  - url: https://baothanhhoa.vn/rss/doi-song-xa-hoi.xml
+    topics:
+    - vụ cháy
+    - học sinh
+    - tai nạn
+    - y tế
+    - xã hội
+    - Thanh Hóa
+  - url: https://baothanhhoa.vn/rss/giao-duc.xml
+    topics:
+    - giáo dục
+    - học sinh
+    - trường
+    - tuyển sinh
+    - đại học
+    - thi
+    - Thanh Hóa
+  - url: https://baothanhhoa.vn/rss/kinh-te.xml
+    topics:
+    - kinh tế
+    - GDP
+    - CPI
+    - lạm phát
+    - giá
+    - lãi suất
+    - doanh nghiệp
+    - chip
+    - Thanh Hóa
+  - url: https://baothanhhoa.vn/rss/thoi-su.xml
+    topics:
+    - vụ cháy
+    - tai nạn
+    - quốc hội
+    - chính phủ
+    - chính sách
+    - Thanh Hóa
+  - url: https://baothanhhoa.vn/rss/ve-voi-xu-thanh.xml
+    topics:
+    - Thanh Hóa
+  - url: https://baothanhhoa.vn/rss/xay-dung-dang.xml
+    topics:
+    - Thanh Hóa
+  - url: https://baovanhoa.vn/rss/bao-chi.rss
+    topics:
+    - văn hóa
+    - du lịch
+    - AI
+    - chip
+    - bán dẫn
+  - url: https://baovanhoa.vn/rss/chinh-tri.rss
+    topics:
+    - văn hóa
+    - du lịch
+    - AI
+    - chip
+    - bán dẫn
+    - chính phủ
+    - quốc hội
+    - chính sách
+    - bộ trưởng
+    - luật
+  - url: https://baovanhoa.vn/rss/du-lich.rss
+    topics:
+    - văn hóa
+    - du lịch
+    - AI
+    - chip
+    - bán dẫn
+    - du khách
+    - khách sạn
+    - lữ hành
+  - url: https://baovanhoa.vn/rss/podcast.rss
+    topics:
+    - văn hóa
+    - du lịch
+    - AI
+    - chip
+    - bán dẫn
+  - url: https://baovanhoa.vn/rss/the-thao.rss
+    topics:
+    - văn hóa
+    - du lịch
+    - AI
+    - chip
+    - bán dẫn
+    - thể thao
+    - bóng đá
+    - đội tuyển
+    - giải đấu
+  - url: https://baovanhoa.vn/rss/van-hoa.rss
+    topics:
+    - văn hóa
+    - du lịch
+    - AI
+    - chip
+    - bán dẫn
+    - di sản
+    - lễ hội
+    - nghệ thuật
+  - url: https://baovanhoa.vn/rss/xuat-ban.rss
+    topics:
+    - văn hóa
+    - du lịch
+    - AI
+    - chip
+    - bán dẫn
+  - url: https://baoxaydung.vn/rss/giao-thong.rss
+    topics:
+    - xây dựng
+    - giao thông
+    - cao tốc
+    - tai nạn
+  - url: https://baoxaydung.vn/rss/giao-thong/quan-ly.rss
+    topics:
+    - xây dựng
+    - giao thông
+    - cao tốc
+    - tai nạn
+  - url: https://baoxaydung.vn/rss/home.rss
+    topics:
+    - xây dựng
+    - giao thông
+    - cao tốc
+    - tai nạn
+  - url: https://baoxaydung.vn/rss/thoi-su.rss
+    topics:
+    - xây dựng
+    - giao thông
+    - cao tốc
+    - tai nạn
+    - vụ cháy
+    - quốc hội
+    - chính phủ
+    - chính sách
+  - url: https://baoxaydung.vn/rss/thoi-su/cai-chinh.rss
+    topics:
+    - xây dựng
+    - giao thông
+    - cao tốc
+    - tai nạn
+    - vụ cháy
+    - quốc hội
+    - chính phủ
+    - chính sách
+  - url: https://baoxaydung.vn/rss/thoi-su/chinh-tri.rss
+    topics:
+    - xây dựng
+    - giao thông
+    - cao tốc
+    - tai nạn
+    - chính phủ
+    - quốc hội
+    - chính sách
+    - bộ trưởng
+    - luật
+    - vụ cháy
+  - url: https://baoxaydung.vn/rss/thoi-su/chuyen-doc-duong.rss
+    topics:
+    - xây dựng
+    - giao thông
+    - cao tốc
+    - tai nạn
+    - vụ cháy
+    - quốc hội
+    - chính phủ
+    - chính sách
+  - url: https://baoxaydung.vn/rss/thoi-su/xa-hoi.rss
+    topics:
+    - xây dựng
+    - giao thông
+    - cao tốc
+    - tai nạn
+    - vụ cháy
+    - quốc hội
+    - chính phủ
+    - chính sách
+    - học sinh
+    - y tế
+    - xã hội
+  - url: https://blog.google/rss/
+    topics: []
+  - url: https://bnews.vn/rss/binh-luan-45.rss
+    topics:
+    - kinh tế
+    - vàng
+    - xăng
+    - doanh nghiệp
+    - tài chính
+  - url: https://bnews.vn/rss/chuyen-dong-dn-24.rss
+    topics:
+    - kinh tế
+    - vàng
+    - xăng
+    - doanh nghiệp
+    - tài chính
+  - url: https://bnews.vn/rss/doanh-nghiep-6.rss
+    topics:
+    - kinh tế
+    - vàng
+    - xăng
+    - doanh nghiệp
+    - tài chính
+  - url: https://bnews.vn/rss/kinh-te-the-gioi-2.rss
+    topics:
+    - kinh tế
+    - vàng
+    - xăng
+    - doanh nghiệp
+    - tài chính
+    - GDP
+    - CPI
+    - lạm phát
+    - giá
+    - lãi suất
+    - chip
+    - quốc tế
+    - Mỹ
+    - Trung Quốc
+    - Nga
+    - Ukraine
+    - thế giới
+  - url: https://bnews.vn/rss/kinh-te-viet-nam-1.rss
+    topics:
+    - kinh tế
+    - vàng
+    - xăng
+    - doanh nghiệp
+    - tài chính
+    - GDP
+    - CPI
+    - lạm phát
+    - giá
+    - lãi suất
+    - chip
+  - url: https://bnews.vn/rss/thoi-su-38.rss
+    topics:
+    - kinh tế
+    - vàng
+    - xăng
+    - doanh nghiệp
+    - tài chính
+    - vụ cháy
+    - tai nạn
+    - quốc hội
+    - chính phủ
+    - chính sách
+  - url: https://bnews.vn/rss/tin-moi-nhat.rss
+    topics:
+    - kinh tế
+    - vàng
+    - xăng
+    - doanh nghiệp
+    - tài chính
+  - url: https://bnews.vn/rss/truyen-thong-chinh-sach-44.rss
+    topics:
+    - kinh tế
+    - vàng
+    - xăng
+    - doanh nghiệp
+    - tài chính
+  - url: https://cafef.vn/home.rss
+    topics: []
+  - url: https://congbao.chinhphu.vn/cac-so-cong-bao-moi-dang.rss
+    topics: []
+  - url: https://congbao.chinhphu.vn/cac-van-ban-moi-ban-hanh.rss
+    topics: []
+  - url: https://congthuong.vn/rss/cong-nghiep.rss
+    topics:
+    - xăng
+    - giá
+    - điện
+    - thương mại
+    - công nghiệp
+    - bán dẫn
+  - url: https://congthuong.vn/rss/doanh-nghiep-doanh-nhan.rss
+    topics:
+    - xăng
+    - giá
+    - điện
+    - thương mại
+    - công nghiệp
+    - bán dẫn
+  - url: https://congthuong.vn/rss/hoi-nhap-quoc-te.rss
+    topics:
+    - xăng
+    - giá
+    - điện
+    - thương mại
+    - công nghiệp
+    - bán dẫn
+    - quốc tế
+    - Mỹ
+    - Trung Quốc
+    - Nga
+    - Ukraine
+    - thế giới
+  - url: https://congthuong.vn/rss/thi-truong.rss
+    topics:
+    - xăng
+    - giá
+    - điện
+    - thương mại
+    - công nghiệp
+    - bán dẫn
+  - url: https://congthuong.vn/rss/thoi-su.rss
+    topics:
+    - xăng
+    - giá
+    - điện
+    - thương mại
+    - công nghiệp
+    - bán dẫn
+    - vụ cháy
+    - tai nạn
+    - quốc hội
+    - chính phủ
+    - chính sách
+  - url: https://congthuong.vn/rss/thuong-mai.rss
+    topics:
+    - xăng
+    - giá
+    - điện
+    - thương mại
+    - công nghiệp
+    - bán dẫn
+  - url: https://congthuong.vn/rss/trang-chu.rss
+    topics:
+    - xăng
+    - giá
+    - điện
+    - thương mại
+    - công nghiệp
+    - bán dẫn
+  - url: https://dongnai.gov.vn/vi/news/rss/
+    topics: []
+  - url: https://dongnai.gov.vn/vi/news/rss/Cai-cach-hanh-chinh/
+    topics: []
+  - url: https://dongnai.gov.vn/vi/news/rss/Tin-chi-dao-dieu-hanh/
+    topics: []
+  - url: https://dongnai.gov.vn/vi/news/rss/Y-te/
+    topics: []
+  - url: https://dongnai.gov.vn/vi/news/rss/hoat-dong-cua-lanh-dao-tinh/
+    topics: []
+  - url: https://dongnai.gov.vn/vi/news/rss/lich-lam-viec-cua-ubnd-tinh/
+    topics: []
+  - url: https://dongnai.gov.vn/vi/news/rss/quoc-hoi-hoi-dong-nhan-dan/
+    topics: []
+  - url: https://dongnai.gov.vn/vi/news/rss/thong-cao-bao-chi/
+    topics: []
+  - url: https://dongnai.gov.vn/vi/news/rss/thong-tin-doanh-nghiep-nha-nuoc/
+    topics: []
+  - url: https://dongnai.gov.vn/vi/news/rss/tin-tuc-su-kien/
+    topics: []
+  - url: https://dongnai.gov.vn/vi/news/rss/van-ban-hoi-dong-nhan-dan/
+    topics: []
+  - url: https://dongnai.gov.vn/vi/news/rss/van-ban-quy-pham-phap-luat/
+    topics:
+    - pháp luật
+    - luật
+    - tòa án
+    - khởi tố
+    - công an
+    - vụ cháy
+  - url: https://hanoionline.vn/rss/home.rss
+    topics: []
+  - url: https://nvidianews.nvidia.com/rss.xml
+    topics: []
+  - url: https://suckhoedoisong.vn/rss/home.rss
+    topics:
+    - sức khỏe
+    - y tế
+    - bệnh viện
+    - thuốc
+    - bệnh
+    - vắc xin
+  - url: https://thanhnien.vn/rss/home.rss
+    topics: []
+  - url: https://thanhnien.vn/rss/thoi-su.rss
+    topics:
+    - vụ cháy
+    - tai nạn
+    - quốc hội
+    - chính phủ
+    - chính sách
+  - url: https://thanhnien.vn/rss/thoi-su/dan-sinh.rss
+    topics:
+    - vụ cháy
+    - tai nạn
+    - quốc hội
+    - chính phủ
+    - chính sách
+  - url: https://thanhnien.vn/rss/thoi-su/lao-dong-viec-lam.rss
+    topics:
+    - vụ cháy
+    - tai nạn
+    - quốc hội
+    - chính phủ
+    - chính sách
+  - url: https://thanhnien.vn/rss/thoi-su/phap-luat.rss
+    topics:
+    - pháp luật
+    - luật
+    - tòa án
+    - khởi tố
+    - công an
+    - vụ cháy
+    - tai nạn
+    - quốc hội
+    - chính phủ
+    - chính sách
+  - url: https://thanhnien.vn/rss/thoi-su/phong-su--dieu-tra.rss
+    topics:
+    - vụ cháy
+    - tai nạn
+    - quốc hội
+    - chính phủ
+    - chính sách
+  - url: https://thanhnien.vn/rss/thoi-su/quoc-phong.rss
+    topics:
+    - vụ cháy
+    - tai nạn
+    - quốc hội
+    - chính phủ
+    - chính sách
+  - url: https://thanhnien.vn/rss/thoi-su/quyen-duoc-biet.rss
+    topics:
+    - vụ cháy
+    - tai nạn
+    - quốc hội
+    - chính phủ
+    - chính sách
+  - url: https://thoibaonganhang.vn/rss_feed/
+    topics:
+    - ngân hàng
+    - lãi suất
+    - tỷ giá
+    - tín dụng
+  - url: https://thoibaotaichinhvietnam.vn/rss_feed/
+    topics: []
+  - url: https://tuoitre.vn/home.rss
+    topics: []
+  - url: https://tuoitre.vn/kinh-doanh.rss
+    topics:
+    - kinh tế
+    - giá
+    - vàng
+    - xăng
+    - doanh nghiệp
+    - chip
+    - AI
+  - url: https://tuoitre.vn/nhip-song-so.rss
+    topics:
+    - AI
+    - chip
+    - công nghệ
+    - bán dẫn
+    - internet
+  - url: https://tuoitre.vn/nhip-song-tre.rss
+    topics: []
+  - url: https://tuoitre.vn/phap-luat.rss
+    topics:
+    - pháp luật
+    - luật
+    - tòa án
+    - khởi tố
+    - công an
+    - vụ cháy
+  - url: https://tuoitre.vn/the-gioi.rss
+    topics:
+    - quốc tế
+    - Mỹ
+    - Trung Quốc
+    - Nga
+    - Ukraine
+    - thế giới
+  - url: https://tuoitre.vn/thoi-su.rss
+    topics:
+    - vụ cháy
+    - tai nạn
+    - quốc hội
+    - chính phủ
+    - chính sách
+  - url: https://tuoitre.vn/xe.rss
+    topics: []
+  - url: https://vietnamnews.vn/rss/a-twist-in-the-tale.rss
+    topics: []
+  - url: https://vietnamnews.vn/rss/bizhub.rss
+    topics: []
+  - url: https://vietnamnews.vn/rss/english-through-the-news.rss
+    topics: []
+  - url: https://vietnamnews.vn/rss/ovietnam.rss
+    topics: []
+  - url: https://vietnamnews.vn/rss/politics-laws.rss
+    topics: []
+  - url: https://vietnamnews.vn/rss/society.rss
+    topics: []
+  - url: https://vietnamnews.vn/rss/talk-around-town.rss
+    topics: []
+  - url: https://vietnamnews.vn/rss/travel.rss
+    topics: []
+  - url: https://vietnamtoday.vtv.vn/home.rss
+    topics: []
+  - url: https://vnanet.vn/vi/rss/giao-duc-5.rss
+    topics:
+    - giáo dục
+    - học sinh
+    - trường
+    - tuyển sinh
+    - đại học
+    - thi
+  - url: https://vnanet.vn/vi/rss/moi-quan-tam-con-nguoi-8.rss
+    topics: []
+  - url: https://vnanet.vn/vi/rss/moi-truong-6.rss
+    topics:
+    - môi trường
+    - khí hậu
+    - ô nhiễm
+    - mưa
+    - bão
+  - url: https://vnanet.vn/vi/rss/nghe-thuat-van-hoa-va-giai-tri-1.rss
+    topics:
+    - văn hóa
+    - di sản
+    - lễ hội
+    - nghệ thuật
+  - url: https://vnanet.vn/vi/rss/suc-khoe-7.rss
+    topics:
+    - sức khỏe
+    - y tế
+    - bệnh
+    - thuốc
+    - vắc xin
+    - dịch bệnh
+  - url: https://vnanet.vn/vi/rss/thien-tai-3.rss
+    topics: []
+  - url: https://vnanet.vn/vi/rss/toi-pham-2.rss
+    topics: []
+  - url: https://vnbusiness.vn/rss/dia-phuong.rss
+    topics: []
+  - url: https://vnbusiness.vn/rss/feed.rss
+    topics: []
+  - url: https://vnbusiness.vn/rss/ngan-hang.rss
+    topics:
+    - ngân hàng
+    - lãi suất
+    - tỷ giá
+    - tín dụng
+  - url: https://vnbusiness.vn/rss/tai-chinh.rss
+    topics:
+    - tài chính
+    - ngân hàng
+    - lãi suất
+    - tỷ giá
+    - chứng khoán
+  - url: https://vnbusiness.vn/rss/the-gioi.rss
+    topics:
+    - quốc tế
+    - Mỹ
+    - Trung Quốc
+    - Nga
+    - Ukraine
+    - thế giới
+  - url: https://vnbusiness.vn/rss/thoi-su.rss
+    topics:
+    - vụ cháy
+    - tai nạn
+    - quốc hội
+    - chính phủ
+    - chính sách
+  - url: https://vnbusiness.vn/rss/tien-te.rss
+    topics: []
+  - url: https://vnbusiness.vn/rss/viet-nam.rss
+    topics: []
+  - url: https://vneconomy.vn/chung-khoan.rss
+    topics: []
+  - url: https://vneconomy.vn/dau-tu-ha-tang.rss
+    topics: []
+  - url: https://vneconomy.vn/dia-oc.rss
+    topics: []
+  - url: https://vneconomy.vn/kinh-te-so.rss
+    topics:
+    - kinh tế
+    - GDP
+    - CPI
+    - lạm phát
+    - giá
+    - lãi suất
+    - doanh nghiệp
+    - chip
+  - url: https://vneconomy.vn/kinh-te-xanh.rss
+    topics:
+    - kinh tế
+    - GDP
+    - CPI
+    - lạm phát
+    - giá
+    - lãi suất
+    - doanh nghiệp
+    - chip
+  - url: https://vneconomy.vn/tai-chinh.rss
+    topics:
+    - tài chính
+    - ngân hàng
+    - lãi suất
+    - tỷ giá
+    - chứng khoán
+  - url: https://vneconomy.vn/tieu-diem.rss
+    topics: []
+  - url: https://vneconomy.vn/tin-moi.rss
+    topics: []
+  - url: https://vtv.vn/rss/home.rss
+    topics: []
+  - url: https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml
+    topics: []
+  - url: https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml&category=10296
+    topics: []
+  - url: https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml&category=10416
+    topics: []
+  - url: https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml&category=11156
+    topics: []
+  - url: https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml&category=6311
+    topics: []
+  - url: https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml&category=6511
+    topics: []
+  - url: https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml&category=6936
+    topics: []
+  - url: https://www.france24.com/en/rss
+    topics: []
+  - url: https://www.nasa.gov/feed/
+    topics:
+    - không gian
+    - vũ trụ
+    - NASA
+    - mặt trăng
+  - url: https://www.petrolimex.com.vn/rss
+    topics: []
+  - url: https://www.who.int/rss-feeds/news-english.xml
+    topics:
+    - WHO
+    - y tế
+    - bệnh
+    - vắc xin
+    - dịch bệnh
+  - url: https://xaydungchinhsach.chinhphu.vn/home.rss
+    topics: []
   sitemap_templates:
     - 'https://congly.vn/sitemap-article-{date}.xml'
 limits:
@@ -134,6 +936,16 @@ source_policy:
       category: press
       scope: Tin pháp luật, Quốc hội và thời sự; kiểm tác giả, ngày đăng và nội dung gốc
       reference: https://congly.vn/
+    - host: baovanhoa.vn
+      name: Báo Văn Hóa
+      category: press
+      scope: Tin văn hóa, xã hội, kinh tế và công nghệ; kiểm nội dung gốc và ngày đăng
+      reference: https://baovanhoa.vn/
+    - host: www.baovanhoa.vn
+      name: Báo Văn Hóa
+      category: press
+      scope: Tin văn hóa, xã hội, kinh tế và công nghệ; kiểm nội dung gốc và ngày đăng
+      reference: https://www.baovanhoa.vn/
     - host: www.congly.vn
       name: Báo Công lý
       category: press
@@ -292,6 +1104,942 @@ source_policy:
       category: press
       scope: Kinh tế, đô thị, tin tổng hợp; kiểm tác giả/thời gian/nguồn
       reference: https://kinhtedothi.vn/
+    # Mở rộng nguồn đã rà soát 2026-11-06; xem docs/TRUSTED_SOURCES.md.
+    - host: baoangiang.com.vn
+      name: Báo An Giang
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://baoangiang.com.vn/
+    - host: baocamau.vn
+      name: Báo Cà Mau
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://baocamau.vn/
+    - host: baocantho.com.vn
+      name: Báo Cần Thơ
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://baocantho.com.vn/
+    - host: baocaobang.vn
+      name: Báo Cao Bằng
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://baocaobang.vn/
+    - host: baodaklak.vn
+      name: Báo Đắk Lắk
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://baodaklak.vn/
+    - host: baodanang.vn
+      name: Báo Đà Nẵng
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://baodanang.vn/
+    - host: baodongnai.com.vn
+      name: Báo Đồng Nai
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://baodongnai.com.vn/
+    - host: baodongthap.vn
+      name: Báo Đồng Tháp
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://baodongthap.vn/
+    - host: baogialai.com.vn
+      name: Báo Gia Lai
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://baogialai.com.vn/
+    - host: baogiaothong.vn
+      name: Báo Giao thông
+      category: press
+      scope: Tin giao thông; kiểm chuyển hướng sang cơ quan hiện hành
+      reference: https://baogiaothong.vn/
+    - host: baohaiphong.vn
+      name: Báo Hải Phòng
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://baohaiphong.vn/
+    - host: baohungyen.vn
+      name: Báo Hưng Yên
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://baohungyen.vn/
+    - host: baokhanhhoa.vn
+      name: Báo Khánh Hòa
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://baokhanhhoa.vn/
+    - host: baolaichau.vn
+      name: Báo Lai Châu
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://baolaichau.vn/
+    - host: baolamdong.vn
+      name: Báo Lâm Đồng
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://baolamdong.vn/
+    - host: baolangson.vn
+      name: Báo Lạng Sơn
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://baolangson.vn/
+    - host: baolaocai.vn
+      name: Báo Lào Cai
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://baolaocai.vn/
+    - host: baonghean.vn
+      name: Báo Nghệ An
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://baonghean.vn/
+    - host: baoninhbinh.org.vn
+      name: Báo Ninh Bình
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://baoninhbinh.org.vn/
+    - host: baophapluat.vn
+      name: Báo Pháp luật Việt Nam
+      category: press
+      scope: Tin pháp luật, tư pháp và thời sự
+      reference: https://baophapluat.vn/
+    - host: baophutho.vn
+      name: Báo Phú Thọ
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://baophutho.vn/
+    - host: baoquangngai.vn
+      name: Báo Quảng Ngãi
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://baoquangngai.vn/
+    - host: baoquangninh.vn
+      name: Báo Quảng Ninh
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://baoquangninh.vn/
+    - host: baoquangtri.vn
+      name: Báo Quảng Trị
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://baoquangtri.vn/
+    - host: baotayninh.vn
+      name: Báo Tây Ninh
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://baotayninh.vn/
+    - host: baothainguyen.vn
+      name: Báo Thái Nguyên
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://baothainguyen.vn/
+    - host: baothanhhoa.vn
+      name: Báo Thanh Hóa
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://baothanhhoa.vn/
+    - host: baotuyenquang.com.vn
+      name: Báo Tuyên Quang
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://baotuyenquang.com.vn/
+    - host: baovinhlong.com.vn
+      name: Báo Vĩnh Long
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://baovinhlong.com.vn/
+    - host: baoxaydung.vn
+      name: Báo Xây dựng
+      category: press
+      scope: Hạ tầng, giao thông và xây dựng
+      reference: https://baoxaydung.vn/
+    - host: blog.google
+      name: Google Blog
+      category: corporate
+      scope: Chỉ xác nhận công bố và sản phẩm Google
+      reference: https://blog.google/
+    - host: bnews.vn
+      name: BNEWS - Thông tấn xã Việt Nam
+      category: press
+      scope: Tin kinh tế TTXVN; kiểm nguồn và thời điểm
+      reference: https://bnews.vn/
+    - host: bocongan.gov.vn
+      name: Bộ Công an
+      category: government
+      scope: Thông cáo và cảnh báo chính thức
+      reference: https://bocongan.gov.vn/
+    - host: bvhttdl.gov.vn
+      name: Bộ Văn hóa, Thể thao và Du lịch
+      category: government
+      scope: Văn hóa, thể thao và du lịch
+      reference: https://bvhttdl.gov.vn/
+    - host: cantho.gov.vn
+      name: Cổng thông tin Cần Thơ
+      category: government
+      scope: Thông tin chính quyền địa phương và thông báo công cộng
+      reference: https://cantho.gov.vn/
+    - host: chinhphu.vn
+      name: Cổng Thông tin điện tử Chính phủ
+      category: government
+      scope: Thông tin điều hành và văn bản chính thức
+      reference: https://chinhphu.vn/
+    - host: congbao.chinhphu.vn
+      name: Công báo điện tử
+      category: government
+      scope: Công bố văn bản; đối chiếu bản gốc và hiệu lực
+      reference: https://congbao.chinhphu.vn/
+    - host: customs.gov.vn
+      name: Cơ quan Hải quan Việt Nam
+      category: government
+      scope: Số liệu xuất nhập khẩu và thông báo hải quan
+      reference: https://customs.gov.vn/
+    - host: daibieunhandan.vn
+      name: Báo Đại biểu Nhân dân
+      category: press
+      scope: Quốc hội và chính sách; kiểm dự thảo, thời điểm
+      reference: https://daibieunhandan.vn/
+    - host: danang.gov.vn
+      name: Cổng thông tin Đà Nẵng
+      category: government
+      scope: Thông tin chính quyền địa phương và thông báo công cộng
+      reference: https://danang.gov.vn/
+    - host: dangcongsan.vn
+      name: Cổng thông tin Đảng Cộng sản Việt Nam
+      category: government
+      scope: Thông tin chính trị, chính sách; kiểm bài gốc
+      reference: https://dangcongsan.vn/
+    - host: dantocmiennui.baotintuc.vn
+      name: Dân tộc và Miền núi - TTXVN
+      category: press
+      scope: Thông tin dân tộc và miền núi; kiểm bài gốc
+      reference: https://dantocmiennui.baotintuc.vn/
+    - host: data.worldbank.org
+      name: Dữ liệu Ngân hàng Thế giới
+      category: international
+      scope: Dữ liệu thống kê; kiểm định nghĩa chỉ tiêu và kỳ
+      reference: https://data.worldbank.org/
+    - host: dav.gov.vn
+      name: Cục Quản lý Dược
+      category: government
+      scope: Thu hồi thuốc, cấp phép và thông báo dược
+      reference: https://dav.gov.vn/
+    - host: diendandoanhnghiep.vn
+      name: Tạp chí Diễn đàn Doanh nghiệp
+      category: press
+      scope: Kinh tế và doanh nghiệp; phân biệt tin, ý kiến và quảng cáo
+      reference: https://diendandoanhnghiep.vn/
+    - host: dongnai.gov.vn
+      name: Cổng thông tin Đồng Nai
+      category: government
+      scope: Thông tin chính quyền địa phương và thông báo công cộng
+      reference: https://dongnai.gov.vn/
+    - host: giaoducthoidai.vn
+      name: Báo Giáo dục và Thời đại
+      category: press
+      scope: Giáo dục, tuyển sinh và chính sách; kiểm bài gốc
+      reference: https://giaoducthoidai.vn/
+    - host: haiphong.gov.vn
+      name: Cổng thông tin Hải Phòng
+      category: government
+      scope: Thông tin chính quyền địa phương và thông báo công cộng
+      reference: https://haiphong.gov.vn/
+    - host: hanoi.gov.vn
+      name: Cổng thông tin Hà Nội
+      category: government
+      scope: Thông tin chính quyền địa phương và thông báo công cộng
+      reference: https://hanoi.gov.vn/
+    - host: hanoimoi.vn
+      name: Báo Hà Nội Mới
+      category: press
+      scope: Tin Hà Nội và thời sự; kiểm bài gốc
+      reference: https://hanoimoi.vn/
+    - host: hanoionline.vn
+      name: Đài Hà Nội
+      category: press
+      scope: Tin Hà Nội và chương trình phát thanh truyền hình
+      reference: https://hanoionline.vn/
+    - host: hcmcpv.org.vn
+      name: Trang tin Đảng bộ Thành phố Hồ Chí Minh
+      category: government
+      scope: Thông tin thuộc cơ quan Đảng bộ thành phố
+      reference: https://hcmcpv.org.vn/
+    - host: hochiminhcity.gov.vn
+      name: Cổng thông tin Thành phố Hồ Chí Minh
+      category: government
+      scope: Thông tin chính quyền địa phương và thông báo công cộng
+      reference: https://hochiminhcity.gov.vn/
+    - host: home.cern
+      name: CERN
+      category: international
+      scope: Vật lý hạt và công bố của CERN
+      reference: https://home.cern/
+    - host: hue.gov.vn
+      name: Cổng thông tin Huế
+      category: government
+      scope: Thông tin chính quyền địa phương và thông báo công cộng
+      reference: https://hue.gov.vn/
+    - host: huengaynay.vn
+      name: Huế ngày nay
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://huengaynay.vn/
+    - host: mae.gov.vn
+      name: Bộ Nông nghiệp và Môi trường
+      category: government
+      scope: Nông nghiệp, môi trường và công bố chính thức
+      reference: https://mae.gov.vn/
+    - host: moet.gov.vn
+      name: Bộ Giáo dục và Đào tạo
+      category: government
+      scope: Giáo dục, tuyển sinh và văn bản của Bộ
+      reference: https://moet.gov.vn/
+    - host: moj.gov.vn
+      name: Bộ Tư pháp
+      category: government
+      scope: Pháp luật và hướng dẫn chính thức
+      reference: https://moj.gov.vn/
+    - host: news.microsoft.com
+      name: Microsoft News
+      category: corporate
+      scope: Chỉ xác nhận thông cáo của Microsoft
+      reference: https://news.microsoft.com/
+    - host: news.samsung.com
+      name: Samsung Newsroom
+      category: corporate
+      scope: Chỉ xác nhận thông cáo, sản phẩm và công bố của Samsung
+      reference: https://news.samsung.com/
+    - host: news.un.org
+      name: UN News
+      category: international
+      scope: Tin tức của Liên Hợp Quốc; kiểm cơ quan phát ngôn và ngày
+      reference: https://news.un.org/
+    - host: nghean.gov.vn
+      name: Cổng thông tin Nghệ An
+      category: government
+      scope: Thông tin chính quyền địa phương và thông báo công cộng
+      reference: https://nghean.gov.vn/
+    - host: nhandan.org.vn
+      name: Báo Nhân Dân - địa chỉ lưu trữ
+      category: press
+      scope: Tin báo chí và bài lưu trữ; ưu tiên địa chỉ hiện hành
+      reference: https://nhandan.org.vn/
+    - host: nso.gov.vn
+      name: Cục Thống kê
+      category: government
+      scope: Số liệu thống kê; kiểm kỳ báo cáo và đơn vị
+      reference: https://nso.gov.vn/
+    - host: nvidianews.nvidia.com
+      name: NVIDIA Newsroom
+      category: corporate
+      scope: Chỉ xác nhận sản phẩm và công bố NVIDIA
+      reference: https://nvidianews.nvidia.com/
+    - host: pr.tsmc.com
+      name: TSMC Newsroom
+      category: corporate
+      scope: Chỉ xác nhận thông cáo và công bố TSMC
+      reference: https://pr.tsmc.com/
+    - host: quochoi.vn
+      name: Cổng thông tin Quốc hội
+      category: government
+      scope: Chương trình kỳ họp, dự án luật và nghị quyết
+      reference: https://quochoi.vn/
+    - host: science.nasa.gov
+      name: NASA Science
+      category: government
+      scope: Kết quả khoa học và dữ liệu NASA
+      reference: https://science.nasa.gov/
+    - host: suckhoedoisong.vn
+      name: Báo Sức khỏe và Đời sống
+      category: press
+      scope: Thông tin y tế; đối chiếu hướng dẫn và nghiên cứu gốc
+      reference: https://suckhoedoisong.vn/
+    - host: tapchitoaan.vn
+      name: Tạp chí Tòa án nhân dân
+      category: press
+      scope: Nghiên cứu, bình luận pháp luật; phân biệt ý kiến với quy định có hiệu lực
+      reference: https://tapchitoaan.vn/
+    - host: thanhhoa.gov.vn
+      name: Cổng thông tin Thanh Hóa
+      category: government
+      scope: Thông tin chính quyền địa phương và thông báo công cộng
+      reference: https://thanhhoa.gov.vn/
+    - host: thanhtra.gov.vn
+      name: Thanh tra Chính phủ
+      category: government
+      scope: Kết luận và thông tin thanh tra được công bố
+      reference: https://thanhtra.gov.vn/
+    - host: thoibaonganhang.vn
+      name: Thời báo Ngân hàng
+      category: press
+      scope: Chính sách tiền tệ và ngân hàng; kiểm số liệu gốc
+      reference: https://thoibaonganhang.vn/
+    - host: vanban.chinhphu.vn
+      name: Văn bản Chính phủ
+      category: government
+      scope: Văn bản quy phạm pháp luật; đối chiếu số hiệu và hiệu lực
+      reference: https://vanban.chinhphu.vn/
+    - host: vbpl.vn
+      name: Cơ sở dữ liệu quốc gia về văn bản pháp luật
+      category: government
+      scope: Văn bản pháp luật; kiểm hiệu lực và văn bản gốc
+      reference: https://vbpl.vn/
+    - host: vietnamfinance.vn
+      name: Tạp chí VietnamFinance
+      category: press
+      scope: Kinh tế và tài chính; kiểm số liệu và nguồn gốc
+      reference: https://vietnamfinance.vn/
+    - host: vietnamnews.vn
+      name: Viet Nam News - TTXVN
+      category: press
+      scope: Tin Việt Nam bằng tiếng Anh; kiểm nội dung và ngày
+      reference: https://vietnamnews.vn/
+    - host: vietnamtoday.vtv.vn
+      name: Vietnam Today - VTV
+      category: press
+      scope: Tin đối ngoại của VTV; kiểm bài gốc
+      reference: https://vietnamtoday.vtv.vn/
+    - host: vksndtc.gov.vn
+      name: Viện kiểm sát nhân dân tối cao
+      category: government
+      scope: Thông tin tư pháp thuộc chức năng cơ quan
+      reference: https://vksndtc.gov.vn/
+    - host: vnbusiness.vn
+      name: Tạp chí Kinh doanh
+      category: press
+      scope: Kinh doanh và hợp tác xã; kiểm bài gốc
+      reference: https://vnbusiness.vn/
+    - host: vnnic.vn
+      name: Trung tâm Internet Việt Nam
+      category: government
+      scope: Tên miền và số liệu Internet do đơn vị công bố
+      reference: https://vnnic.vn/
+    - host: vovgiaothong.vn
+      name: VOV Giao thông
+      category: press
+      scope: Tin giao thông và đô thị; kiểm bài gốc
+      reference: https://vovgiaothong.vn/
+    - host: vovworld.vn
+      name: VOV World
+      category: press
+      scope: Tin đối ngoại của VOV; kiểm ngôn ngữ và bài gốc
+      reference: https://vovworld.vn/
+    - host: vpcp.chinhphu.vn
+      name: Văn phòng Chính phủ
+      category: government
+      scope: Thông cáo và hoạt động Văn phòng Chính phủ
+      reference: https://vpcp.chinhphu.vn/
+    - host: wmo.int
+      name: Tổ chức Khí tượng Thế giới
+      category: international
+      scope: Khí tượng và báo cáo WMO
+      reference: https://wmo.int/
+    - host: www.adb.org
+      name: Ngân hàng Phát triển châu Á
+      category: international
+      scope: Dữ liệu và báo cáo ADB
+      reference: https://www.adb.org/
+    - host: www.apple.com
+      name: Apple Newsroom
+      category: corporate
+      scope: Chỉ xác nhận công bố và sản phẩm Apple
+      reference: https://www.apple.com/
+    - host: www.baoangiang.com.vn
+      name: Báo An Giang
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://www.baoangiang.com.vn/
+    - host: www.baocamau.vn
+      name: Báo Cà Mau
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://www.baocamau.vn/
+    - host: www.baocantho.com.vn
+      name: Báo Cần Thơ
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://www.baocantho.com.vn/
+    - host: www.baochinhphu.vn
+      name: Báo Điện tử Chính phủ
+      category: government
+      scope: Thông tin, chính sách và thông báo của Chính phủ
+      reference: https://www.baochinhphu.vn/
+    - host: www.baodaklak.vn
+      name: Báo Đắk Lắk
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://www.baodaklak.vn/
+    - host: www.baodanang.vn
+      name: Báo Đà Nẵng
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://www.baodanang.vn/
+    - host: www.baodautu.vn
+      name: Báo Đầu Tư
+      category: press
+      scope: Kinh tế, đầu tư, tài chính; kiểm tác giả/thời gian/nguồn
+      reference: https://www.baodautu.vn/
+    - host: www.baodongnai.com.vn
+      name: Báo Đồng Nai
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://www.baodongnai.com.vn/
+    - host: www.baodongthap.vn
+      name: Báo Đồng Tháp
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://www.baodongthap.vn/
+    - host: www.baogialai.com.vn
+      name: Báo Gia Lai
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://www.baogialai.com.vn/
+    - host: www.baogiaothong.vn
+      name: Báo Giao thông
+      category: press
+      scope: Tin giao thông; kiểm chuyển hướng sang cơ quan hiện hành
+      reference: https://www.baogiaothong.vn/
+    - host: www.baohaiphong.vn
+      name: Báo Hải Phòng
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://www.baohaiphong.vn/
+    - host: www.baolaichau.vn
+      name: Báo Lai Châu
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://www.baolaichau.vn/
+    - host: www.baolamdong.vn
+      name: Báo Lâm Đồng
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://www.baolamdong.vn/
+    - host: www.baolaocai.vn
+      name: Báo Lào Cai
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://www.baolaocai.vn/
+    - host: www.baonghean.vn
+      name: Báo Nghệ An
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://www.baonghean.vn/
+    - host: www.baoninhbinh.org.vn
+      name: Báo Ninh Bình
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://www.baoninhbinh.org.vn/
+    - host: www.baophapluat.vn
+      name: Báo Pháp luật Việt Nam
+      category: press
+      scope: Tin pháp luật, tư pháp và thời sự
+      reference: https://www.baophapluat.vn/
+    - host: www.baophutho.vn
+      name: Báo Phú Thọ
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://www.baophutho.vn/
+    - host: www.baoquangninh.vn
+      name: Báo Quảng Ninh
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://www.baoquangninh.vn/
+    - host: www.baotayninh.vn
+      name: Báo Tây Ninh
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://www.baotayninh.vn/
+    - host: www.baothainguyen.vn
+      name: Báo Thái Nguyên
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://www.baothainguyen.vn/
+    - host: www.baothanhhoa.vn
+      name: Báo Thanh Hóa
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://www.baothanhhoa.vn/
+    - host: www.baotintuc.vn
+      name: Báo Tin Tức (TTXVN)
+      category: press
+      scope: Tin chính thống TTXVN; kiểm tác giả/thời gian/nguồn
+      reference: https://www.baotintuc.vn/
+    - host: www.baoxaydung.vn
+      name: Báo Xây dựng
+      category: press
+      scope: Hạ tầng, giao thông và xây dựng
+      reference: https://www.baoxaydung.vn/
+    - host: www.blog.google
+      name: Google Blog
+      category: corporate
+      scope: Chỉ xác nhận công bố và sản phẩm Google
+      reference: https://www.blog.google/
+    - host: www.bocongan.gov.vn
+      name: Bộ Công an
+      category: government
+      scope: Thông cáo và cảnh báo chính thức
+      reference: https://www.bocongan.gov.vn/
+    - host: www.cafef.vn
+      name: CafeF
+      category: press
+      scope: Kinh tế, tài chính, thị trường; kiểm tác giả/thời gian/nguồn
+      reference: https://www.cafef.vn/
+    - host: www.cantho.gov.vn
+      name: Cổng thông tin Cần Thơ
+      category: government
+      scope: Thông tin chính quyền địa phương và thông báo công cộng
+      reference: https://www.cantho.gov.vn/
+    - host: www.channelnewsasia.com
+      name: CNA
+      category: press
+      scope: Tin khu vực và quốc tế; kiểm bài gốc
+      reference: https://www.channelnewsasia.com/
+    - host: www.chinhphu.vn
+      name: Cổng Thông tin điện tử Chính phủ
+      category: government
+      scope: Thông tin điều hành và văn bản chính thức
+      reference: https://www.chinhphu.vn/
+    - host: www.congthuong.vn
+      name: Báo Công Thương
+      category: press
+      scope: Điều hành giá xăng dầu, thương mại; kiểm tác giả/thời gian/nguồn
+      reference: https://www.congthuong.vn/
+    - host: www.customs.gov.vn
+      name: Cơ quan Hải quan Việt Nam
+      category: government
+      scope: Số liệu xuất nhập khẩu và thông báo hải quan
+      reference: https://www.customs.gov.vn/
+    - host: www.daibieunhandan.vn
+      name: Báo Đại biểu Nhân dân
+      category: press
+      scope: Quốc hội và chính sách; kiểm dự thảo, thời điểm
+      reference: https://www.daibieunhandan.vn/
+    - host: www.dantri.com.vn
+      name: Dân Trí
+      category: press
+      scope: Tin tức tổng hợp; kiểm tác giả/thời gian/nguồn
+      reference: https://www.dantri.com.vn/
+    - host: www.dav.gov.vn
+      name: Cục Quản lý Dược
+      category: government
+      scope: Thu hồi thuốc, cấp phép và thông báo dược
+      reference: https://www.dav.gov.vn/
+    - host: www.diendandoanhnghiep.vn
+      name: Tạp chí Diễn đàn Doanh nghiệp
+      category: press
+      scope: Kinh tế và doanh nghiệp; phân biệt tin, ý kiến và quảng cáo
+      reference: https://www.diendandoanhnghiep.vn/
+    - host: www.dongnai.gov.vn
+      name: Cổng thông tin Đồng Nai
+      category: government
+      scope: Thông tin chính quyền địa phương và thông báo công cộng
+      reference: https://www.dongnai.gov.vn/
+    - host: www.esa.int
+      name: Cơ quan Vũ trụ châu Âu
+      category: international
+      scope: Nghiên cứu không gian và thông cáo ESA
+      reference: https://www.esa.int/
+    - host: www.fao.org
+      name: FAO
+      category: international
+      scope: Nông nghiệp, lương thực và số liệu FAO
+      reference: https://www.fao.org/
+    - host: www.france24.com
+      name: France 24
+      category: press
+      scope: Tin quốc tế; kiểm bài gốc và thời điểm
+      reference: https://www.france24.com/
+    - host: www.gdt.gov.vn
+      name: Cơ quan Thuế Việt Nam
+      category: government
+      scope: Thông báo thuế và hướng dẫn chính thức
+      reference: https://www.gdt.gov.vn/
+    - host: www.giaoducthoidai.vn
+      name: Báo Giáo dục và Thời đại
+      category: press
+      scope: Giáo dục, tuyển sinh và chính sách; kiểm bài gốc
+      reference: https://www.giaoducthoidai.vn/
+    - host: www.haiphong.gov.vn
+      name: Cổng thông tin Hải Phòng
+      category: government
+      scope: Thông tin chính quyền địa phương và thông báo công cộng
+      reference: https://www.haiphong.gov.vn/
+    - host: www.hanoi.gov.vn
+      name: Cổng thông tin Hà Nội
+      category: government
+      scope: Thông tin chính quyền địa phương và thông báo công cộng
+      reference: https://www.hanoi.gov.vn/
+    - host: www.hanoimoi.vn
+      name: Báo Hà Nội Mới
+      category: press
+      scope: Tin Hà Nội và thời sự; kiểm bài gốc
+      reference: https://www.hanoimoi.vn/
+    - host: www.hcmcpv.org.vn
+      name: Trang tin Đảng bộ Thành phố Hồ Chí Minh
+      category: government
+      scope: Thông tin thuộc cơ quan Đảng bộ thành phố
+      reference: https://www.hcmcpv.org.vn/
+    - host: www.hochiminhcity.gov.vn
+      name: Cổng thông tin Thành phố Hồ Chí Minh
+      category: government
+      scope: Thông tin chính quyền địa phương và thông báo công cộng
+      reference: https://www.hochiminhcity.gov.vn/
+    - host: www.home.cern
+      name: CERN
+      category: international
+      scope: Vật lý hạt và công bố của CERN
+      reference: https://www.home.cern/
+    - host: www.hsx.vn
+      name: Sở Giao dịch Chứng khoán Thành phố Hồ Chí Minh
+      category: corporate
+      scope: Thông báo sở giao dịch và công bố tổ chức niêm yết
+      reference: https://www.hsx.vn/
+    - host: www.huengaynay.vn
+      name: Huế ngày nay
+      category: press
+      scope: Tin địa phương và thời sự; kiểm ngày và nội dung gốc
+      reference: https://www.huengaynay.vn/
+    - host: www.ilo.org
+      name: ILO
+      category: international
+      scope: Lao động và dữ liệu do ILO công bố
+      reference: https://www.ilo.org/
+    - host: www.imf.org
+      name: Quỹ Tiền tệ Quốc tế
+      category: international
+      scope: Dữ liệu, dự báo và báo cáo IMF; phân biệt dự báo với thực tế
+      reference: https://www.imf.org/
+    - host: www.ipcc.ch
+      name: IPCC
+      category: international
+      scope: Báo cáo đánh giá khí hậu; kiểm phiên bản báo cáo
+      reference: https://www.ipcc.ch/
+    - host: www.jma.go.jp
+      name: Cơ quan Khí tượng Nhật Bản
+      category: government
+      scope: Cảnh báo thiên tai và thông tin JMA
+      reference: https://www.jma.go.jp/
+    - host: www.mof.gov.vn
+      name: Bộ Tài chính
+      category: government
+      scope: Tài chính, thuế, giá
+      reference: https://www.mof.gov.vn/
+    - host: www.mofa.gov.vn
+      name: Bộ Ngoại giao
+      category: government
+      scope: Thông cáo, bảo hộ công dân và thông tin đối ngoại chính thức
+      reference: https://www.mofa.gov.vn/
+    - host: www.moj.gov.vn
+      name: Bộ Tư pháp
+      category: government
+      scope: Pháp luật và hướng dẫn chính thức
+      reference: https://www.moj.gov.vn/
+    - host: www.nasa.gov
+      name: NASA
+      category: government
+      scope: Không gian và khoa học do NASA công bố
+      reference: https://www.nasa.gov/
+    - host: www.nghean.gov.vn
+      name: Cổng thông tin Nghệ An
+      category: government
+      scope: Thông tin chính quyền địa phương và thông báo công cộng
+      reference: https://www.nghean.gov.vn/
+    - host: www.nhandan.org.vn
+      name: Báo Nhân Dân - địa chỉ lưu trữ
+      category: press
+      scope: Tin báo chí và bài lưu trữ; ưu tiên địa chỉ hiện hành
+      reference: https://www.nhandan.org.vn/
+    - host: www.nhandan.vn
+      name: Báo Nhân Dân
+      category: press
+      scope: Cơ quan báo chí; tin chính thống
+      reference: https://www.nhandan.vn/
+    - host: www.nhk.or.jp
+      name: NHK
+      category: press
+      scope: Tin Nhật Bản và quốc tế; kiểm bài gốc
+      reference: https://www.nhk.or.jp/
+    - host: www.nld.com.vn
+      name: Người Lao Động
+      category: press
+      scope: Tin tức tổng hợp; kiểm tác giả/thời gian/nguồn
+      reference: https://www.nld.com.vn/
+    - host: www.nso.gov.vn
+      name: Cục Thống kê
+      category: government
+      scope: Số liệu thống kê; kiểm kỳ báo cáo và đơn vị
+      reference: https://www.nso.gov.vn/
+    - host: www.oecd.org
+      name: OECD
+      category: international
+      scope: Báo cáo, dữ liệu và phương pháp thống kê OECD
+      reference: https://www.oecd.org/
+    - host: www.samsung.com
+      name: Samsung Newsroom và công bố doanh nghiệp
+      category: corporate
+      scope: Chỉ xác nhận sản phẩm và công bố của Samsung; không đánh giá khách quan thị trường
+      reference: https://www.samsung.com/
+    - host: www.science.nasa.gov
+      name: NASA Science
+      category: government
+      scope: Kết quả khoa học và dữ liệu NASA
+      reference: https://www.science.nasa.gov/
+    - host: www.suckhoedoisong.vn
+      name: Báo Sức khỏe và Đời sống
+      category: press
+      scope: Thông tin y tế; đối chiếu hướng dẫn và nghiên cứu gốc
+      reference: https://www.suckhoedoisong.vn/
+    - host: www.tapchitoaan.vn
+      name: Tạp chí Tòa án nhân dân
+      category: press
+      scope: Nghiên cứu, bình luận pháp luật; phân biệt ý kiến với quy định có hiệu lực
+      reference: https://www.tapchitoaan.vn/
+    - host: www.thanhnien.vn
+      name: Thanh Niên
+      category: press
+      scope: Tin tức tổng hợp; kiểm tác giả/thời gian/nguồn
+      reference: https://www.thanhnien.vn/
+    - host: www.thoibaotaichinhvietnam.vn
+      name: Thời báo Tài chính Việt Nam
+      category: press
+      scope: Tài chính, thuế, giá (cơ quan của Bộ Tài chính); kiểm tác giả/thời gian/nguồn
+      reference: https://www.thoibaotaichinhvietnam.vn/
+    - host: www.tienphong.vn
+      name: Tiền Phong
+      category: press
+      scope: Tin tức tổng hợp; kiểm tác giả/thời gian/nguồn
+      reference: https://www.tienphong.vn/
+    - host: www.tsmc.com
+      name: TSMC
+      category: corporate
+      scope: Chỉ xác nhận công bố doanh nghiệp, công nghệ và báo cáo TSMC
+      reference: https://www.tsmc.com/
+    - host: www.tuoitre.vn
+      name: Tuổi Trẻ
+      category: press
+      scope: Tin tức tổng hợp; kiểm tác giả/thời gian/nguồn
+      reference: https://www.tuoitre.vn/
+    - host: www.un.org
+      name: Liên Hợp Quốc
+      category: international
+      scope: Thông cáo và dữ liệu do Liên Hợp Quốc công bố
+      reference: https://www.un.org/
+    - host: www.undp.org
+      name: UNDP
+      category: international
+      scope: Phát triển và báo cáo do UNDP công bố
+      reference: https://www.undp.org/
+    - host: www.unesco.org
+      name: UNESCO
+      category: international
+      scope: Giáo dục, khoa học, văn hóa và công bố UNESCO
+      reference: https://www.unesco.org/
+    - host: www.unicef.org
+      name: UNICEF
+      category: international
+      scope: Dữ liệu trẻ em và thông tin do UNICEF công bố
+      reference: https://www.unicef.org/
+    - host: www.vietnamfinance.vn
+      name: Tạp chí VietnamFinance
+      category: press
+      scope: Kinh tế và tài chính; kiểm số liệu và nguồn gốc
+      reference: https://www.vietnamfinance.vn/
+    - host: www.vietnamnet.vn
+      name: VietNamNet
+      category: press
+      scope: Tin tức tổng hợp; kiểm tác giả/thời gian/nguồn
+      reference: https://www.vietnamnet.vn/
+    - host: www.vietnamnews.vn
+      name: Viet Nam News - TTXVN
+      category: press
+      scope: Tin Việt Nam bằng tiếng Anh; kiểm nội dung và ngày
+      reference: https://www.vietnamnews.vn/
+    - host: www.vnanet.vn
+      name: Thông tấn xã Việt Nam
+      category: press
+      scope: Thông tấn nhà nước; tin thời sự, chính sách và dữ liệu công bố
+      reference: https://www.vnanet.vn/
+    - host: www.vnbusiness.vn
+      name: Tạp chí Kinh doanh
+      category: press
+      scope: Kinh doanh và hợp tác xã; kiểm bài gốc
+      reference: https://www.vnbusiness.vn/
+    - host: www.vneconomy.vn
+      name: VnEconomy
+      category: press
+      scope: Kinh tế, tài chính, giá cả; kiểm tác giả/thời gian/nguồn
+      reference: https://www.vneconomy.vn/
+    - host: www.vnexpress.net
+      name: VnExpress
+      category: press
+      scope: Tin tức tổng hợp; cần kiểm tra tác giả, thời gian và nguồn gốc
+      reference: https://www.vnexpress.net/
+    - host: www.vnnic.vn
+      name: Trung tâm Internet Việt Nam
+      category: government
+      scope: Tên miền và số liệu Internet do đơn vị công bố
+      reference: https://www.vnnic.vn/
+    - host: www.vovgiaothong.vn
+      name: VOV Giao thông
+      category: press
+      scope: Tin giao thông và đô thị; kiểm bài gốc
+      reference: https://www.vovgiaothong.vn/
+    - host: www.vtv.vn
+      name: Đài Truyền hình Việt Nam
+      category: press
+      scope: Tin tức tổng hợp; kiểm tác giả/thời gian/nguồn
+      reference: https://www.vtv.vn/
+    - host: www.wmo.int
+      name: Tổ chức Khí tượng Thế giới
+      category: international
+      scope: Khí tượng và báo cáo WMO
+      reference: https://www.wmo.int/
+    - host: www.worldbank.org
+      name: Ngân hàng Thế giới
+      category: international
+      scope: Dữ liệu và báo cáo Ngân hàng Thế giới; kiểm kỳ và đơn vị
+      reference: https://www.worldbank.org/
+    - host: www.wto.org
+      name: Tổ chức Thương mại Thế giới
+      category: international
+      scope: Thương mại và công bố WTO
+      reference: https://www.wto.org/
+    - host: xaydungchinhsach.chinhphu.vn
+      name: Xây dựng chính sách pháp luật
+      category: government
+      scope: Chính sách pháp luật; phân biệt dự thảo với văn bản đã ban hành
+      reference: https://xaydungchinhsach.chinhphu.vn/
+    - host: qdnd.vn
+      name: Báo Quân đội nhân dân
+      category: press
+      scope: Tin thời sự và quốc phòng; kiểm ngày và nội dung gốc
+      reference: https://qdnd.vn/
+    - host: www.qdnd.vn
+      name: Báo Quân đội nhân dân
+      category: press
+      scope: Tin thời sự và quốc phòng; kiểm ngày và nội dung gốc
+      reference: https://www.qdnd.vn/
+    - host: cand.com.vn
+      name: Báo Công an nhân dân
+      category: press
+      scope: Tin thời sự, pháp luật và an ninh; kiểm bài gốc
+      reference: https://cand.com.vn/
+    - host: www.cand.com.vn
+      name: Báo Công an nhân dân
+      category: press
+      scope: Tin thời sự, pháp luật và an ninh; kiểm bài gốc
+      reference: https://www.cand.com.vn/
+    - host: cand.vn
+      name: Báo Công an nhân dân
+      category: press
+      scope: Tin thời sự, pháp luật và an ninh; kiểm bài gốc
+      reference: https://cand.vn/
+    - host: mst.gov.vn
+      name: Bộ Khoa học và Công nghệ
+      category: government
+      scope: Khoa học, công nghệ, đổi mới sáng tạo và chuyển đổi số
+      reference: https://mst.gov.vn/
 cache:
   directory: .cache/web_retrieval
   persist_provider_responses: false

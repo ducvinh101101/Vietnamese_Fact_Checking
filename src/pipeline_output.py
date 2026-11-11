@@ -74,13 +74,12 @@ def build_pipeline_output(
     if result.label == "NOT_ENOUGH_INFO" and citations:
         raise RuntimeError("NOT_ENOUGH_INFO không được kèm citation")
 
+    verdict = {'label': result.label, 'confidence': result.confidence, 'explanation': result.explanation}
+    if result.status == 'error':
+        verdict.update(status='error', error_code=result.error_code)
     return {
         "schema_version": SCHEMA_VERSION,
-        "verdict": {
-            "label": result.label,
-            "confidence": result.confidence,
-            "explanation": result.explanation,
-        },
+        "verdict": verdict,
         "retrieval": {
             "retrieved_count": len(records),
             "positive_score_count": sum(float(record["score"]) > 0 for record in records),

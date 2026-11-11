@@ -1,0 +1,134 @@
+{
+  "reviewed_at": "2026-11-06",
+  "source_hints_used": false,
+  "model_requests": 0,
+  "allowed_hosts": 234,
+  "scope": "Small live diagnostic only; RSS listings change over time; no representative recall or verifier accuracy measured.",
+  "offline_tests": {
+    "passed": 209,
+    "xfailed": 2
+  },
+  "rss_only": {
+    "verified_at": "2026-11-06T10:03:42.024871+00:00",
+    "provider_requests": 0,
+    "model_requests": 0,
+    "source_hints_used": false,
+    "records": [
+      {
+        "claim": "Bệnh viện điều trị bệnh sốt xuất huyết",
+        "seconds": 10.14,
+        "pool_size": 152,
+        "selected_feeds": 12,
+        "successful_feeds": 12,
+        "feed_errors": [],
+        "candidate_urls": [
+          "https://dantri.com.vn/suc-khoe/lien-tiep-nhieu-tre-nguy-kich-vi-sot-xuat-huyet-phai-loc-mau-va-tho-may-20261105163054610.htm",
+          "https://vnanet.vn/vi/tin-tuc/suc-khoe-7/sot-xuat-huyet-dien-bien-kho-du-bao-da-ghi-nhan-21-truong-hop-tu-vong-9136659.html",
+          "https://dantri.com.vn/giai-tri/to-my-tai-xuat-sau-bien-co-suc-khoe-bat-ngo-nhan-nu-hon-cua-quang-le-20261106162826816.htm",
+          "https://suckhoedoisong.vn/tphcm-dau-tu-manh-tay-trong-linh-vuc-ung-thu-169261105202348872.htm",
+          "https://vnanet.vn/vi/tin-tuc/suc-khoe-7/thanh-pho-hue-lan-dau-dao-tao-thuc-nghiem-phau-thuat-robot-tu-xa-gan-1000km-9131584.html",
+          "https://suckhoedoisong.vn/ca-tu-vong-thu-3-nghi-do-sot-xuat-huyet-dau-hieu-chuyen-nang-can-chu-y-169261105202825648.htm"
+        ],
+        "original_pages_with_passages": []
+      },
+      {
+        "claim": "Lãi suất và tỷ giá ngân hàng",
+        "seconds": 1.28,
+        "pool_size": 152,
+        "selected_feeds": 12,
+        "successful_feeds": 12,
+        "feed_errors": [],
+        "candidate_urls": [
+          "https://vnbusiness.vn//chi-phi-bua-vay-doanh-nghiep-thoat-bay-von-vay-bang-cach-nao.html",
+          "https://vnbusiness.vn//gpbank-danh-1000-ty-dong-ho-tro-giam-lai-suat-cho-vay-doi-voi-ca-nhan-va-doanh-nghiep.html",
+          "https://vneconomy.vn/sacombank-trien-khai-goi-lai-suat-cho-vay-79nam.htm",
+          "https://vnbusiness.vn//nghich-ly-song-ngam-lai-suat-tiet-kiem-sau-menh-lenh-hanh-chinh.html",
+          "https://thoibaonganhang.vn/can-phan-loai-tin-dung-phat-trien-nha-o-voi-tin-dung-phuc-vu-hoat-dong-dau-co-190296.html",
+          "https://thoibaonganhang.vn/du-dia-giam-lai-suat-con-den-dau-190295.html"
+        ],
+        "original_pages_with_passages": []
+      },
+      {
+        "claim": "Nạn nhân tử vong trong vụ cháy trường Kim Liên là học sinh lớp 6",
+        "seconds": 19.84,
+        "pool_size": 152,
+        "selected_feeds": 14,
+        "successful_feeds": 14,
+        "feed_errors": [],
+        "candidate_urls": [
+          "https://baoxaydung.vn/nan-nhan-tu-vong-trong-vu-chay-o-truong-thcs-kim-lien-la-hoc-sinh-lop-6-192261106134850353.htm",
+          "https://dantri.com.vn/thoi-su/nan-nhan-tu-vong-trong-vu-chay-truong-thcs-kim-lien-la-hoc-sinh-lop-6-20261106120649895.htm",
+          "https://tuoitre.vn/xac-dinh-nguoi-tu-vong-trong-vu-chay-truong-cap-2-kim-lien-la-hoc-sinh-lop-6-100261106134639298.htm",
+          "https://vnanet.vn/vi/tin-tuc/giao-duc-5/thu-tuong-yeu-cau-dieu-tra-vu-chay-khien-mot-nguoi-tu-vong-tai-truong-hoc-ha-noi-9136084.html",
+          "https://vnanet.vn/vi/tin-tuc/giao-duc-5/sau-vu-chay-truong-trung-hoc-co-so-kim-lien-thong-bao-tam-dung-hoc-truc-tiep-9135358.html",
+          "https://vnanet.vn/vi/tin-tuc/giao-duc-5/vu-chay-tai-truong-kim-lien-nhanh-chong-bo-tri-dia-diem-hoc-tap-an-toan-9134774.html"
+        ],
+        "original_pages_with_passages": [
+          "https://baoxaydung.vn/nan-nhan-tu-vong-trong-vu-chay-o-truong-thcs-kim-lien-la-hoc-sinh-lop-6-192261106134850353.htm",
+          "https://dantri.com.vn/thoi-su/nan-nhan-tu-vong-trong-vu-chay-truong-thcs-kim-lien-la-hoc-sinh-lop-6-20261106120649895.htm",
+          "https://tuoitre.vn/xac-dinh-nguoi-tu-vong-trong-vu-chay-truong-cap-2-kim-lien-la-hoc-sinh-lop-6-100261106134639298.htm",
+          "https://vnanet.vn/"
+        ]
+      },
+      {
+        "claim": "Sự bùng nổ của trí tuệ nhân tạo (AI) đang tạo ra bước ngoặt cho ngành bán dẫn toàn cầu, thúc đẩy các nhà sản xuất chuyển hướng phát triển những dòng chip tiên tiến có giá trị và biên lợi nhuận cao.",
+        "seconds": 0.98,
+        "pool_size": 152,
+        "selected_feeds": 14,
+        "successful_feeds": 14,
+        "feed_errors": [],
+        "candidate_urls": [
+          "https://baothanhhoa.vn/bao-dam-an-ninh-nang-luong-cung-ung-du-dien-phuc-vu-tang-truong-hai-con-so-307849.htm",
+          "https://baovanhoa.vn/7-cuon-sach-dau-tien-cua-nha-xuat-ban-chinh-tri-quoc-gia-su-that-len-amazon.html"
+        ],
+        "original_pages_with_passages": [
+          "https://baothanhhoa.vn/bao-dam-an-ninh-nang-luong-cung-ung-du-dien-phuc-vu-tang-truong-hai-con-so-307849.htm",
+          "https://baovanhoa.vn/7-cuon-sach-dau-tien-cua-nha-xuat-ban-chinh-tri-quoc-gia-su-that-len-amazon.html"
+        ]
+      }
+    ]
+  },
+  "with_search": {
+    "verified_at": "2026-11-06T10:04:49.136091+00:00",
+    "claim": "Sự bùng nổ của trí tuệ nhân tạo (AI) đang tạo ra bước ngoặt cho ngành bán dẫn toàn cầu, thúc đẩy các nhà sản xuất chuyển hướng phát triển những dòng chip tiên tiến có giá trị và biên lợi nhuận cao.",
+    "source_hints_used": false,
+    "model_requests": 0,
+    "seconds": 11.77,
+    "allowed_hosts": 234,
+    "status": "ok",
+    "error": null,
+    "attempts": [
+      {
+        "stage": "publisher_rss",
+        "status": "ok",
+        "query": null,
+        "count": 6,
+        "provider_results": null,
+        "feed_pool_size": 152
+      },
+      {
+        "stage": "general_1",
+        "status": "ok",
+        "query": "Sự bùng nổ của trí tuệ nhân tạo (AI) đang tạo ra bước ngoặt cho ngành bán dẫn toàn cầu, thúc đẩy các nhà sản xuất chuyển hướng phát triển những dòng chip tiên tiến có giá trị và biên lợi nhuận cao.",
+        "count": 20,
+        "provider_results": 20,
+        "feed_pool_size": null
+      },
+      {
+        "stage": "general_2",
+        "status": "ok",
+        "query": "\"Sự bùng nổ của trí tuệ nhân tạo (AI) đang tạo ra bước ngoặt cho ngành bán dẫn toàn cầu, thúc đẩy các nhà\"",
+        "count": 3,
+        "provider_results": 2,
+        "feed_pool_size": null
+      }
+    ],
+    "evidence_urls": [
+      "https://baovanhoa.vn/nhu-cau-chip-nho-toan-cau-bung-no.html",
+      "https://baotuyenquang.com.vn/khoa-hoc-cong-nghe/202511/nganh-ban-dan-trung-quoc-dat-cuoc-vao-tri-tue-nhan-tao-xe-dien-eed29e2/",
+      "https://vov.vn/kinh-te/aisc-2025-giao-diem-cua-tri-tue-nhan-tao-ban-dan-khang-dinh-vi-the-moi-cua-viet-nam-post1160603.vov",
+      "https://hanoimoi.vn/phat-trien-tri-tue-nhan-tao-tao-sinh-huong-di-moi-cua-doanh-nghiep-653646.html",
+      "https://cafef.vn/bao-nhat-su-bung-no-nganh-chip-day-viet-nam-tien-gan-hon-den-vi-the-quoc-gia-co-thu-nhap-cao-188260820200728941.chn"
+    ]
+  }
+}

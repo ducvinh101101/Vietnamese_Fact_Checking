@@ -30,6 +30,7 @@ MODES = {"Kho local (đã đánh giá)": "local", "Local + web (Tavily)": "hybri
 MODELS = {
     "PhoBERT Đề tài (Cục bộ CPU, < 0.3s)": "phobert",
     "LLM Gemma 4 (Google Cloud, Suy luận sâu)": "gemma",
+    "DeepSeek V4.1 Flash": "deepseek",
 }
 VERDICTS = {
     "SUPPORTED": ("supported", "✓", "ĐƯỢC ỦNG HỘ", "Bằng chứng truy xuất xác nhận phát biểu."),
@@ -108,14 +109,19 @@ def _e(value: object) -> str:
 def render_verdict(verdict: dict, mode: str, engine: str) -> str:
     css, icon, title, meaning = VERDICTS.get(str(verdict["label"]), VERDICTS["NOT_ENOUGH_INFO"])
     score = max(0.0, min(1.0, float(verdict["confidence"])))
+    failed = verdict.get('status') == 'error'
+    if failed:
+        css, icon, title, meaning = 'nei', '!', 'LỖI XÁC MINH', 'Mô hình chưa xử lý thành công; chưa có kết luận kiểm chứng.'
+    display_label = 'ERROR' if failed else verdict['label']
+    display_score = '—' if failed else f'{score:.2f}'
     mode_name = next(name for name, value in MODES.items() if value == mode)
     engine_name = next(name for name, value in MODELS.items() if value == engine)
     return f"""
 <div class="verdict {css}">
   <div class="icon">{icon}</div>
-  <div><div class="label">{title}</div><div class="meta">{_e(verdict['label'])} · {_e(meaning)}</div>
+  <div><div class="label">{title}</div><div class="meta">{_e(display_label)} · {_e(meaning)}</div>
        <div class="meta">Nguồn: {_e(mode_name)} · <b>Mô hình: {_e(engine_name)}</b></div></div>
-  <div class="score"><div class="meta">Độ tự tin</div><div class="label">{score:.2f}</div>
+  <div class="score"><div class="meta">Độ tự tin</div><div class="label">{display_score}</div>
        <div class="bar"><span style="width:{100 * score:.0f}%"></span></div></div>
 </div>
 <div class="note">{_e(verdict['explanation'])}</div>"""
@@ -268,7 +274,9 @@ def build_ui() -> gr.Blocks:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--share", action="store_true", help="Tạo link công khai tạm thời (gradio.live)")
-    parser.add_argument("--port", type=int, default=7860)
+    # None lets Gradio try its configured port range instead of forcing 7860.
+    parser.add_argument("--port", type=int, default=None,
+                        help="Cố định cổng; mặc định tự chọn cổng trống từ 7860 hoặc GRADIO_SERVER_PORT")
     parser.add_argument("--no-browser", action="store_true", help="Không tự mở tab trình duyệt")
     args = parser.parse_args()
     build_ui().queue(default_concurrency_limit=1).launch(server_port=args.port, share=args.share,

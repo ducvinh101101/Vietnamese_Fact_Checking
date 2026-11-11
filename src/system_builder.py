@@ -129,6 +129,7 @@ class FactCheckSystem:
         response["diagnostics"] = self.diagnostics()
         label = response['verdict']['label']
         response['diagnostics']['outcome_stage'] = (
+            'verifier_error' if response['verdict'].get('status') == 'error' else
             'no_evidence' if not response['retrieval']['retrieved_count'] else
             'guard_abstained' if label == 'NOT_ENOUGH_INFO' and response['diagnostics'].get('guard_reason') else
             'verifier_abstained' if label == 'NOT_ENOUGH_INFO' else 'decisive')
@@ -193,9 +194,9 @@ def build_verifier(config: dict[str, Any], root: Path = ROOT, engine: str | None
     rule_based = RuleBasedFactChecker(float(v.get("support_threshold", 0.45)), v.get("refute_markers"))
     if engine == "rule_based":
         return rule_based, None
-    if engine in ("gemma", "gemini", "llm", "gemma_4"):
+    if engine in ("gemma", "gemini", "llm", "gemma_4", "deepseek"):
         from src.llm_verifier import LLMVerifier
-        return LLMVerifier(), None
+        return LLMVerifier(provider="deepseek" if engine == "deepseek" else "gemini"), None
     if engine != "phobert":
         raise ValueError(f"Verifier không hỗ trợ: {engine}")
     from src.phobert_fact_checker import PhoBERTFactChecker  # import muộn: torch nặng
@@ -215,7 +216,7 @@ def build_verifier(config: dict[str, Any], root: Path = ROOT, engine: str | None
 
 
 def load_web_retriever(root: Path = ROOT) -> tuple[Any | None, str]:
-    """Build web retrieval; without an API key only direct source URLs work."""
+    """Build web retrieval; publisher RSS/sitemaps also work without a search key."""
     from src.web_retriever import WebRetriever
 
     config = deepcopy(yaml.safe_load((root / "configs" / "web_retrieval.yaml").read_text(encoding="utf-8")))
@@ -225,9 +226,9 @@ def load_web_retriever(root: Path = ROOT) -> tuple[Any | None, str]:
     key_env = config["provider"]["api_key_env"]
     if not os.environ.get(key_env):
         return WebRetriever(config), (f"Thiếu biến môi trường {key_env}; không tìm kiếm Tavily. "
-                                      "Vẫn có thể đọc URL nguồn trực tiếp hoặc dùng kho local.")
+                                      "Vẫn tìm RSS/sitemap và kho local.")
     hosts = len(config["source_policy"]["allowlist"])
-    return WebRetriever(config), f"Web bật: Tavily, chỉ nhận {hosts} nguồn trong allowlist."
+    return WebRetriever(config), f"Web bật: Tavily, chỉ nhận {hosts} hostname trong allowlist."
 
 
 def _find(wrapper: Any, kind: type) -> Any | None:
@@ -249,6 +250,9 @@ def build_system(options: SystemOptions | None = None, config: dict[str, Any] | 
     fallback_reason = None
     if verifier is None:
         verifier, fallback_reason = build_verifier(config, root, options.engine, options.require_phobert)
+        from src.llm_verifier import LLMVerifier
+        if isinstance(verifier, LLMVerifier):
+            verifier.as_of = options.as_of
     minimal_pair = bool(v.get("minimal_pair", True))
 
     if options.mode == "local":

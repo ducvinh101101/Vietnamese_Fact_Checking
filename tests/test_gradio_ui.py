@@ -43,3 +43,10 @@ def test_evidence_html_is_escaped():
             "url": "https://x.vn/a?b=1&c=\"2\"", "origin": "web"}
     html = app_gradio.render_evidence([item], {"p<1>"}, "trống")
     assert "<script>" not in html and "&lt;script&gt;" in html and "S&amp;P" in html
+
+
+def test_provider_error_is_not_displayed_as_nei():
+    rendered = app_gradio.render_verdict({'label': 'NOT_ENOUGH_INFO', 'confidence': 0,
+        'explanation': 'HTTP 400', 'status': 'error', 'error_code': 'provider_error'}, 'hybrid', 'gemma')
+    assert 'LỖI XÁC MINH' in rendered
+    assert 'CHƯA ĐỦ THÔNG TIN' not in rendered and 'NOT_ENOUGH_INFO' not in rendered

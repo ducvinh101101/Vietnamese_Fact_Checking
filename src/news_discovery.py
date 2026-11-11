@@ -4,10 +4,12 @@ from __future__ import annotations
 from concurrent.futures import ThreadPoolExecutor
 from datetime import date
 from html import unescape
+from hashlib import sha256
 import re
 import time
 import unicodedata
 from typing import Callable
+from urllib.parse import urlsplit
 import xml.etree.ElementTree as ET
 
 from src.query_enrichment import publication_date
@@ -57,6 +59,56 @@ class NewsDiscovery:
         self.normalize_date = normalize_date
         self.cache: dict[str, tuple[float, list[dict[str, object]]]] = {}
         self.last_feeds: list[dict[str, object]] = []
+        self.last_feed_pool_size = 0
+
+    def select_feeds(self, claim: str) -> list[str]:
+        """Keep requests bounded while letting every configured publisher participate.
+
+        A small core supplies broad coverage. Topic matches get the remaining
+        slots, with publisher diversity and deterministic tie rotation by claim.
+        """
+        base = list(dict.fromkeys(self.config.get('feeds', [])))
+        maximum = int(self.config.get('max_feeds', 8))
+        catalog = self.config.get('feed_catalog', [])
+        if not catalog:
+            self.last_feed_pool_size = len(base)
+            return base[:maximum]
+        topics = {url: values for url, values in self.config.get('feed_topics', {}).items()}
+        urls = list(base)
+        for entry in catalog:
+            url = entry['url']
+            if url not in urls:
+                urls.append(url)
+            topics[url] = entry.get('topics', [])
+        self.last_feed_pool_size = len(urls)
+        def normalize(value):
+            return re.sub(r'\W+', ' ', unicodedata.normalize('NFC', value).casefold()).strip()
+        query = ' ' + normalize(claim) + ' '
+        def score(url):
+            matches = sum(' '+normalize(topic)+' ' in query
+                          for topic in topics.get(url, []))
+            tie = sha256((claim.casefold()+'\n'+url).encode()).hexdigest()
+            # Broad news feeds fill unused slots before unrelated specialist feeds.
+            return -matches, bool(topics.get(url)), tie
+        core = min(maximum, int(self.config.get('core_feed_count', 4)))
+        selected = base[:core]
+        if len(selected) >= maximum:
+            return selected
+        ranked = sorted((u for u in urls if u not in selected), key=score)
+        def publisher(url):
+            return (urlsplit(url).hostname or '').removeprefix('www.')
+        seen_hosts = {publisher(u) for u in selected}
+        deferred = []
+        for url in ranked:
+            host = publisher(url)
+            if host in seen_hosts:
+                deferred.append(url)
+                continue
+            selected.append(url)
+            seen_hosts.add(host)
+            if len(selected) >= maximum:
+                break
+        return (selected + deferred)[:maximum]
 
     def _load(self, url: str):
         try:
@@ -75,7 +127,8 @@ class NewsDiscovery:
 
     def search(self, claim: str, date_window: tuple[date, date] | None = None, *,
                sitemap_days: tuple[date, ...] = (), include_feeds: bool = True) -> list[dict[str, object]]:
-        feeds = self.config.get('feeds', [])[:int(self.config.get('max_feeds', 6))] if include_feeds else []
+        self.last_feed_pool_size = 0
+        feeds = self.select_feeds(claim) if include_feeds else []
         feeds = list(feeds)
         for template in self.config.get('sitemap_templates', [])[:2]:
             for day in sitemap_days[:2]:

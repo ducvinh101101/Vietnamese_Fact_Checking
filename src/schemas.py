@@ -62,3 +62,5 @@ class VerificationResult:
     confidence: float
     evidence_ids: list[str]
     explanation: str
+    status: Literal['ok', 'error'] = 'ok'
+    error_code: str | None = None

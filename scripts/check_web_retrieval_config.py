@@ -31,7 +31,7 @@ def validate(config):
     assert policy['match'] == 'exact_hostname'
     assert all(policy[k] is True for k in ['https_only', 'revalidate_every_redirect', 'reject_private_ips', 'require_original_page_passage'])
     hosts = [s['host'] for s in policy['allowlist']]
-    assert hosts and len(hosts) == len(set(hosts))
+    assert hosts and len(hosts) == len(set(hosts)) and len(hosts) <= 300
     for source in policy['allowlist']:
         host = source['host']
         assert host == host.lower() and '*' not in host and '/' not in host
@@ -46,11 +46,19 @@ def validate(config):
     assert limits['max_retries'] <= 1 and limits['fail_to'] == 'local_only'
     discovery = config.get('discovery', {})
     if discovery:
-        assert 1 <= discovery['max_feeds'] <= 6
+        assert 1 <= discovery['max_feeds'] <= 16
         assert 1 <= discovery['max_candidates'] <= 10
         assert 60 <= discovery['ttl_seconds'] <= 900
         assert 0 < discovery['timeout_seconds'] <= 8
         assert all(allowed_url(url, hosts) for url in discovery['feeds'])
+        catalog = discovery.get('feed_catalog', [])
+        assert len({entry['url'] for entry in catalog}) == len(catalog)
+        for entry in catalog:
+            assert allowed_url(entry['url'], hosts)
+            assert isinstance(entry.get('topics', []), list)
+            assert all(isinstance(topic, str) and topic.strip() for topic in entry.get('topics', []))
+        assert 0 <= discovery.get('core_feed_count', 4) <= discovery['max_feeds']
+        assert all(url in discovery['feeds'] for url in discovery.get('feed_topics', {}))
         assert len(discovery.get('sitemap_templates', [])) <= 2
         assert all(allowed_url(template.format(date='2026-11-03', year=2026, month=11, day=3), hosts)
                    for template in discovery.get('sitemap_templates', []))

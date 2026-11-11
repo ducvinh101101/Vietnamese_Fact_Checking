@@ -74,8 +74,13 @@ class _PageTextParser(HTMLParser):
         tag = tag.lower()
         attr = {k.lower(): (v or "") for k, v in attrs}
         marker = attr.get("class", "") + " " + attr.get("id", "")
-        skipped = tag in self._SKIP or bool(re.search(r"sidebar|related|recommend|tin-lien-quan|box-tin", marker, re.I))
-        main = tag in {"article", "main"} or bool(re.search(r"article-body|article-content|detail-content|detail__content|contentdetail", marker, re.I))
+        # An article header contains the headline/standfirst, unlike the site's
+        # navigation header. Dropping every <header> loses copied news leads.
+        article_header = tag == 'header' and bool(re.search(
+            r'(?:article|detail|post|entry)[_-]+header', marker, re.I))
+        skipped = (tag in self._SKIP and not article_header) or bool(re.search(r"sidebar|related|recommend|tin-lien-quan|box-tin", marker, re.I))
+        main = article_header or tag in {"article", "main"} or bool(re.search(
+            r"article-body|article-content|detail-content|detail__content|contentdetail|article[_-]+sapo|detail[_-]+sapo|standfirst", marker, re.I))
         if tag not in {"meta", "link", "img", "br", "hr", "input", "source", "wbr", "area", "base", "embed", "param", "track"}:
             self._stack.append((tag, skipped, main))
         if tag == "meta":
@@ -267,6 +272,12 @@ def extract_passages(html: str, minimum_chars: int, maximum_chars: int, max_pass
     return title, passages[:max_passages]
 
 
+def _search_lead(claim: str) -> str:
+    # normalize_text has already collapsed title/standfirst newlines in the UI.
+    lead = re.split(r"(?<=[.!?…])\s+|(?=\bMỗi\b)", claim, maxsplit=1)[0].strip()
+    return " ".join(lead.split()[:24])
+
+
 def search_queries(claim: str) -> list[str]:
     """Bounded alternatives: full claim, short lead, distinctive content terms.
 
@@ -274,13 +285,13 @@ def search_queries(claim: str) -> list[str]:
     used to rank passages and verify. These variants only discover candidate URLs.
     """
     plain = re.sub(r"\s+ngày\s+\d{2}/\d{2}/\d{4}$", "", claim).strip()
-    # normalize_text has already collapsed title/standfirst newlines in the UI.
-    lead = re.split(r"(?<=[.!?…])\s+|(?=\bMỗi\b)", plain, maxsplit=1)[0].strip()
-    lead = " ".join(lead.split()[:24])
+    lead = _search_lead(plain)
     from src.topical_rerank import _STOPWORDS
     terms = list(dict.fromkeys(word for word in re.findall(r"\d+(?:[.,]\d+)*%?|[^\W\d_]+", plain)
                               if word.casefold() not in _STOPWORDS))
-    keywords = " ".join(terms[:22])
+    # Keep discriminative details from the end of a long claim too (e.g. chip
+    # manufacturers' margins), rather than spending every query on generic AI.
+    keywords = " ".join(list(dict.fromkeys(terms[:10] + terms[-12:])))
     return list(dict.fromkeys(q for q in (claim.strip(), lead, keywords) if q))
 
 
@@ -521,8 +532,12 @@ class WebRetriever:
         fetching = self.config.get('fetching', {})
         # Reserve budget for later queries. Lightweight snippet scoring only
         # chooses which pages to fetch; snippets never become evidence.
-        ranked_results = sorted((r for r in results if isinstance(r, dict)),
-                                key=lambda r: -sentence_score(claim, str(r.get('title') or '') + ' ' + str(r.get('content') or '')))
+        def fetch_priority(result: dict) -> tuple[bool, float]:
+            title = str(result.get('title') or '')
+            snippet = str(result.get('content') or '')
+            return verbatim_span(claim, title) is None, -sentence_score(claim, f'{title} {snippet}')
+
+        ranked_results = sorted((r for r in results if isinstance(r, dict)), key=fetch_priority)
         pending = list(dict.fromkeys(canonical_url(r['url']) for r in ranked_results
                        if isinstance(r, dict) and isinstance(r.get('url'), str)
                        and allowed_url(r['url'], set(self.allowed_sources))
@@ -687,9 +702,10 @@ class WebRetriever:
         self.last_error = None
         self._page_cache = {}
         queries = search_queries(claim)
-        lead = queries[1] if len(queries) > 1 else queries[0]
-        quoted_lead = '"' + lead.replace('"', '') + '"'
         plain = re.sub(r"\s+ngày\s+\d{2}/\d{2}/\d{4}$", "", claim).strip()
+        lead = _search_lead(plain) or queries[0]
+        quoted_lead = '"' + lead.replace('"', '') + '"'
+        exact_options = {"exact_match": True, "include_domains": []}
         if date_window:
             # A general-index fallback must retain press sources. Date checks
             # still run against the original page even without a server filter.
@@ -698,14 +714,17 @@ class WebRetriever:
             # publisher HTML has a perfectly valid date. Always recheck it here.
             attempts = [("dated_news", queries[0], options),
                         ("general_lead", quoted_lead,
-                         {"topic": "general", "include_published_date": True, "exact_match": True,
-                          "include_domains": []}),
+                         {"topic": "general", "include_published_date": True, **exact_options}),
                         ("general_terms", queries[-1],
                          {"topic": "general", "include_published_date": True, "include_domains": []})]
         else:
-            attempts = [(f"general_{index + 1}", quoted_lead if index == 1 else query,
-                         {**(options or {}), 'exact_match': True, 'include_domains': []} if index == 1 else options)
-                        for index, query in enumerate(queries)]
+            attempts = [("general_1", queries[0], options)]
+            # A short keyword fragment does not merit another paid request just
+            # for quoting it. A full headline can be distinct in the exact index.
+            if len(queries) > 1 or len(lead.split()) >= 6:
+                attempts.append(("general_lead", quoted_lead, {**(options or {}), **exact_options}))
+            if queries[-1] not in {queries[0], lead}:
+                attempts.append(("general_terms", queries[-1], options))
         collected: dict[tuple[str, str], RetrievedEvidence] = {}
 
         def merge(items: list[RetrievedEvidence]) -> None:
@@ -722,8 +741,13 @@ class WebRetriever:
                                  results_override=[{"url": url, "score": 1.0} for url in source_urls])
             merge(items)
             self.last_attempts.append({"stage": "direct_urls", "status": self.last_status, "count": len(items)})
-        strong_match = lambda: any(eligible(plain, i.evidence.content, minimum_coverage=0.85)
-                                   for i in collected.values())
+        def strong_match() -> bool:
+            # Unrelated sentences can share every query term, e.g. "first medal"
+            # in one sentence and Olympic qualification in another.
+            return any(verbatim_span(plain, item.evidence.content) is not None or any(
+                eligible(plain, sentence, minimum_coverage=0.85) and sentence_score(plain, sentence) >= 1.3
+                for sentence in split_sentences(item.evidence.content)
+            ) for item in collected.values())
         discovery_config = self.config.get('discovery', {})
         # Live feeds cannot reconstruct old news. Keep historical retrieval on
         # the search index instead of spending requests on irrelevant feeds.
@@ -736,7 +760,8 @@ class WebRetriever:
                                  results_override=candidates)
             merge(items)
             self.last_attempts.append({'stage': 'publisher_rss', 'status': self.last_status, 'count': len(items),
-                                       'discovered_urls': len(candidates), 'feeds': self.discovery.last_feeds})
+                                       'discovered_urls': len(candidates), 'feeds': self.discovery.last_feeds,
+                                       'feed_pool_size': self.discovery.last_feed_pool_size})
         for stage, query, request_options in attempts[:int(self.limits.get("requests_per_claim", 1))]:
             # A weak hit must not suppress the next query. One near-complete
             # passage is sufficient to stop discovery, regardless of verdict.
@@ -804,9 +829,9 @@ class WebRetriever:
             return []
         collected: list[RetrievedEvidence] = []
         self._provider_count = len(results)
-        self._prefetch_pages(results, original_claim or claim)
-        seen_urls: set[str] = set()
         passage_query = re.sub(r"\s+ngày\s+\d{2}/\d{2}/\d{4}$", "", original_claim or claim)
+        self._prefetch_pages(results, passage_query)
+        seen_urls: set[str] = set()
         for rank, result in enumerate(results):
             if not isinstance(result, dict) or not isinstance(result.get("url"), str):
                 continue

@@ -56,7 +56,9 @@ class GeminiGoldClient:
     def __init__(self, model: str, api_key: str | None = None, timeout: float = 90,
                  max_output_tokens: int = 4096, temperature: float | None = None,
                  json_mode: str = "schema"):
-        model = model.removeprefix("models/")
+        model = model.strip().removeprefix("models/")
+        if model.casefold() in {'gemini', 'gemma', 'gemma4', 'gemma-4'}:
+            raise ValueError('GEMINI_MODEL requires a concrete model ID, e.g. gemma-4-26b-a4b-it; a family name is not a model ID')
         if not re.fullmatch(r"[a-zA-Z0-9._-]+", model):
             raise ValueError("GEMINI_MODEL must be a model ID, not a URL")
         self.api_key = api_key or os.environ.get("GEMINI_API_KEY", "")

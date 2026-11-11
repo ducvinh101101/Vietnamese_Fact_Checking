@@ -39,6 +39,15 @@ bằng chứng cố định, không truy xuất lại và không đọc đáp á
 Xem [hướng dẫn cắm key, chạy app và so sánh](docs/HUONG_DAN_GEMINI_COMPARISON.md).
 Gemini chưa được nối vào nút kiểm chứng của giao diện; key này dùng cho runner so sánh.
 
+### Thử DeepSeek V4.1 Flash
+
+Điền `DEEPSEEK_API_KEY` trong `.env` ở thư mục gốc. Model mặc định là `deepseek-flash`.
+Từ thư mục gốc, chạy `python -m scripts.check_deepseek_api` để gửi một ca kiểm chứng
+mẫu trực tiếp đến DeepSeek. Kết quả kỳ vọng là `OK: deepseek-flash -> SUPPORTED (demo-p1)`.
+Để thử trên dữ liệu của ứng dụng, khởi động lại Gradio hoặc Streamlit rồi chọn
+**DeepSeek V4.1 Flash** ở phần mô hình phán quyết. Ứng dụng gửi phát biểu và bằng
+chứng đã truy xuất đến DeepSeek khi chọn mô hình này.
+
 ### Lệnh thường dùng
 
 ```powershell

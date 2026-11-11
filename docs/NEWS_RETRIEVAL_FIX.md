@@ -8,8 +8,10 @@ Chế độ Local + web dùng chung một cửa sổ ngày cho tìm kiếm và l
 - Ngày đăng gần ngày sự kiện là điều kiện chọn nguồn, không tự chứng minh sự kiện đúng ngày đó.
 - Bài không rõ ngày hoặc ngoài cửa sổ bị loại. Ngày đăng từ trang được ưu tiên hơn ngày từ chỉ mục.
 
-Hệ thống tìm URL ứng viên qua RSS của VnExpress, Công lý, Dân Trí, Tuổi Trẻ,
-VOV và sitemap theo ngày của Công lý. Khi chưa đủ khớp, Tavily thử tối đa ba
+Hệ thống tìm URL ứng viên từ danh mục RSS/sitemap của các nhà xuất bản, chọn
+tối đa 12 kênh mỗi phát biểu theo chủ đề và đa dạng cơ quan phát hành. Danh mục
+đã mở rộng lên 234 hostname và 152 endpoint; xem [nguồn đã rà soát và hồ sơ kiểm tra](TRUSTED_SOURCES.md).
+Khi chưa đủ khớp, Tavily thử tối đa ba
 lượt trong quota sẵn có: phát biểu đầy đủ, cụm dẫn nguyên văn, rồi từ khóa.
 Các lượt general mở phạm vi khám phá URL; bước tải trang vẫn chỉ nhận nguồn
 trong allowlist. Các lượt được hợp nhất; kết quả khớp yếu không chặn lượt tiếp theo.
@@ -30,6 +32,9 @@ article và phần tóm tắt từ metadata cũng được xét. Đoạn trùng 
 tiên trước các đoạn chỉ trùng từ khóa. Nhánh hybrid giữ đủ ứng viên của cả hai
 nguồn trước khi lọc ngày, tránh việc local chiếm hết chỗ của web.
 
+Không loại toàn bộ `<header>`: các header bài viết như `article__header` có
+tiêu đề và sapo thuộc nội dung gốc. Header điều hướng của website vẫn bị bỏ qua.
+
 Luật đối chiếu nguyên văn ở hybrid nhận cả các câu liên tiếp, giữ nguyên số,
 đơn vị, phủ định và thứ tự. Không nâng NEI chỉ vì một cụm từ nằm trong câu dài
 hơn có thêm điều kiện hoặc ngữ cảnh phủ định. Tìm được đúng bài nhưng thiếu
@@ -42,11 +47,23 @@ Các cụm sự kiện như “vụ cháy” kích hoạt neo thời gian kể c
 Trong **Chi tiết kỹ thuật**:
 
 - `web_attempts`: truy vấn, số kết quả, số đoạn hợp lệ từng lượt.
+- Lượt `publisher_rss`: `feed_pool_size`, các kênh đã chọn và lỗi tải từng kênh.
 - `web_candidates`: URL được nhận hoặc bị loại và lý do.
 - `web_search_status`, `web_search_error`: trạng thái provider/quota.
 - `temporal_gate`: ngày neo, cửa sổ, các nguồn local/web bị loại.
 - `model_verdict`: kết quả mô hình trước guard; `verdict_before_text_rules`: kết quả trước luật nguyên văn.
 - `outcome_stage`: phân biệt không có đoạn, mô hình NEI, guard hạ kết luận và kết luận quyết đoán.
+
+Lỗi API hoặc phản hồi LLM không hợp lệ có `verdict.status = error` và
+`outcome_stage = verifier_error`; giao diện hiển thị **LỖI XÁC MINH**. Không coi
+lỗi kết nối là NEI hợp lệ và không áp luật nguyên văn để che lỗi API. Khi LLM
+trả kết luận nhưng không có citation hợp lệ, hệ thống báo lỗi phản hồi, không
+tự lấy đoạn đầu làm citation.
+
+`GEMINI_MODEL` cần mã cụ thể, chẳng hạn `gemma-4-26b-a4b-it`, không phải tên họ
+`Gemini` hoặc `Gemma`. Sau khi sửa `.env`, cần khởi động lại ứng dụng để nạp
+biến môi trường và các model instance đã cache. `as_of` gửi LLM lấy từ ngày
+tham chiếu của lần kiểm chứng hoặc ngày hiện tại, không cố định ở ngày cũ.
 
 Không thấy URL trong `web_candidates` nghĩa là lượt tìm kiếm chưa trả URL đó,
 không thể suy ra trang không tồn tại hoặc phát biểu sai. Kết quả NEI vẫn hợp lệ

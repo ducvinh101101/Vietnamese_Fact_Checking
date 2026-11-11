@@ -27,6 +27,7 @@ MODE_LABELS = {
 MODEL_LABELS = {
     "phobert": "PhoBERT Đề tài (Cục bộ CPU, < 0.3s)",
     "gemma": "LLM Gemma 4 (Google Cloud, Suy luận sâu)",
+    "deepseek": "DeepSeek V4.1 Flash",
 }
 EXAMPLES = {"— Chọn ví dụ —": ""} | {
     f"{case['id']} · {case['title']} (kỳ vọng {case['expected']}{', chế độ web' if case['mode'] == 'hybrid' else ''})":
@@ -111,9 +112,13 @@ if st.button("Kiểm chứng", type="primary"):
             citations = response["citations"]
             diagnostics = response.get("diagnostics", {})
             icon, kind, meaning = LABEL_STYLE.get(str(verdict["label"]), ("", "info", ""))
-            getattr(st, kind)(f"{icon} **{verdict['label']}** — {meaning}")
+            failed = verdict.get('status') == 'error'
+            if failed:
+                st.error('LỖI XÁC MINH — Mô hình chưa xử lý thành công; chưa có kết luận kiểm chứng.')
+            else:
+                getattr(st, kind)(f"{icon} **{verdict['label']}** — {meaning}")
             col_score, col_mode, col_eng = st.columns(3)
-            col_score.metric("Điểm mô hình", f"{float(verdict['confidence']):.2f}")
+            col_score.metric("Điểm mô hình", '—' if failed else f"{float(verdict['confidence']):.2f}")
             col_mode.metric("Nguồn bằng chứng", MODE_LABELS[mode])
             col_eng.metric("Mô hình", MODEL_LABELS[model_engine].split()[0])
             st.caption("Điểm mô hình không phải xác suất thông tin đúng trong thực tế.")

@@ -208,6 +208,8 @@ class MinimalPairVerifier:
         result = self.inner.verify(claim, evidence_items)
         self.last_base_result = result
         self.last_reason = None
+        if result.status == 'error':
+            return result
         if not self.enabled:
             return result
         if self.complete_web_span and self.upgrade_exact and result.label == 'NOT_ENOUGH_INFO':
