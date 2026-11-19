@@ -1,3 +1,7 @@
 # Optional W2-04 experiment; preserves the W1-07 baseline lock.
 -r requirements.lock
 faiss-cpu==1.12.0
+# Source attribution (docs/SOURCE_ATTRIBUTION.md): trích thân bài trang web.
+trafilatura>=1.12,<3
+# Tùy chọn: dense retrieval bằng bi-encoder (local.dense.model trong configs/source_attribution.yaml)
+# sentence-transformers>=3,<4

@@ -1,0 +1,33 @@
+{
+  "task": "binary relevance reranker (claim, passage) -> {0: unrelated, 1: related}",
+  "files": {
+    "train.parquet": "a7a1dc8c715b20c1827add414c58f3958510e1c912747e0aaec2967ce9269539",
+    "dev.parquet": "a45974a8b519f1be1a7fb672f4fef85447dd76c7ee5978e19bc77bbb69a83d73"
+  },
+  "counts": {
+    "train": {
+      "hard_other_article": 10272,
+      "gold": 3434,
+      "random": 3428,
+      "same_article_other_part": 2889
+    },
+    "dev": {
+      "hard_other_article": 1635,
+      "gold": 727,
+      "random": 722,
+      "same_article_other_part": 655
+    }
+  },
+  "positives_from_labels": [
+    "SUPPORTED",
+    "REFUTED"
+  ],
+  "test_read": false,
+  "params": {
+    "output": "D:\\Vietnamese_Fact_Checking\\data\\processed\\reranker_v1",
+    "hard": 3,
+    "in_article": 1,
+    "random": 1,
+    "seed": 42
+  }
+}

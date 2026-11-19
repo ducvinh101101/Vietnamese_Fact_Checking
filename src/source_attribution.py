@@ -1,0 +1,292 @@
+"""Pipeline kiểm tra nguồn: claim → có tìm được nguồn ngoài thực tế hay không.
+
+Định nghĩa bài toán (thay cho phân loại thật/giả):
+
+* ``SOURCE_FOUND`` – có ít nhất một đoạn từ nguồn được truy xuất nói đúng nội
+  dung claim (liên quan đủ cao, verifier xác nhận, không lệch số/ngày);
+* ``SOURCE_CONFLICT`` – có nguồn nói về cùng sự việc nhưng lệch chi tiết
+  (số liệu/ngày tháng khác, hoặc verifier đánh giá mâu thuẫn);
+* ``NO_SOURCE`` – không có đoạn nào vượt ngưỡng liên quan/xác nhận.
+
+Các model đã train được tái sử dụng: verifier PhoBERT RT-V2 (3 lớp
+SUPPORTED/REFUTED/NEI) chấm từng cặp claim–đoạn sau khi rerank; ánh xạ
+SUPPORTED→xác nhận, REFUTED→mâu thuẫn, NEI→không đủ. Reranker có thể là
+PhoBERT nhị phân do nhóm fine-tune hoặc cross-encoder đa ngữ.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from math import isfinite
+from typing import Protocol, Sequence
+from urllib.parse import urlparse
+
+from src.preprocessing import normalize_text
+from src.schemas import RetrievedEvidence
+from src.source_reranker import LexicalSourceScorer, RelevanceScorer, dates_compatible, entity_present, rerank
+from src.vi_text import ClaimFacets, extract_dates, extract_numbers, fold
+
+
+SCHEMA_VERSION = "source-attribution/v1"
+SOURCE_LABELS = ("SOURCE_FOUND", "SOURCE_CONFLICT", "NO_SOURCE")
+LABEL_TEXT = {
+    "SOURCE_FOUND": "Có nguồn xác nhận",
+    "SOURCE_CONFLICT": "Có nguồn liên quan nhưng lệch chi tiết",
+    "NO_SOURCE": "Không tìm thấy nguồn",
+}
+# Map nhãn cũ (ViFactCheck/RT-V2) sang nhãn mới – dùng cho đánh giá và giải thích.
+LEGACY_TO_SOURCE = {"SUPPORTED": "SOURCE_FOUND", "REFUTED": "SOURCE_CONFLICT", "NOT_ENOUGH_INFO": "NO_SOURCE"}
+
+
+class PairVerifier(Protocol):
+    """Verifier trả xác suất [SUPPORTED, REFUTED, NEI] cho từng đoạn."""
+
+    def predict_probabilities_batch(self, claim: str, evidences: list[str]) -> list[list[float]]: ...
+
+
+@dataclass(frozen=True)
+class FacetCheck:
+    """Kết quả so khớp chi tiết cứng giữa claim và một đoạn văn."""
+
+    matched: list[str] = field(default_factory=list)
+    conflicting: list[str] = field(default_factory=list)  # có giá trị cùng loại nhưng khác
+    missing: list[str] = field(default_factory=list)      # đoạn không nhắc tới
+
+    @property
+    def has_conflict(self) -> bool:
+        return bool(self.conflicting)
+
+
+def check_facets(claim: str, passage: str) -> FacetCheck:
+    """So số, ngày, tên riêng của claim với đoạn văn.
+
+    Số/ngày của claim không có trong đoạn được coi là **lệch** nếu đoạn có
+    số/ngày khác cùng loại (vd. claim 15%, đoạn ghi 12%), ngược lại là
+    **thiếu**. Tên riêng thiếu chỉ là "thiếu" – không đủ căn cứ để gọi là lệch.
+    """
+    facets = ClaimFacets.from_text(claim)
+    passage_numbers = extract_numbers(passage)
+    passage_dates = extract_dates(passage)
+    passage_folded = fold(passage)
+    matched: list[str] = []
+    conflicting: list[str] = []
+    missing: list[str] = []
+    percent_in_passage = {value for value in passage_numbers if value.endswith("%")}
+    plain_in_passage = passage_numbers - percent_in_passage
+    for number in sorted(facets.numbers):
+        if number in passage_numbers:
+            matched.append(f"số {number}")
+        elif (number.endswith("%") and percent_in_passage) or (not number.endswith("%") and plain_in_passage):
+            conflicting.append(f"số {number}")
+        else:
+            missing.append(f"số {number}")
+    for date in sorted(facets.dates):
+        if dates_compatible(date, passage_dates):
+            matched.append(f"thời gian {date}")
+        elif any(len(other.split("/")) == len(date.split("/")) for other in passage_dates):
+            conflicting.append(f"thời gian {date}")
+        else:
+            missing.append(f"thời gian {date}")
+    for entity in sorted(facets.entities):
+        (matched if entity_present(entity, passage_folded) else missing).append(f"tên riêng {entity}")
+    return FacetCheck(matched, conflicting, missing)
+
+
+@dataclass(frozen=True)
+class PassageAssessment:
+    item: RetrievedEvidence
+    relevance: float
+    verifier_probabilities: list[float] | None
+    facets: FacetCheck
+    status: str  # "supports" | "conflicts" | "related" | "unrelated"
+
+
+@dataclass(frozen=True)
+class SourceAttributionResult:
+    label: str
+    confidence: float
+    explanation: str
+    citations: list[PassageAssessment]
+    assessed: list[PassageAssessment]
+    queries: list[str]
+    retrieved_count: int
+
+    @property
+    def independent_domains(self) -> list[str]:
+        domains = []
+        for assessment in self.citations:
+            domain = assessment.item.evidence.domain or urlparse(assessment.item.evidence.url).hostname or assessment.item.evidence.source
+            if domain and domain not in domains:
+                domains.append(domain)
+        return domains
+
+
+@dataclass(frozen=True)
+class AttributionThresholds:
+    """Ngưỡng chọn trên tập dev (``scripts/evaluate_source_attribution.py``)."""
+
+    relevance: float = 0.5           # dưới ngưỡng: đoạn không liên quan
+    support: float = 0.5             # P(SUPPORTED) để coi là xác nhận (khi có verifier)
+    conflict: float = 0.5            # P(REFUTED) để coi là mâu thuẫn
+    lexical_support: float = 0.65    # không có verifier: điểm liên quan để coi là xác nhận
+
+
+class SourceAttributionPipeline:
+    """retrieve (multi-query, local+web) → rerank tuyệt đối → verifier + facet → nhãn nguồn."""
+
+    def __init__(
+        self,
+        retriever: object,
+        scorer: RelevanceScorer | None = None,
+        verifier: PairVerifier | None = None,
+        thresholds: AttributionThresholds | None = None,
+        candidate_k: int = 40,
+        assess_k: int = 8,
+        max_citations: int = 3,
+    ) -> None:
+        if candidate_k < 1 or assess_k < 1 or max_citations < 1:
+            raise ValueError("candidate_k, assess_k, max_citations phải lớn hơn 0")
+        self.retriever = retriever
+        self.scorer = scorer or LexicalSourceScorer()
+        self.verifier = verifier
+        self.thresholds = thresholds or AttributionThresholds()
+        self.candidate_k = candidate_k
+        self.assess_k = assess_k
+        self.max_citations = max_citations
+
+    def _status(self, relevance: float, probabilities: list[float] | None, facets: FacetCheck) -> str:
+        t = self.thresholds
+        if relevance < t.relevance:
+            return "unrelated"
+        if probabilities is not None:
+            supported, refuted = probabilities[0], probabilities[1]
+            if refuted >= t.conflict and refuted > supported:
+                return "conflicts"
+            if facets.has_conflict:
+                return "conflicts"
+            if supported >= t.support:
+                return "supports"
+            return "related"
+        if facets.has_conflict:
+            return "conflicts"
+        return "supports" if relevance >= t.lexical_support else "related"
+
+    def run(self, claim: str) -> SourceAttributionResult:
+        text = normalize_text(claim)
+        if not text:
+            raise ValueError("Phát biểu không được để trống")
+        from src.query_generation import generate_queries
+
+        queries = [query.text for query in generate_queries(text)]
+        candidates = self.retriever.search(text, self.candidate_k)  # type: ignore[attr-defined]
+        candidates = [item for item in candidates if isfinite(item.score) and item.evidence.content.strip()]
+        reranked = rerank(self.scorer, text, candidates, self.assess_k)
+        # reranked đã sắp giảm dần nên các đoạn qua ngưỡng là một tiền tố; chỉ
+        # chạy verifier trên tiền tố đó.
+        relevant = [item for item in reranked if item.score >= self.thresholds.relevance]
+        probabilities: list[list[float] | None] = [None] * len(reranked)
+        if self.verifier is not None and relevant:
+            scored = self.verifier.predict_probabilities_batch(text, [item.evidence.content for item in relevant])
+            for index, value in enumerate(scored):
+                probabilities[index] = [float(v) for v in value]
+        assessed = []
+        for index, item in enumerate(reranked):
+            facets = check_facets(text, item.evidence.content)
+            assessed.append(PassageAssessment(item, item.score, probabilities[index], facets,
+                                              self._status(item.score, probabilities[index], facets)))
+        return self._decide(text, assessed, queries, len(candidates))
+
+    def _decide(self, claim: str, assessed: list[PassageAssessment], queries: list[str], retrieved: int) -> SourceAttributionResult:
+        supports = [a for a in assessed if a.status == "supports"]
+        conflicts = [a for a in assessed if a.status == "conflicts"]
+        related = [a for a in assessed if a.status == "related"]
+
+        def strength(assessment: PassageAssessment, index: int) -> float:
+            if assessment.verifier_probabilities is None:
+                return assessment.relevance
+            return assessment.relevance * assessment.verifier_probabilities[index]
+
+        if supports:
+            supports.sort(key=lambda a: -strength(a, 0))
+            citations = supports[: self.max_citations]
+            confidence = strength(citations[0], 0)
+            domains = len({a.item.evidence.domain or a.item.evidence.url for a in citations})
+            explanation = f"Tìm thấy {len(supports)} đoạn từ {domains} nguồn nói cùng nội dung với phát biểu."
+            if conflicts:
+                explanation += f" Lưu ý: {len(conflicts)} đoạn khác có chi tiết lệch, nên đọc đối chiếu."
+            label = "SOURCE_FOUND"
+        elif conflicts:
+            conflicts.sort(key=lambda a: -strength(a, 1))
+            citations = conflicts[: self.max_citations]
+            confidence = citations[0].relevance
+            detail = ", ".join(citations[0].facets.conflicting) or "nội dung bị verifier đánh giá mâu thuẫn"
+            explanation = f"Có nguồn nói về cùng sự việc nhưng lệch chi tiết ({detail})."
+            label = "SOURCE_CONFLICT"
+        else:
+            citations = []
+            best = max((a.relevance for a in assessed), default=0.0)
+            confidence = 1 - best
+            if related:
+                explanation = "Có bài liên quan đến chủ đề nhưng không đoạn nào xác nhận đúng nội dung phát biểu."
+            else:
+                explanation = "Không tìm thấy đoạn nào đủ liên quan trong các nguồn đã tra cứu."
+            label = "NO_SOURCE"
+        return SourceAttributionResult(label, round(float(confidence), 4), explanation, citations, assessed, queries, retrieved)
+
+    def run_json(self, claim: str) -> dict[str, object]:
+        return build_source_output(self.run(claim))
+
+
+def _assessment_record(assessment: PassageAssessment) -> dict[str, object]:
+    evidence = assessment.item.evidence
+    return {
+        "passage_id": evidence.passage_id,
+        "document_id": evidence.document_id,
+        "relevance": round(assessment.relevance, 4),
+        "status": assessment.status,
+        "verifier_probabilities": (
+            dict(zip(("SUPPORTED", "REFUTED", "NOT_ENOUGH_INFO"), (round(v, 4) for v in assessment.verifier_probabilities)))
+            if assessment.verifier_probabilities is not None else None
+        ),
+        "matched_details": assessment.facets.matched,
+        "conflicting_details": assessment.facets.conflicting,
+        "missing_details": assessment.facets.missing,
+        "source": evidence.source,
+        "url": evidence.url,
+        "domain": evidence.domain,
+        "title": evidence.title,
+        "published_at": evidence.published_at,
+        "retrieved_at": evidence.retrieved_at,
+        "source_type": evidence.source_type,
+        "content": evidence.content,
+    }
+
+
+def build_source_output(result: SourceAttributionResult) -> dict[str, object]:
+    if result.label not in SOURCE_LABELS:
+        raise RuntimeError(f"Nhãn không hợp lệ: {result.label}")
+    if result.label == "NO_SOURCE" and result.citations:
+        raise RuntimeError("NO_SOURCE không được kèm citation")
+    if result.label != "NO_SOURCE" and not result.citations:
+        raise RuntimeError("Nhãn có nguồn phải kèm ít nhất một citation")
+    return {
+        "schema_version": SCHEMA_VERSION,
+        "verdict": {
+            "label": result.label,
+            "label_text": LABEL_TEXT[result.label],
+            "confidence": result.confidence,
+            "explanation": result.explanation,
+            "independent_sources": result.independent_domains,
+        },
+        "queries": result.queries,
+        "retrieval": {
+            "retrieved_count": result.retrieved_count,
+            "assessed": [_assessment_record(a) for a in result.assessed],
+        },
+        "citations": [_assessment_record(a) for a in result.citations],
+    }
+
+
+def legacy_label(label: str) -> str:
+    """Ánh xạ nhãn nguồn về nhãn ViFactCheck để so sánh với baseline cũ."""
+    return {value: key for key, value in LEGACY_TO_SOURCE.items()}[label]

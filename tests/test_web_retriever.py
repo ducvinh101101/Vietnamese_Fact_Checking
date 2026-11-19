@@ -115,3 +115,53 @@ def test_web_retriever_respects_robots_txt(tmp_path):
     assert retriever.search("claim") == []
     assert not fetched
     assert retriever.last_status == "no_eligible_passages"
+
+
+def test_extract_passages_selects_relevant_passages_not_page_header():
+    header = "<p>" + "Thời tiết hôm nay nắng đẹp, mời bạn đọc xem thêm các bài viết khác trên chuyên trang. " * 2 + "</p>"
+    filler = "".join(f"<p>{'Đoạn văn số ' + str(i) + ' nói về chủ đề thể thao và giải trí cuối tuần này. ' * 3}</p>" for i in range(3))
+    relevant = "<p>" + "Bộ Y tế công bố cả nước ghi nhận 120 ca mắc mới trong ngày 15/3/2023 tại nhiều địa phương. " * 2 + "</p>"
+    _, passages = extract_passages(f"<article>{header}{filler}{relevant}</article>", 80, 800, 1,
+                                   query="Bộ Y tế ghi nhận 120 ca mắc mới ngày 15/3/2023")
+    assert passages and "120 ca mắc mới" in passages[0]
+
+
+def test_web_retriever_reads_multiple_pages_and_ranks_globally(tmp_path):
+    pages = {
+        "https://vnexpress.net/a": "<p>" + "Tin tức chung chung về thể thao và văn hóa trong tuần qua tại nhiều nơi. " * 3 + "</p>",
+        "https://vnexpress.net/b": "<p>" + "Giá xăng RON 95 giảm 500 đồng mỗi lít theo điều hành của liên Bộ. " * 3 + "</p>",
+    }
+
+    configured = config(tmp_path)
+    configured["extraction"]["max_pages"] = 5
+    results = WebRetriever(
+        configured, api_key="key",
+        provider_request=lambda *_: {"results": [{"url": url, "score": 0.9} for url in pages]},
+        page_fetcher=lambda url, timeout: (url, pages[url]),
+        robots_fetcher=lambda *_: "User-agent: *\nAllow: /",
+    ).search("Giá xăng RON 95 giảm 500 đồng", 2)
+    assert {item.evidence.url for item in results} == set(pages)
+    assert results[0].evidence.url == "https://vnexpress.net/b"
+
+
+def test_web_retriever_interleaves_results_of_multiple_queries(tmp_path):
+    configured = config(tmp_path)
+    configured["limits"]["requests_per_claim"] = 2
+    configured["extraction"]["max_pages"] = 2
+    calls = []
+
+    def provider(payload, key, timeout):
+        calls.append(payload["query"])
+        prefix = "a" if len(calls) == 1 else "b"
+        return {"results": [{"url": f"https://vnexpress.net/{prefix}{i}"} for i in range(3)]}
+
+    fetched = []
+
+    def fetch(url, timeout):
+        fetched.append(url)
+        return url, "<p>" + "Bộ Y tế ghi nhận 120 ca mắc mới tại Hà Nội trong ngày hôm qua theo báo cáo. " * 3 + "</p>"
+
+    WebRetriever(configured, api_key="key", provider_request=provider, page_fetcher=fetch,
+                 robots_fetcher=lambda *_: "User-agent: *\nAllow: /").search("Theo Bộ Y tế, Hà Nội có 120 ca mắc mới", 3)
+    assert len(calls) == 2
+    assert fetched == ["https://vnexpress.net/a0", "https://vnexpress.net/b0"]

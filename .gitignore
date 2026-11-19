@@ -23,3 +23,6 @@ outputs/figures/*
 outputs/web_retrieval/
 # Project-local runtime; downloaded automatically by scripts/download_portable_java.py.
 tools/java17/
+
+# Kết quả chấm trung gian (pickle) của scripts/evaluate_source_attribution.py --save-assessments
+outputs/assessments/

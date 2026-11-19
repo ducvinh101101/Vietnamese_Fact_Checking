@@ -41,6 +41,31 @@ def prepare_java_runtime() -> None:
     os.environ["PATH"] = f"{executable.parent}{os.pathsep}{os.environ.get('PATH', '')}"
 
 
+_VNCORENLP_INSTANCES: dict[str, object] = {}
+
+
+def shared_vncorenlp(vncorenlp_dir: str | Path):
+    """Một instance VnCoreNLP cho mỗi tiến trình.
+
+    py_vncorenlp đặt classpath JVM khi khởi tạo; khởi tạo lần hai trong cùng
+    tiến trình (vd. verifier + reranker, hoặc hai pipeline trong Streamlit)
+    sẽ lỗi "VM is already running". Mọi nơi cần tách từ dùng hàm này.
+    """
+    key = str(Path(vncorenlp_dir).resolve())
+    if key not in _VNCORENLP_INSTANCES:
+        prepare_java_runtime()
+        import py_vncorenlp
+
+        # py_vncorenlp chdir vào save_dir khi khởi tạo; khôi phục để đường dẫn
+        # tương đối của chương trình gọi (output, config…) không bị hỏng.
+        working_directory = os.getcwd()
+        try:
+            _VNCORENLP_INSTANCES[key] = py_vncorenlp.VnCoreNLP(annotators=["wseg"], save_dir=key)
+        finally:
+            os.chdir(working_directory)
+    return _VNCORENLP_INSTANCES[key]
+
+
 class PhoBERTFactChecker:
     label_map = {0: "SUPPORTED", 1: "REFUTED", 2: "NOT_ENOUGH_INFO"}
 
@@ -50,7 +75,7 @@ class PhoBERTFactChecker:
         try:
             prepare_torch_dll_path()
             prepare_java_runtime()
-            import py_vncorenlp
+            import py_vncorenlp  # noqa: F401 – kiểm tra phụ thuộc sớm
             import torch
             from transformers import AutoModelForSequenceClassification, AutoTokenizer
         except ImportError as error:
@@ -64,7 +89,7 @@ class PhoBERTFactChecker:
         self.tokenizer = AutoTokenizer.from_pretrained(str(model_path), use_fast=False)
         self.model = AutoModelForSequenceClassification.from_pretrained(str(model_path)).to(self.device)
         self.model.eval()
-        self.segmenter = py_vncorenlp.VnCoreNLP(annotators=["wseg"], save_dir=str(Path(vncorenlp_dir).resolve()))
+        self.segmenter = shared_vncorenlp(vncorenlp_dir)
 
     @lru_cache(maxsize=2_048)
     def _segment(self, text: str) -> str:

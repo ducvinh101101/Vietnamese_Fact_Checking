@@ -1,0 +1,138 @@
+# Pipeline KIỂM TRA NGUỒN (source attribution) – chạy song song với pipeline
+# RT-V2 cũ trong configs/config.yaml (không thay đổi pipeline đã khóa).
+# Nhãn đầu ra: SOURCE_FOUND / SOURCE_CONFLICT / NO_SOURCE.
+version: 1
+
+local:
+  corpus: data/evidence/vifactcheck_passages_v2.jsonl
+  window_sentences: 3        # cửa sổ 3 câu, chồng lấn 2 câu (chọn trên dev, xem docs/SOURCE_ATTRIBUTION.md)
+  window_stride: 1
+  window_max_chars: 700
+  # Multi-query trên kho cục bộ làm GIẢM hit@1 trên ViFactCheck (claim viết sát
+  # câu gốc) nên tắt; web vẫn dùng 2 truy vấn (web_retrieval.limits.requests_per_claim).
+  multi_query: false
+  candidates_per_query: 50
+  rrf_k: 60
+  # Dense tùy chọn (cần sentence-transformers/torch). null = tắt.
+  dense:
+    model: null              # vd. BAAI/bge-m3 hoặc models/bi_encoder_v1 (nhóm tự fine-tune)
+    segment: false           # true cho bi-encoder PhoBERT (kaggle/finetune_bi_encoder.py)
+    query_prefix: ""
+    passage_prefix: ""
+    cache: indexes/source_windows_dense.npy
+    weight: 1.0
+
+web:
+  enabled: true              # cần TAVILY_API_KEY; thiếu key → tự động chỉ dùng kho cục bộ
+  weight: 1.5                # web là nguồn chính cho claim ngoài kho
+
+reranker:
+  # "verifier" = dùng RT-V2 đã train: P(SUPPORTED)+P(REFUTED), trộn lexical_blend điểm lexical.
+  # "lexical"  = không cần model (nhanh hơn ~3 lần trên CPU, báo nhầm thấp hơn, recall thấp hơn).
+  # Model nhóm tự train: models/phobert_reranker_v1/best_model (kaggle/finetune_phobert_reranker.py), segment: true
+  # Model có sẵn đa ngữ:  BAAI/bge-reranker-v2-m3, segment: false
+  # So sánh trên dev: docs/SOURCE_ATTRIBUTION.md §5.2.
+  model: verifier
+  lexical_blend: 0.5
+  segment: false
+  max_length: 256
+  batch_size: 16
+
+verifier:
+  # Tái sử dụng verifier RT-V2 đã train: SUPPORTED→xác nhận, REFUTED→mâu thuẫn.
+  enabled: true
+  model_path: models/rt_v2_balanced/best_model
+  vncorenlp_dir: models/vncorenlp
+  max_length: 256
+  temperature: 1.0
+
+decision:
+  candidate_k: 20            # số ứng viên được rerank (reranker model chậm hơn lexical)
+  assess_k: 8
+  max_citations: 3
+  # Chọn trên dev bằng scripts/evaluate_source_attribution.py --sweep cho reranker
+  # "verifier" blend 0.5. Đổi reranker phải dò lại. Gợi ý cho "lexical":
+  # relevance 0.65, support 0.8, lexical_support 0.55 (candidate_k 40).
+  thresholds:
+    relevance: 0.8
+    support: 0.4
+    conflict: 0.5
+    lexical_support: 0.55    # chỉ dùng khi tắt verifier
+
+web_retrieval:
+  version: 1
+  enabled: true
+  provider:
+    name: tavily
+    endpoint: https://api.tavily.com/search
+    method: POST
+    api_key_env: TAVILY_API_KEY
+    search_depth: basic
+    topic: general
+    auto_parameters: false
+    include_answer: false
+    include_raw_content: false
+    max_results: 10
+  limits:
+    requests_per_claim: 2      # claim gốc + truy vấn từ khóa/thực thể
+    requests_per_minute: 10
+    monthly_credit_budget: 900
+    timeout_seconds: 15
+    max_retries: 1
+    retry_statuses: [429, 500, 502, 503, 504]
+    fail_to: local_only
+  source_policy:
+    match: exact_hostname
+    https_only: true
+    revalidate_every_redirect: true
+    reject_private_ips: true
+    require_original_page_passage: true
+    obey_robots_txt: true
+    robots_failure: deny
+    max_robots_bytes: 262144
+    allowlist:
+      # Tầng 1 – cơ quan nhà nước / tổ chức quốc tế
+      - {host: baochinhphu.vn, name: Báo Điện tử Chính phủ, category: government, scope: Chính sách và thông báo của Chính phủ, reference: https://baochinhphu.vn/}
+      - {host: chinhphu.vn, name: Cổng TTĐT Chính phủ, category: government, scope: Văn bản và thông tin Chính phủ, reference: https://chinhphu.vn/}
+      - {host: moh.gov.vn, name: Bộ Y tế, category: government, scope: Y tế, reference: https://moh.gov.vn/}
+      - {host: tingia.gov.vn, name: Trung tâm Xử lý tin giả Việt Nam, category: fact_check, scope: Cải chính tin giả, reference: https://tingia.gov.vn/}
+      - {host: www.who.int, name: World Health Organization, category: international, scope: Y tế công cộng, reference: https://www.who.int/vietnam}
+      # Tầng 2 – báo chí chính thống / cơ quan ngôn luận
+      - {host: nhandan.vn, name: Báo Nhân Dân, category: press, scope: Tin tổng hợp, reference: https://nhandan.vn/}
+      - {host: www.qdnd.vn, name: Báo Quân đội nhân dân, category: press, scope: Tin tổng hợp, reference: https://www.qdnd.vn/}
+      - {host: qdnd.vn, name: Báo Quân đội nhân dân, category: press, scope: Tin tổng hợp, reference: https://qdnd.vn/}
+      - {host: www.vietnamplus.vn, name: VietnamPlus (TTXVN), category: press, scope: Tin tổng hợp, reference: https://www.vietnamplus.vn/}
+      - {host: vietnamplus.vn, name: VietnamPlus (TTXVN), category: press, scope: Tin tổng hợp, reference: https://vietnamplus.vn/}
+      - {host: vov.vn, name: Đài Tiếng nói Việt Nam, category: press, scope: Tin tổng hợp, reference: https://vov.vn/}
+      - {host: vtv.vn, name: Đài Truyền hình Việt Nam, category: press, scope: Tin tổng hợp, reference: https://vtv.vn/}
+      - {host: suckhoedoisong.vn, name: Sức khỏe & Đời sống (Bộ Y tế), category: press, scope: Y tế, reference: https://suckhoedoisong.vn/}
+      - {host: vnexpress.net, name: VnExpress, category: press, scope: Tin tổng hợp, reference: https://vnexpress.net/}
+      - {host: tuoitre.vn, name: Tuổi Trẻ, category: press, scope: Tin tổng hợp, reference: https://tuoitre.vn/}
+      - {host: thanhnien.vn, name: Thanh Niên, category: press, scope: Tin tổng hợp, reference: https://thanhnien.vn/}
+      - {host: dantri.com.vn, name: Dân trí, category: press, scope: Tin tổng hợp, reference: https://dantri.com.vn/}
+      - {host: vietnamnet.vn, name: VietNamNet, category: press, scope: Tin tổng hợp, reference: https://vietnamnet.vn/}
+      - {host: tienphong.vn, name: Tiền Phong, category: press, scope: Tin tổng hợp, reference: https://tienphong.vn/}
+      - {host: laodong.vn, name: Lao Động, category: press, scope: Tin tổng hợp, reference: https://laodong.vn/}
+      - {host: nld.com.vn, name: Người Lao Động, category: press, scope: Tin tổng hợp, reference: https://nld.com.vn/}
+      - {host: plo.vn, name: Pháp Luật TP.HCM, category: press, scope: Pháp luật, reference: https://plo.vn/}
+      - {host: cand.com.vn, name: Công an nhân dân, category: press, scope: An ninh trật tự, reference: https://cand.com.vn/}
+      - {host: znews.vn, name: Znews, category: press, scope: Tin tổng hợp, reference: https://znews.vn/}
+      - {host: www.sggp.org.vn, name: Sài Gòn Giải Phóng, category: press, scope: Tin tổng hợp, reference: https://www.sggp.org.vn/}
+  cache:
+    directory: .cache/web_retrieval
+    persist_provider_responses: false
+    persist_page_content: false
+    metadata_ttl_hours: 24
+    commit_to_git: false
+  extraction:
+    max_redirects: 3
+    max_page_bytes: 2000000
+    minimum_passage_chars: 80
+    maximum_passage_chars: 600
+    max_passages_per_page: 4     # chọn 4 đoạn LIÊN QUAN NHẤT của mỗi trang
+    max_pages: 6                 # đọc tối đa 6 trang thay vì 1
+    main_content_extractor: trafilatura
+  secrets:
+    log_key: false
+    send_in_query_string: false
+    shared_key_in_repo: false

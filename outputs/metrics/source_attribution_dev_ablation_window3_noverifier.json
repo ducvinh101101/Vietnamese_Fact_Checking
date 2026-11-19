@@ -1,0 +1,157 @@
+{
+  "split": "dev",
+  "n_claims": 300,
+  "reranker": "lexical",
+  "verifier": false,
+  "config": "configs/source_attribution.yaml",
+  "passage_retrieval": {
+    "legacy_bm25_passage": {
+      "hit@1": 0.8417,
+      "hit@3": 0.875,
+      "hit@5": 0.875
+    },
+    "new_hybrid_window": {
+      "hit@1": 0.8167,
+      "hit@3": 0.85,
+      "hit@5": 0.8667
+    },
+    "new_hybrid_reranked": {
+      "hit@1": 0.8083,
+      "hit@3": 0.8333,
+      "hit@5": 0.85
+    },
+    "n": 120
+  },
+  "seconds_per_claim": 0.047,
+  "new_pipeline": {
+    "thresholds": {
+      "relevance": 0.55,
+      "support": 0.5,
+      "conflict": 0.5,
+      "lexical_support": 0.7
+    },
+    "groups": {
+      "A_in_corpus": {
+        "n": 60,
+        "accuracy": 0.75,
+        "labels": {
+          "SOURCE_FOUND": 45,
+          "NO_SOURCE": 13,
+          "SOURCE_CONFLICT": 2
+        },
+        "expected": "SOURCE_FOUND"
+      },
+      "B_refuted": {
+        "n": 60,
+        "accuracy": 0.35,
+        "labels": {
+          "SOURCE_CONFLICT": 21,
+          "NO_SOURCE": 16,
+          "SOURCE_FOUND": 23
+        },
+        "expected": "SOURCE_CONFLICT"
+      },
+      "C_leave_gold_out": {
+        "n": 60,
+        "accuracy": 0.95,
+        "labels": {
+          "NO_SOURCE": 57,
+          "SOURCE_CONFLICT": 3
+        },
+        "expected": "NO_SOURCE"
+      },
+      "D_nei": {
+        "n": 60,
+        "accuracy": 0.55,
+        "labels": {
+          "NO_SOURCE": 33,
+          "SOURCE_FOUND": 17,
+          "SOURCE_CONFLICT": 10
+        },
+        "expected": "NO_SOURCE"
+      },
+      "E_perturbed": {
+        "n": 60,
+        "accuracy": 0.8,
+        "labels": {
+          "NO_SOURCE": 7,
+          "SOURCE_CONFLICT": 41,
+          "SOURCE_FOUND": 12
+        },
+        "expected": "NOT_FOUND"
+      }
+    },
+    "source_found_binary": {
+      "precision": 0.6081,
+      "recall": 0.75,
+      "f1": 0.6716,
+      "false_found_rate": 0.1611
+    },
+    "mean_group_accuracy": 0.68
+  },
+  "sweep_best": {
+    "thresholds": {
+      "relevance": 0.65,
+      "support": 0.4,
+      "conflict": 0.5,
+      "lexical_support": 0.7
+    },
+    "groups": {
+      "A_in_corpus": {
+        "n": 60,
+        "accuracy": 0.75,
+        "labels": {
+          "SOURCE_FOUND": 45,
+          "NO_SOURCE": 13,
+          "SOURCE_CONFLICT": 2
+        },
+        "expected": "SOURCE_FOUND"
+      },
+      "B_refuted": {
+        "n": 60,
+        "accuracy": 0.3,
+        "labels": {
+          "SOURCE_CONFLICT": 18,
+          "NO_SOURCE": 19,
+          "SOURCE_FOUND": 23
+        },
+        "expected": "SOURCE_CONFLICT"
+      },
+      "C_leave_gold_out": {
+        "n": 60,
+        "accuracy": 1.0,
+        "labels": {
+          "NO_SOURCE": 60
+        },
+        "expected": "NO_SOURCE"
+      },
+      "D_nei": {
+        "n": 60,
+        "accuracy": 0.6333,
+        "labels": {
+          "NO_SOURCE": 38,
+          "SOURCE_FOUND": 17,
+          "SOURCE_CONFLICT": 5
+        },
+        "expected": "NO_SOURCE"
+      },
+      "E_perturbed": {
+        "n": 60,
+        "accuracy": 0.8,
+        "labels": {
+          "NO_SOURCE": 12,
+          "SOURCE_CONFLICT": 36,
+          "SOURCE_FOUND": 12
+        },
+        "expected": "NOT_FOUND"
+      }
+    },
+    "source_found_binary": {
+      "precision": 0.6081,
+      "recall": 0.75,
+      "f1": 0.6716,
+      "false_found_rate": 0.1611
+    },
+    "mean_group_accuracy": 0.6967
+  }
+}

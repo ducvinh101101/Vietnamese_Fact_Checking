@@ -29,6 +29,10 @@ import zlib
 from src.schemas import Evidence, RetrievedEvidence
 
 
+SOURCE_TYPES = {"government": "government", "international": "international_org", "press": "news", "fact_check": "fact_check"}
+AUTHORITY = {"government": 0.95, "international": 0.95, "fact_check": 0.9, "press": 0.7}
+
+
 class WebRetrievalError(RuntimeError):
     """A controlled web-retrieval failure; callers should fall back to local."""
 
@@ -147,11 +151,31 @@ def decode_html_response(raw: bytes, content_encoding: str | None, header_charse
     raise WebRetrievalError("Không xác định được charset HTML nguồn web")
 
 
-def extract_passages(html: str, minimum_chars: int, maximum_chars: int, max_passages: int) -> tuple[str, list[str]]:
+def _main_content_paragraphs(html: str) -> list[str] | None:
+    """Thân bài chính bằng trafilatura (bỏ menu, quảng cáo, bài liên quan) nếu đã cài."""
+    try:
+        import trafilatura
+    except ImportError:
+        return None
+    text = trafilatura.extract(html, include_comments=False, include_tables=False, favor_precision=True)
+    if not text:
+        return None
+    return [line.strip() for line in text.splitlines() if line.strip()]
+
+
+def extract_passages(html: str, minimum_chars: int, maximum_chars: int, max_passages: int,
+                     query: str | None = None, main_content: bool = False) -> tuple[str, list[str]]:
+    """Cắt trang thành passage và trả tối đa ``max_passages`` passage.
+
+    Khi có ``query`` (claim), passage được chọn theo **độ liên quan** với claim
+    thay vì lấy các passage đầu trang (thường là sapo/menu/chú thích ảnh).
+    ``main_content=True`` dùng trafilatura để chỉ lấy thân bài.
+    """
     parser = _PageTextParser()
     parser.feed(html)
     parser.close()
     title = re.sub(r"\s+", " ", parser.title).strip()
+    paragraphs = (_main_content_paragraphs(html) if main_content else None) or parser.paragraphs()
     passages: list[str] = []
     seen_passages: set[str] = set()
 
@@ -162,7 +186,7 @@ def extract_passages(html: str, minimum_chars: int, maximum_chars: int, max_pass
             seen_passages.add(fingerprint)
             passages.append(normalized[:maximum_chars])
 
-    for paragraph in parser.paragraphs():
+    for paragraph in paragraphs:
         sentences = re.split(r"(?<=[.!?…])\s+", paragraph)
         chunk = ""
         for sentence in sentences:
@@ -173,8 +197,14 @@ def extract_passages(html: str, minimum_chars: int, maximum_chars: int, max_pass
             else:
                 chunk = candidate
         append_unique(chunk)
-        if len(passages) >= max_passages:
+        if query is None and len(passages) >= max_passages:
             break
+    if query is not None and len(passages) > max_passages:
+        from src.source_reranker import LexicalSourceScorer
+
+        scores = LexicalSourceScorer().score(query, passages)
+        order = sorted(range(len(passages)), key=lambda index: (-scores[index], index))[:max_passages]
+        return title, [passages[index] for index in order]
     return title, passages[:max_passages]
 
 
@@ -338,30 +368,50 @@ class WebRetriever:
         if not self.api_key:
             self.last_status = "missing_api_key"
             return []
-        payload = {
-            "query": claim,
-            "search_depth": self.provider["search_depth"],
-            "topic": self.provider["topic"],
-            "max_results": self.provider["max_results"],
-            "include_domains": sorted(self.allowed_sources),
-            "include_answer": False,
-            "include_raw_content": False,
-            "auto_parameters": False,
-        }
-        try:
-            self.ledger.reserve()
-            response = self.provider_request(payload, self.api_key, float(self.limits["timeout_seconds"]))
-        except WebRetrievalError:
+        # Nhiều truy vấn (claim gốc + từ khóa/thực thể) khi config cho phép
+        # nhiều request/claim; mỗi request vẫn đi qua ledger ngân sách.
+        from src.query_generation import generate_queries
+
+        query_count = max(1, int(self.limits.get("requests_per_claim", 1)))  # type: ignore[union-attr]
+        queries = [query.text for query in generate_queries(claim)][:query_count]
+        batches: list[list[object]] = []
+        provider_failed = False
+        for query in queries:
+            payload = {
+                "query": query[:400],
+                "search_depth": self.provider["search_depth"],
+                "topic": self.provider["topic"],
+                "max_results": self.provider["max_results"],
+                "include_domains": sorted(self.allowed_sources),
+                "include_answer": False,
+                "include_raw_content": False,
+                "auto_parameters": False,
+            }
+            try:
+                self.ledger.reserve()
+                response = self.provider_request(payload, self.api_key, float(self.limits["timeout_seconds"]))
+            except WebRetrievalError:
+                provider_failed = True
+                break
+            batch = response.get("results", [])
+            if not isinstance(batch, list):
+                self.last_status = "invalid_provider_response"
+                return []
+            batches.append(batch)
+        # Xen kẽ kết quả các truy vấn để trang của truy vấn từ khóa cũng được đọc.
+        results = [batch[i] for i in range(max((len(b) for b in batches), default=0)) for batch in batches if i < len(batch)]
+        if provider_failed and not results:
             self.last_status = "local_only"
             return []
-        results = response.get("results", [])
-        if not isinstance(results, list):
-            self.last_status = "invalid_provider_response"
-            return []
+        # Lấy passage từ NHIỀU trang (trước đây dừng ngay sau trang đầu vì
+        # top_k = số passage/trang), rồi xếp hạng toàn cục theo độ liên quan.
+        max_pages = int(self.extraction.get("max_pages", len(results) or 1))  # type: ignore[union-attr]
+        main_content = str(self.extraction.get("main_content_extractor", "")) == "trafilatura"  # type: ignore[union-attr]
+        pages_used = 0
         collected: list[RetrievedEvidence] = []
         seen_urls: set[str] = set()
         for rank, result in enumerate(results):
-            if len(collected) >= top_k:
+            if pages_used >= max_pages:
                 break
             if not isinstance(result, dict) or not isinstance(result.get("url"), str):
                 continue
@@ -381,16 +431,21 @@ class WebRetriever:
                     int(self.extraction["minimum_passage_chars"]),
                     int(self.extraction["maximum_passage_chars"]),
                     int(self.extraction["max_passages_per_page"]),
+                    query=claim,
+                    main_content=main_content,
                 )
             except WebRetrievalError:
                 continue
+            if not passages:
+                continue
+            pages_used += 1
             source = self.allowed_sources[urlsplit(final_url).hostname or ""]
-            base_score = float(result.get("score", 1.0))
             fetched_at = datetime.now(timezone.utc).isoformat()
             document_id = f"web-{sha256(final_url.encode('utf-8')).hexdigest()[:16]}"
+            from src.source_reranker import LexicalSourceScorer
+
+            relevance = LexicalSourceScorer().score(claim, passages)
             for passage_index, passage in enumerate(passages):
-                if len(collected) >= top_k:
-                    break
                 evidence = Evidence(
                     document_id=document_id,
                     passage_id=f"{document_id}-p{passage_index + 1:02d}",
@@ -401,9 +456,13 @@ class WebRetriever:
                     article_id=document_id,
                     title=title or str(result.get("title") or ""),
                     retrieved_at=fetched_at,
-                    source_type={"government": "government", "international": "international_org", "press": "news"}[source["category"]],
-                    authority_score={"government": 0.95, "international": 0.95, "press": 0.7}[source["category"]],
+                    source_type=SOURCE_TYPES[str(source["category"])],
+                    authority_score=AUTHORITY[str(source["category"])],
                 )
-                collected.append(RetrievedEvidence(evidence, base_score - rank * 0.001 - passage_index * 0.0001))
+                # Điểm dương, ưu tiên độ liên quan; hạng của provider chỉ phá hòa.
+                score = 0.001 + relevance[passage_index] - rank * 1e-5 - passage_index * 1e-7
+                collected.append(RetrievedEvidence(evidence, score))
+        collected.sort(key=lambda item: (-item.score, item.evidence.passage_id))
+        collected = collected[:top_k]
         self.last_status = "ok" if collected else "no_eligible_passages"
         return collected
