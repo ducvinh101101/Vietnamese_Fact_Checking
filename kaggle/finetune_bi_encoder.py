@@ -1,6 +1,6 @@
 """BE-V1: fine-tune bi-encoder tiếng Việt cho dense retrieval (thay E5-small của W2-04).
 
-Dùng chung bundle ``reranker_v1.zip``: cặp dương (claim, Evidence gold) và âm
+Dùng chung bundle ``reranker_v2.zip``: cặp dương (claim, cửa sổ chứa Evidence gold) và âm
 khó (cửa sổ bài khác do BM25 tìm). Hàm mất mát MultipleNegativesRankingLoss
 (in-batch negatives + 1 hard negative mỗi claim).
 

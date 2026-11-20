@@ -7,6 +7,8 @@ local:
   corpus: data/evidence/vifactcheck_passages_v2.jsonl
   window_sentences: 3        # cửa sổ 3 câu, chồng lấn 2 câu (chọn trên dev, xem docs/SOURCE_ATTRIBUTION.md)
   window_stride: 1
+  # "document": nối các passage cùng bài rồi mới cắt cửa sổ (gold nằm trọn 1 cửa sổ 86,0% → 92,8% trên dev).
+  window_scope: document
   window_max_chars: 700
   # Multi-query trên kho cục bộ làm GIẢM hit@1 trên ViFactCheck (claim viết sát
   # câu gốc) nên tắt; web vẫn dùng 2 truy vấn (web_retrieval.limits.requests_per_claim).
@@ -27,9 +29,11 @@ web:
   weight: 1.5                # web là nguồn chính cho claim ngoài kho
 
 reranker:
-  # "verifier" = dùng RT-V2 đã train: P(SUPPORTED)+P(REFUTED), trộn lexical_blend điểm lexical.
+  # "verifier" = dùng verifier đã train (RT-V3, mục verifier bên dưới): P(SUPPORTED)+P(REFUTED),
+  # trộn lexical_blend điểm lexical.
   # "lexical"  = không cần model (nhanh hơn ~3 lần trên CPU, báo nhầm thấp hơn, recall thấp hơn).
-  # Model nhóm tự train: models/phobert_reranker_v1/best_model (kaggle/finetune_phobert_reranker.py), segment: true
+  # Reranker nhóm tự train: models/phobert_reranker_v2/best_model, segment: true (RR-V2 – xếp hạng tốt hơn,
+  #   F1 "có nguồn" cao hơn nhưng nhận NEI kém hơn; ngưỡng gợi ý relevance 0.95, support 0.7)
   # Model có sẵn đa ngữ:  BAAI/bge-reranker-v2-m3, segment: false
   # So sánh trên dev: docs/SOURCE_ATTRIBUTION.md §5.2.
   model: verifier
@@ -39,9 +43,10 @@ reranker:
   batch_size: 16
 
 verifier:
-  # Tái sử dụng verifier RT-V2 đã train: SUPPORTED→xác nhận, REFUTED→mâu thuẫn.
+  # RT-V3 = RT-V2 fine-tune tiếp trên CỬA SỔ CÂU (scripts/build_verifier_window_data.py) – khớp đầu vào
+  # thật của pipeline. SUPPORTED→xác nhận, REFUTED→mâu thuẫn. RT-V2 cũ: models/rt_v2_balanced/best_model.
   enabled: true
-  model_path: models/rt_v2_balanced/best_model
+  model_path: models/rt_v3_windows/best_model
   vncorenlp_dir: models/vncorenlp
   max_length: 256
   temperature: 1.0
@@ -50,12 +55,12 @@ decision:
   candidate_k: 20            # số ứng viên được rerank (reranker model chậm hơn lexical)
   assess_k: 8
   max_citations: 3
-  # Chọn trên dev bằng scripts/evaluate_source_attribution.py --sweep cho reranker
-  # "verifier" blend 0.5. Đổi reranker phải dò lại. Gợi ý cho "lexical":
+  # Chọn trên dev (1.252 claim) bằng scripts/evaluate_source_attribution.py --sweep cho reranker
+  # "verifier" blend 0.5 + verifier RT-V3. Đổi reranker/verifier phải dò lại. Gợi ý cho "lexical":
   # relevance 0.65, support 0.8, lexical_support 0.55 (candidate_k 40).
   thresholds:
-    relevance: 0.8
-    support: 0.4
+    relevance: 0.7
+    support: 0.8
     conflict: 0.5
     lexical_support: 0.55    # chỉ dùng khi tắt verifier
 

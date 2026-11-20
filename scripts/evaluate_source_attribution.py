@@ -307,7 +307,7 @@ def main() -> None:
     if args.sweep:
         best = None
         grid = product([0.35, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95],
-                       [0.4, 0.5, 0.6, 0.7, 0.8, 0.9],
+                       [0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95, 0.98],
                        [0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9])
         for relevance, support, lexical_support in grid:
             if verifier is None and lexical_support < relevance:
@@ -324,8 +324,10 @@ def main() -> None:
         print("Chạy pipeline cũ để so sánh…")
         report["legacy_pipeline"] = summarise(legacy_records(cases, config, model if args.verifier else None))
 
-    blend = config["reranker"].get("lexical_blend")
-    tag = f"{args.split}_{Path(str(config['reranker']['model'])).name}{f'-blend{blend:g}' if blend else ''}_{'verifier' if verifier else 'noverifier'}"
+    model_path = Path(str(config["reranker"]["model"]))
+    model_name = model_path.parent.name if model_path.name == "best_model" else model_path.name
+    blend = config["reranker"].get("lexical_blend") if model_name == "verifier" else None
+    tag = f"{args.split}_{model_name}{f'-blend{blend:g}' if blend else ''}_{'verifier' if verifier else 'noverifier'}"
     output = Path(args.output) if args.output else ROOT / f"outputs/metrics/source_attribution_{tag}.json"
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")

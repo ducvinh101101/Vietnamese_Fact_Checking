@@ -79,12 +79,31 @@ def reciprocal_rank_fusion(rankings: Sequence[Sequence[str]], k: int = 60, weigh
     return sorted(fused.items(), key=lambda item: (-item[1], item[0]))
 
 
-def build_windows(items: Sequence[Evidence], window: int = 2, stride: int = 1, max_chars: int = 600) -> list[Evidence]:
-    """Cắt mỗi passage thành cửa sổ câu, giữ nguyên metadata nguồn của passage cha."""
+def build_windows(items: Sequence[Evidence], window: int = 2, stride: int = 1, max_chars: int = 600,
+                  scope: str = "passage") -> list[Evidence]:
+    """Cắt văn bản thành cửa sổ câu, giữ metadata nguồn.
+
+    ``scope="passage"``: cắt trong từng passage (cửa sổ không vượt ranh giới passage).
+    ``scope="document"``: nối các passage cùng bài theo thứ tự rồi mới cắt, để
+    Evidence nhiều câu nằm vắt qua ranh giới hai passage vẫn vào trọn một cửa sổ
+    (trên dev ViFactCheck: gold nằm trọn trong 1 cửa sổ 86,0% → 92,8%).
+    """
+    if scope not in {"passage", "document"}:
+        raise ValueError("scope phải là 'passage' hoặc 'document'")
+    if scope == "document":
+        groups: dict[str, list[Evidence]] = {}
+        for item in items:
+            groups.setdefault(item.document_id or item.url or item.passage_id, []).append(item)
+        merged = []
+        for document_id, parts in groups.items():
+            parts = sorted(parts, key=lambda part: part.passage_id)
+            text = " ".join(part.content.strip() for part in parts if part.content.strip())
+            merged.append(replace(parts[0], passage_id=f"{document_id}-doc", content=text))
+        items = merged
     windows: list[Evidence] = []
     for item in items:
         chunks = sentence_windows(item.content, window, stride, max_chars) or [item.content]
-        if len(chunks) == 1:
+        if len(chunks) == 1 and scope == "passage":
             windows.append(item)
             continue
         for index, chunk in enumerate(chunks, start=1):
@@ -108,10 +127,11 @@ class HybridSourceRetriever:
         dense_weight: float = 1.0,
         segmenter: Callable[[str], list[str]] | None = None,
         use_query_generation: bool = True,
+        window_scope: str = "passage",
     ) -> None:
         if not evidence_items:
             raise ValueError("Cần ít nhất một evidence để tạo index")
-        self.evidence_items = build_windows(evidence_items, window, stride, max_chars)
+        self.evidence_items = build_windows(evidence_items, window, stride, max_chars, window_scope)
         self.segmenter = segmenter
         self.index = SparseBM25([tokenize_bm25(item.content, segmenter) for item in self.evidence_items])
         self.candidates_per_query = candidates_per_query

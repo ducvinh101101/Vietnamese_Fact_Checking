@@ -1,0 +1,51 @@
+{
+  "task": "binary relevance reranker (claim, passage) -> {0: unrelated, 1: related}",
+  "files": {
+    "train.parquet": "9d16130556edd060b9e085e8f0292dc9b44a01d1f7c0431376478fcca311bb0f",
+    "dev.parquet": "4e6911f24bc2ce0fc0748f734d49decdc1c8cfaece70e243a235cb8b0624fc67"
+  },
+  "counts": {
+    "train": {
+      "hard_other_article": 9177,
+      "gold_window": 5543,
+      "random": 3134,
+      "same_article_other_part": 2631
+    },
+    "dev": {
+      "gold_window": 1196,
+      "hard_other_article": 1156,
+      "random": 672,
+      "same_article_other_part": 585
+    }
+  },
+  "positives_from_labels": [
+    "SUPPORTED",
+    "REFUTED"
+  ],
+  "positive_unit": "sentence window containing gold (coverage>=0.8), window=3, stride=1, max_chars=700, scope=document",
+  "negative_filter": "drop negatives covering >= 0.5 of gold evidence",
+  "median_chars": {
+    "train": {
+      "gold_window": 491.0,
+      "hard_other_article": 453.0,
+      "random": 415.0,
+      "same_article_other_part": 394.0
+    },
+    "dev": {
+      "gold_window": 489.0,
+      "hard_other_article": 490.5,
+      "random": 421.0,
+      "same_article_other_part": 388.0
+    }
+  },
+  "test_read": false,
+  "params": {
+    "output": "D:\\Vietnamese_Fact_Checking\\data\\processed\\reranker_v2",
+    "hard": 3,
+    "in_article": 1,
+    "random": 1,
+    "positives": 2,
+    "max_negative_coverage": 0.5,
+    "seed": 42
+  }
+}

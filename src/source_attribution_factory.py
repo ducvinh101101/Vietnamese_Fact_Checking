@@ -74,6 +74,7 @@ def build_local_retriever(config: dict[str, Any], corpus_items=None) -> HybridSo
         dense_cache=(ROOT / dense_cfg["cache"]) if encoder is not None and dense_cfg.get("cache") else None,
         dense_weight=float(dense_cfg.get("weight", 1.0)),
         use_query_generation=bool(local.get("multi_query", False)),
+        window_scope=str(local.get("window_scope", "passage")),
     )
 
 

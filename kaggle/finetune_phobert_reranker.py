@@ -1,4 +1,4 @@
-"""RR-V1: fine-tune PhoBERT thành cross-encoder reranker (liên quan / không liên quan).
+"""RR-V2: fine-tune PhoBERT thành cross-encoder reranker (liên quan / không liên quan).
 
 Khởi tạo mặc định từ checkpoint RT-V2 của nhóm (đã học cặp claim–evidence
 tiếng Việt), thay đầu phân loại 3 lớp bằng 2 lớp. Có thể khởi tạo từ
@@ -6,13 +6,13 @@ tiếng Việt), thay đầu phân loại 3 lớp bằng 2 lớp. Có thể kh�
 
 Kaggle (GPU T4/P100):
     !pip install -q py_vncorenlp
-    !unzip -q /kaggle/input/reranker-v1/reranker_v1.zip -d /kaggle/working/data
+    !unzip -q /kaggle/input/reranker-v2/reranker_v2.zip -d /kaggle/working/data
     !python finetune_phobert_reranker.py --data-dir /kaggle/working/data \
-        --model-dir /kaggle/input/rt-v2-balanced/best_model --output-dir /kaggle/working/rr_v1
+        --model-dir /kaggle/input/rt-v2-balanced/best_model --output-dir /kaggle/working/rr_v2
 
-Đầu ra ``best_model/`` chép về ``models/phobert_reranker_v1/best_model`` rồi đặt
+Đầu ra ``best_model/`` chép về ``models/phobert_reranker_v2/best_model`` rồi đặt
 trong ``configs/source_attribution.yaml``:
-    reranker: {model: models/phobert_reranker_v1/best_model, segment: true}
+    reranker: {model: models/phobert_reranker_v2/best_model, segment: true}
 Sau đó chạy lại ``scripts/evaluate_source_attribution.py --sweep`` để chọn ngưỡng mới.
 """
 import argparse

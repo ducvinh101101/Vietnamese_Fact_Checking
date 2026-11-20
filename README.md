@@ -24,8 +24,8 @@ Config hiện tại (`configs/config.yaml`) dùng corpus `data/evidence/vifactch
 Đề tài chuyển từ phán **thật/giả** sang **kiểm tra phát biểu có nguồn ngoài thực tế hay không**
 (`SOURCE_FOUND` / `SOURCE_CONFLICT` / `NO_SOURCE`). Pipeline RT-V2 cũ giữ nguyên; pipeline mới tái sử dụng
 RT-V2 và VnCoreNLP, thêm retrieval mở (web allowlist 25 nguồn), reranker và kiểm tra khớp số/ngày/tên riêng.
-Trên dev (300 claim, 5 nhóm): độ chính xác trung bình 68,7% → 80,7%, báo nhầm "có nguồn" 21,7% → 7,2%
-(ngưỡng dò trên dev, chưa chạy test). Điền `TAVILY_API_KEY` vào `.env` để bật tìm kiếm web.
+Trên dev (1.252 claim, 5 nhóm): độ chính xác trung bình 70,5% (pipeline cũ) → 83,1%, báo nhầm "có nguồn"
+19,5% → 5,8%, với verifier RT-V3 train lại trên cửa sổ câu và cửa sổ cắt trên toàn bài (ngưỡng dò trên dev, chưa chạy test). Điền `TAVILY_API_KEY` vào `.env` để bật tìm kiếm web.
 Chi tiết, cách train reranker/bi-encoder và giới hạn: [docs/SOURCE_ATTRIBUTION.md](docs/SOURCE_ATTRIBUTION.md).
 
 ## Kết quả chính (dev/test, dữ liệu ViFactCheck)

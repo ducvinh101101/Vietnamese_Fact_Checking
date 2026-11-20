@@ -10,8 +10,8 @@ ngoài thực tế (báo chí chính thống, cơ quan nhà nước) nói cùng 
 
 | Nhãn | Hiển thị | Điều kiện |
 |---|---|---|
-| `SOURCE_FOUND` | Có nguồn xác nhận | ≥1 đoạn liên quan đủ cao, RT-V2 xác nhận, không lệch số/ngày |
-| `SOURCE_CONFLICT` | Có nguồn liên quan nhưng lệch chi tiết | đoạn liên quan nhưng khác số liệu/ngày tháng, hoặc RT-V2 đánh giá mâu thuẫn |
+| `SOURCE_FOUND` | Có nguồn xác nhận | ≥1 đoạn liên quan đủ cao, verifier xác nhận, không lệch số/ngày |
+| `SOURCE_CONFLICT` | Có nguồn liên quan nhưng lệch chi tiết | đoạn liên quan nhưng khác số liệu/ngày tháng, hoặc verifier đánh giá mâu thuẫn |
 | `NO_SOURCE` | Không tìm thấy nguồn | không đoạn nào vượt ngưỡng liên quan/xác nhận |
 
 Kèm theo: các đoạn trích dẫn (URL, tên nguồn, ngày), số **nguồn độc lập** (tên miền),
@@ -21,10 +21,12 @@ và chi tiết khớp / lệch / không được nhắc tới cho từng đoạn
 
 | Thành phần | Vai trò trong pipeline mới |
 |---|---|
-| PhoBERT **RT-V2** (đã train) | Verifier cặp claim–đoạn: SUPPORTED→xác nhận, REFUTED→mâu thuẫn, NEI→không đủ. Tùy chọn dùng thêm làm reranker (P(SUP)+P(REF)). |
+| PhoBERT **RT-V2** (đã train) | Điểm khởi tạo cho RT-V3 và RR-V2; vẫn là verifier của pipeline cũ. |
+| PhoBERT **RT-V3** (train mới, §5.3) | RT-V2 fine-tune tiếp trên cửa sổ câu. **Verifier mặc định** (SUPPORTED→xác nhận, REFUTED→mâu thuẫn, NEI→không đủ) **và reranker mặc định** (P(SUP)+P(REF), trộn 0,5 điểm lexical). |
 | **VnCoreNLP** | Tách từ cho PhoBERT (verifier, reranker, bi-encoder). Một instance dùng chung mỗi tiến trình (`shared_vncorenlp`). |
 | Claim decomposition, content-risk, E1 | Giữ nguyên. |
-| **Mới – train thêm** | `kaggle/finetune_phobert_reranker.py` (RR-V1, PhoBERT reranker khởi tạo từ RT-V2), `kaggle/finetune_bi_encoder.py` (BE-V1, dense retrieval). |
+| PhoBERT **RR-V2** (train mới, §5.3) | Cross-encoder liên quan/không liên quan, khởi tạo từ RT-V2. Tùy chọn (xếp hạng tốt hơn, nhận NEI kém hơn). |
+| BE-V1 (chưa train) | `kaggle/finetune_bi_encoder.py`, dense retrieval. |
 
 ## 3. Kiến trúc
 
@@ -32,12 +34,12 @@ và chi tiết khớp / lệch / không được nhắc tới cho từng đoạn
 claim
  → vi_text: chuẩn hóa, tách câu, rút số / ngày / tên riêng
  → query_generation: claim gốc + truy vấn từ khóa/thực thể
- → HybridSourceRetriever (kho cục bộ): cửa sổ 3 câu, BM25 bỏ stopword + bigram âm tiết, (+dense), RRF
+ → HybridSourceRetriever (kho cục bộ): cửa sổ 3 câu cắt trên TOÀN BÀI, BM25 bỏ stopword + bigram âm tiết, (+dense), RRF
    WebRetriever (Tavily, allowlist 25 tên miền, 2 truy vấn, đọc ≤6 trang, chọn đoạn theo độ liên quan)
    FusedRetriever: gộp local + web bằng RRF (web lỗi → chỉ dùng local)
- → reranker: lexical | RT-V2 relevance | PhoBERT reranker tự train | cross-encoder ngoài
+ → reranker: lexical | RT-V3 relevance + lexical (mặc định) | RR-V2 tự train | cross-encoder ngoài
  → ngưỡng liên quan tuyệt đối  ⟶ nếu không đoạn nào qua: NO_SOURCE
- → RT-V2 verifier + kiểm tra số/ngày/tên riêng (check_facets)
+ → RT-V3 verifier + kiểm tra số/ngày/tên riêng (check_facets)
  → SOURCE_FOUND / SOURCE_CONFLICT / NO_SOURCE + citation
 ```
 
@@ -65,6 +67,9 @@ claim
    bigram âm tiết (xấp xỉ tách từ, không cần Java).
 5. **Allowlist chỉ 3 tên miền** → 25 tên miền theo tầng (nhà nước, TTXVN, báo chí chính thống, tingia.gov.vn).
 6. **VnCoreNLP khởi tạo hai lần** trong một tiến trình làm lỗi JVM → dùng instance chung.
+7. **Cửa sổ câu không vượt ranh giới passage** (lỗi xử lý dữ liệu, xem §5.3): kho chia sẵn passage ≤700 ký tự;
+   Evidence nhiều câu nằm vắt qua hai passage không bao giờ vào trọn một cửa sổ. Nay `window_scope: document`
+   nối các passage cùng bài rồi mới cắt.
 
 ## 5. Đánh giá
 
@@ -80,7 +85,9 @@ claim
 
 Nhóm C và E là nhóm quan trọng nhất với đề tài mới: chúng đo việc hệ thống **không bịa ra nguồn**.
 
-### 5.2 Kết quả dev (300 claim, 60/nhóm, seed 42)
+### 5.2 Kết quả dev vòng 1 (300 claim, 60/nhóm, seed 42) – trước khi sửa dữ liệu
+
+> Số liệu vòng 1 giữ lại để đối chiếu. Cấu hình mặc định hiện tại và số liệu trên tập lớn hơn: **§5.3**.
 
 Ngưỡng được dò trên chính tập dev này nên số liệu là **lạc quan**; cần xác nhận trên test (một lần)
 và trên tập thực tế §5.4.
@@ -140,21 +147,64 @@ Nhận xét:
 Với reranker lexical, tin thật bị trả `NO_SOURCE` (điểm 0,64, ngay dưới ngưỡng) do câu chữ khác bài báo; với RT-V2 thuần,
 tin bịa bị trả `SOURCE_CONFLICT` vì có các bài bác bỏ "chanh trị bách bệnh".
 
-### 5.3 Train thêm (Kaggle GPU)
+### 5.3 Kiểm tra dữ liệu đầu vào và vòng 2 (RT-V3, RR-V2)
+
+**Kiểm tra dữ liệu** (kho 5.844 passage / 1.041 bài; ViFactCheck train 5.076, dev 1.080, test 1.076):
+
+| Phát hiện | Số liệu | Xử lý |
+|---|---|---|
+| Cửa sổ câu không vượt ranh giới passage; 27% Evidence gồm nhiều câu | gold nằm trọn 1 cửa sổ: **86,0%** (cắt trên toàn bài: **92,8%**) | `window_scope: document` |
+| Dữ liệu train RR-V1 bản đầu: dương là câu gold ngắn, âm là cửa sổ dài | trung vị 190 vs 430 ký tự → model học "ngắn = liên quan"; chấm cửa sổ gold thật **0,006**, end-to-end 67% | dương = cửa sổ chứa gold (cân bằng 491 vs 453 ký tự) |
+| Verifier RT-V2 train trên câu gold ngắn nhưng chạy trên cửa sổ 3 câu | cùng loại lệch phân phối | RT-V3 train trên cửa sổ |
+| Âm giả trong dữ liệu reranker (cùng sự việc do báo khác đăng lại) | 11,7% âm khó phủ ≥50% Evidence gold | loại âm phủ ≥0,5 |
+| Dấu vết gán nhãn: độ trùng từ claim–Evidence SUPPORTED 0,89 / REFUTED 0,80 / NEI 0,67 | 6 đặc trưng bề mặt (không hiểu nghĩa) đoán đúng **65,6%** nhãn dev; E2 PhoBERT trên gold 85,2% | chưa xử lý (gợi ý: mẫu tương phản) |
+| Chú thích ảnh dính vào câu ("- Ảnh: VGP/…"), 129 passage chưa chuẩn NFC | 324 chỗ; ảnh hưởng đo được +0,2 điểm trần | chưa xử lý (ưu tiên thấp) |
+| Thiếu metadata | 81% thiếu ngày đăng, 100% thiếu tiêu đề | chưa xử lý (chỉ ảnh hưởng hiển thị) |
+| Rò rỉ train/dev/test | 0 URL, 0 claim, 0 Evidence trùng | – |
+
+**Model train mới** (GPU cục bộ RTX 5060 Laptop 8 GB, `torch 2.14.0+cu130`; khởi tạo từ RT-V2; checkpoint chọn trên dev):
+
+| Model | Dữ liệu | Thời gian | Dev |
+|---|---|---|---|
+| RT-V3 verifier | `scripts/build_verifier_window_data.py` → `data/processed/verifier_windows_v3`: cặp RT-V2 thay Evidence bằng cửa sổ chứa nó (95%), thêm 929 NEI "liên quan nhưng không phải nguồn" (trọng số 0,5) | ~10 phút | macro-F1 trên dev dạng cửa sổ **74,3% (RT-V2) → 81,0%** |
+| RR-V2 reranker | `scripts/build_reranker_training_data.py` → `data/processed/reranker_v2`: 20.485 cặp train, cửa sổ cấp bài, đã lọc âm giả | ~6 phút | AUC 0,997, gold đứng đầu 98,7% |
 
 ```powershell
-python scripts/build_reranker_training_data.py      # → data/processed/reranker_v1 + kaggle/reranker_v1.zip
+python scripts/build_verifier_window_data.py
+python kaggle/finetune_phobert_retrieval_v1.py --data-dir data/processed/verifier_windows_v3 `
+  --model-dir models/rt_v2_balanced/best_model --output-dir models/rt_v3_windows `
+  --vncorenlp-dir models/vncorenlp --experiment RT-V3 --epochs 2
+python scripts/build_reranker_training_data.py
+python kaggle/finetune_phobert_reranker.py --data-dir data/processed/reranker_v2 `
+  --model-dir models/rt_v2_balanced/best_model --output-dir models/phobert_reranker_v2 `
+  --vncorenlp-dir models/vncorenlp --epochs 2
 ```
 
-Bundle: 20.023 cặp train (3.434 dương, 10.272 âm khó từ bài khác, 2.889 âm cùng bài, 3.428 ngẫu nhiên),
-3.739 cặp dev. Dương gồm cả claim SUPPORTED **và** REFUTED (đoạn bác bỏ vẫn là nguồn liên quan); bỏ NEI.
-Không đọc test; âm của train không lấy từ bài dev/test.
+**End-to-end vòng 2**: dev 1.252 claim (A 300, B 300, C 187, D 300, E 165), cửa sổ cấp bài, ngưỡng dò trên dev
+(`outputs/metrics/source_attribution_dev1500_*.json`):
 
-1. `kaggle/finetune_phobert_reranker.py --model-dir <RT-V2 best_model>` → `models/phobert_reranker_v1/best_model`
-   rồi đặt `reranker: {model: models/phobert_reranker_v1/best_model, segment: true}`.
-2. `kaggle/finetune_bi_encoder.py` → `models/bi_encoder_v1`, đặt `local.dense: {model: models/bi_encoder_v1, segment: true}`.
-3. Chạy lại `python scripts/evaluate_source_attribution.py --verifier --sweep` để chọn ngưỡng mới, rồi cập nhật
-   `decision.thresholds`.
+| Reranker + verifier | A | B | C | D | E | TB 5 nhóm | Báo nhầm "có nguồn" | P / R | F1 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| Cũ, RT-V2 (BM25 top-3 → rank policy) | – | – | – | – | – | 70,5 | 19,5% | 67,2 / 86,7 | 75,7 |
+| RT-V2 blend + RT-V2 | 79 | 56 | 91 | 80 | 90 | 79,4 | 7,4% | 83,2 / 79,0 | 81,0 |
+| RR-V2 + RT-V2 | 71 | 74 | 87 | 58 | 93 | 76,7 | 4,8% | 87,3 / 71,0 | 78,3 |
+| RR-V2 + RT-V3 | 79 | 76 | 85 | 68 | 93 | 80,2 | 6,1% | 85,6 / 79,0 | **82,2** |
+| **RT-V3 blend + RT-V3 (mặc định)** | 76 | 72 | 88 | **86** | 93 | **83,1** | 5,8% | 85,8 / 76,3 | 80,8 |
+
+Retrieval (nhóm A+B, n=600): Hit@5 BM25 cũ 87,8% → cửa sổ cấp bài 90,8%; Hit@1 sau rerank: RR-V2 86,0%, RT-V2 blend 83,5%.
+
+Nhận xét:
+* **RT-V3 là thay đổi có ích nhất** (+3,7 điểm TB so với RT-V2, cùng retrieval): nhóm B 56% → 72%, NEI 80% → 86%.
+  Ngay với ngưỡng cũ chưa dò lại, RT-V3 đã đạt 82,4% và báo nhầm 4,8%.
+* **RR-V2 xếp hạng tốt hơn nhưng chấm cao cả đoạn cùng chủ đề của claim NEI** (nhóm D thấp nhất). RR-V2 + RT-V3 có
+  F1 "có nguồn" cao nhất; chọn nó nếu ưu tiên recall hơn việc nhận ra claim thiếu thông tin.
+* Cấu hình mặc định: `window_scope: document`, `reranker.model: verifier` (blend 0,5), verifier RT-V3,
+  ngưỡng relevance 0,7 / support 0,8 / conflict 0,5.
+* Web thật (2 claim minh họa ở §5.2, cấu hình mới): tin thật → `SOURCE_FOUND` (vtv.vn, vietnamnet.vn);
+  tin bịa → `NO_SOURCE`.
+
+Bi-encoder (chưa train): `kaggle/finetune_bi_encoder.py` dùng `reranker_v2`, sau đó đặt
+`local.dense: {model: models/bi_encoder_v1, segment: true}` rồi dò lại ngưỡng.
 
 ### 5.4 Tập thực tế (cần nhóm gán nhãn)
 
@@ -180,7 +230,8 @@ streamlit run app.py             # chọn chế độ "Kiểm tra nguồn"
 
 ## 7. Giới hạn
 
-* Ngưỡng chọn trên dev đã xem → số dev lạc quan; test chưa chạy.
+* Ngưỡng và checkpoint chọn trên dev đã xem → số dev lạc quan; test chưa chạy.
+* Dấu vết gán nhãn của ViFactCheck (§5.3): một phần điểm verifier có thể đến từ độ trùng từ, không phải hiểu nghĩa.
 * Web search mới chỉ được chạy thật trên vài claim minh họa; chưa có phép đo trên tập thực tế (§5.4).
 * Nhóm C chỉ là cận trên của báo nhầm: kho có thể có bài khác đưa cùng tin.
 * `check_facets` dùng heuristic (regex số/ngày, chữ hoa cho tên riêng); NER VnCoreNLP có thể thay thế.

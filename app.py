@@ -52,8 +52,16 @@ def get_pipeline() -> FactCheckingPipeline:
 def get_source_pipeline():
     from src.source_attribution_factory import build_pipeline, load_config
 
+    from src.source_attribution_factory import build_verifier
+
     config = load_config()
-    verifier = get_checker() if config["verifier"].get("enabled") else None
+    verifier = None
+    if config["verifier"].get("enabled"):
+        legacy_model = load_yaml("config.yaml")["verification"]["model_path"]
+        # Cùng model với pipeline cũ thì dùng chung instance; khác (vd. RT-V3) thì nạp riêng.
+        # VnCoreNLP vẫn chỉ khởi tạo một lần nhờ shared_vncorenlp.
+        same = Path(config["verifier"]["model_path"]) == Path(legacy_model)
+        verifier = get_checker() if same else build_verifier(config)
     return build_pipeline(config, verifier=verifier, use_verifier=verifier is not None)
 
 

@@ -3,9 +3,14 @@
 Nhãn "liên quan" KHÁC nhãn đúng/sai: đoạn bác bỏ claim vẫn là đoạn liên quan
 (nó là nguồn nói về cùng sự việc). Vì vậy:
 
-* dương (1): (Statement, Evidence gold) của claim SUPPORTED và REFUTED;
+* dương (1): cửa sổ câu CHỨA Evidence gold (độ phủ >= 0.8) của claim SUPPORTED
+  và REFUTED – cùng cách cắt cửa sổ với lúc chạy. KHÔNG dùng câu gold trần:
+  câu gold ngắn (~190 ký tự) còn âm là cửa sổ dài (~400 ký tự) khiến model học
+  mẹo "ngắn = liên quan" và chấm cửa sổ gold thật ~0 (lỗi của bản dữ liệu đầu);
 * âm khó (0): cửa sổ câu do ``HybridSourceRetriever`` xếp hạng cao nhưng
-  thuộc bài KHÁC (URL khác) – đúng loại nhiễu reranker phải loại;
+  thuộc bài KHÁC (URL khác) – đúng loại nhiễu reranker phải loại. Bỏ cửa sổ
+  phủ >= 0.5 Evidence gold: đó thường là cùng sự việc do báo khác đăng lại,
+  tức là một nguồn thật, gán 0 là nhãn âm giả (11,7% âm khó ở bản v1);
 * âm trong bài (0): cửa sổ cùng bài nhưng gần như không chứa câu gold;
 * âm ngẫu nhiên (0): một cửa sổ bất kỳ, giữ cho model không quên trường hợp dễ.
 NEI bị loại: Evidence của NEI liên quan chủ đề nhưng không đủ, dễ gây nhiễu nhãn.
@@ -43,7 +48,8 @@ def coverage(gold: str, passage: str) -> float:
 
 
 def build_pairs(frame: pd.DataFrame, retriever: HybridSourceRetriever, banned_urls: set[str], rng: random.Random,
-                hard: int, in_article: int, random_negatives: int) -> pd.DataFrame:
+                hard: int, in_article: int, random_negatives: int,
+                positives_per_claim: int = 2, max_negative_coverage: float = 0.5) -> pd.DataFrame:
     windows = [item for item in retriever.evidence_items if item.url not in banned_urls]
     by_url: dict[str, list] = {}
     for item in windows:
@@ -52,27 +58,37 @@ def build_pairs(frame: pd.DataFrame, retriever: HybridSourceRetriever, banned_ur
     usable = frame[frame.labels.isin([0, 1]) & frame.Evidence.notna()]
     for record in usable.itertuples():
         claim, gold, url = str(record.Statement), str(record.Evidence), str(record.Url)
-        rows.append({"query": claim, "passage": gold, "label": 1, "kind": "gold", "Url": url})
+        article = by_url.get(url, [])
+        scored = sorted(((coverage(gold, w.content), w) for w in article), key=lambda pair: -pair[0])
+        positives = [w for value, w in scored if value >= 0.8][:positives_per_claim]
+        if not positives:
+            continue  # gold không nằm gọn trong cửa sổ nào → bỏ, tránh nhãn nhiễu
+        for window in positives:
+            rows.append({"query": claim, "passage": window.content, "label": 1, "kind": "gold_window", "Url": url})
         candidates = retriever.search(claim, 30)
         negatives = [c.evidence for c in candidates if c.evidence.url != url and c.evidence.url not in banned_urls]
+        negatives = [e for e in negatives if coverage(gold, e.content) < max_negative_coverage]
         for evidence in negatives[:hard]:
             rows.append({"query": claim, "passage": evidence.content, "label": 0, "kind": "hard_other_article", "Url": url})
-        same = [w for w in by_url.get(url, []) if coverage(gold, w.content) < 0.3]
+        same = [w for w in article if coverage(gold, w.content) < 0.3]
         for evidence in rng.sample(same, min(in_article, len(same))):
             rows.append({"query": claim, "passage": evidence.content, "label": 0, "kind": "same_article_other_part", "Url": url})
         for _ in range(random_negatives):
             evidence = rng.choice(windows)
-            if evidence.url != url:
+            if evidence.url != url and coverage(gold, evidence.content) < max_negative_coverage:
                 rows.append({"query": claim, "passage": evidence.content, "label": 0, "kind": "random", "Url": url})
     return pd.DataFrame(rows).drop_duplicates(["query", "passage"]).reset_index(drop=True)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--output", type=Path, default=ROOT / "data/processed/reranker_v1")
+    parser.add_argument("--output", type=Path, default=ROOT / "data/processed/reranker_v2")
     parser.add_argument("--hard", type=int, default=3)
     parser.add_argument("--in-article", type=int, default=1)
     parser.add_argument("--random", type=int, default=1)
+    parser.add_argument("--positives", type=int, default=2, help="số cửa sổ dương mỗi claim")
+    parser.add_argument("--max-negative-coverage", type=float, default=0.5,
+                        help="loại âm có độ phủ Evidence gold từ ngưỡng này (âm giả)")
     parser.add_argument("--seed", type=int, default=42)
     args = parser.parse_args()
 
@@ -82,10 +98,13 @@ def main() -> None:
     test_urls = set(pd.read_parquet(split_dir / "test.parquet", columns=["Url"]).Url)
     if set(train.Url) & (set(dev.Url) | test_urls):
         raise ValueError("Train trùng URL với dev/test")
-    retriever = HybridSourceRetriever(load_evidence_jsonl(ROOT / "data/evidence/vifactcheck_passages_v2.jsonl"), window=3)
+    retriever = HybridSourceRetriever(load_evidence_jsonl(ROOT / "data/evidence/vifactcheck_passages_v2.jsonl"), window=3, stride=1, max_chars=700,
+                                       window_scope="document", use_query_generation=False)
     rng = random.Random(args.seed)
-    train_pairs = build_pairs(train, retriever, set(dev.Url) | test_urls, rng, args.hard, args.in_article, args.random)
-    dev_pairs = build_pairs(dev, retriever, test_urls | set(train.Url), rng, args.hard, args.in_article, args.random)
+    train_pairs = build_pairs(train, retriever, set(dev.Url) | test_urls, rng, args.hard, args.in_article, args.random, args.positives,
+                              args.max_negative_coverage)
+    dev_pairs = build_pairs(dev, retriever, test_urls | set(train.Url), rng, args.hard, args.in_article, args.random, args.positives,
+                              args.max_negative_coverage)
 
     args.output.mkdir(parents=True, exist_ok=True)
     files = {}
@@ -98,11 +117,15 @@ def main() -> None:
         "files": files,
         "counts": {name: frame.kind.value_counts().to_dict() for name, frame in (("train", train_pairs), ("dev", dev_pairs))},
         "positives_from_labels": ["SUPPORTED", "REFUTED"],
+        "positive_unit": "sentence window containing gold (coverage>=0.8), window=3, stride=1, max_chars=700, scope=document",
+        "negative_filter": f"drop negatives covering >= {args.max_negative_coverage} of gold evidence",
+        "median_chars": {name: frame.groupby("kind").passage.apply(lambda x: float(x.str.len().median())).to_dict()
+                         for name, frame in (("train", train_pairs), ("dev", dev_pairs))},
         "test_read": False,
         "params": vars(args) | {"output": str(args.output)},
     }
     (args.output / "MANIFEST.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
-    archive = ROOT / "kaggle/reranker_v1.zip"
+    archive = ROOT / f"kaggle/{args.output.name}.zip"
     with zipfile.ZipFile(archive, "w", zipfile.ZIP_DEFLATED) as bundle:
         for name in [*files, "MANIFEST.json"]:
             bundle.write(args.output / name, name)

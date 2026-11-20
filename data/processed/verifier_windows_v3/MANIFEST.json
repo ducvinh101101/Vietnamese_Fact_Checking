@@ -1,0 +1,59 @@
+{
+  "experiment": "RT-V3 verifier on sentence windows",
+  "files": {
+    "train.parquet": "e774ebd467f2fb4bf7d6ddeef66b660dc57bf4784ab2403dffb82fd76b349c88",
+    "dev.parquet": "3be55adadb296c07a644759d5652dba4b56dcba8f5e502bc587bf8634cd5a13b"
+  },
+  "source_bundle": "data\\processed\\retrieval_finetune_v2_balanced",
+  "window": {
+    "sentences": 3,
+    "stride": 1,
+    "max_chars": 700,
+    "scope": "document"
+  },
+  "train": {
+    "labels": {
+      "0": 1801,
+      "1": 1694,
+      "2": 2608
+    },
+    "kinds": {
+      "gold_window": 4845,
+      "related_not_source": 928,
+      "original_pair": 330
+    },
+    "median_chars_by_label": {
+      "0": 473.0,
+      "1": 446.0,
+      "2": 408.0
+    },
+    "windowed": 4871,
+    "kept_original": 330,
+    "added_related_nei": 929
+  },
+  "dev": {
+    "labels": {
+      "0": 374,
+      "1": 353,
+      "2": 469
+    },
+    "kinds": {
+      "gold_window": 1017,
+      "related_not_source": 116,
+      "original_pair": 63
+    },
+    "median_chars_by_label": {
+      "0": 478.0,
+      "1": 411.0,
+      "2": 395.0
+    },
+    "windowed": 1017,
+    "kept_original": 63,
+    "added_related_nei": 116
+  },
+  "test_read": false,
+  "params": {
+    "nei_fraction": 0.33,
+    "seed": 42
+  }
+}

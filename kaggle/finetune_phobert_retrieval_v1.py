@@ -22,7 +22,10 @@ def main():
     parser.add_argument("--train-file", choices=["train.parquet", "gold_train.parquet"], default="train.parquet")
     parser.add_argument("--epochs", type=int, default=2)
     parser.add_argument("--max-steps", type=int, default=-1, help="Positive value is a smoke run, not a completed experiment")
+    parser.add_argument("--vncorenlp-dir", type=Path, default=None, help="Reuse a local VnCoreNLP folder instead of downloading")
     args = parser.parse_args()
+    # py_vncorenlp chdir()s into its save_dir; resolve every path before that happens.
+    args.data_dir, args.model_dir, args.output_dir = (path.resolve() for path in (args.data_dir, args.model_dir, args.output_dir))
     if args.output_dir.exists() and any(args.output_dir.iterdir()):
         raise FileExistsError("Use a fresh output directory to preserve prior results")
     if args.epochs < 1 or args.max_steps == 0 or args.max_steps < -1:
@@ -41,7 +44,7 @@ def main():
     if not torch.cuda.is_available():
         raise RuntimeError("Enable a Kaggle GPU before training")
     manifest_path = args.data_dir / "MANIFEST.json"
-    manifest = json.loads(manifest_path.read_text())
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     for name, expected in manifest["files"].items():
         path = (args.data_dir / name).resolve()
         if path.parent != args.data_dir.resolve() or checksum(path) != expected:
@@ -53,7 +56,7 @@ def main():
     if not train.sample_weight.isin([0.5, 1.0]).all() or not train.labels.isin([0, 1, 2]).all() or not dev.labels.isin([0, 1, 2]).all():
         raise ValueError("Invalid labels or weights")
     expected_mapping = {str(i): label for i, label in enumerate(LABELS)}
-    model_config = json.loads((args.model_dir / "config.json").read_text())
+    model_config = json.loads((args.model_dir / "config.json").read_text(encoding="utf-8"))
     checkpoint_label_mapping = model_config.get("id2label")
     if checkpoint_label_mapping != expected_mapping:
         print(
@@ -63,7 +66,7 @@ def main():
         )
     set_seed(42)
     args.output_dir.mkdir(parents=True, exist_ok=True)
-    segment_dir = (args.output_dir / "vncorenlp").resolve()
+    segment_dir = (args.vncorenlp_dir or args.output_dir / "vncorenlp").resolve()
     segment_dir.mkdir(exist_ok=True)
     if not (segment_dir / "VnCoreNLP-1.2.jar").exists():
         py_vncorenlp.download_model(save_dir=str(segment_dir))

@@ -72,6 +72,20 @@ def test_hybrid_retriever_returns_sentence_windows_with_parent_metadata():
     assert len(build_windows(CORPUS, window=1)) > len(CORPUS)
 
 
+def test_document_scope_windows_cross_passage_boundary():
+    parts = [
+        Evidence(document_id="d9", passage_id="d9_p002", content="Câu ba nói về giá điện. Câu bốn kết thúc bài."),
+        Evidence(document_id="d9", passage_id="d9_p001", content="Câu một mở đầu. Câu hai nói về EVN tăng giá."),
+    ]
+    per_passage = build_windows(parts, window=2, stride=1, max_chars=600)
+    per_document = build_windows(parts, window=2, stride=1, max_chars=600, scope="document")
+    bridge = "Câu hai nói về EVN tăng giá. Câu ba nói về giá điện."
+    assert bridge not in [item.content for item in per_passage]
+    assert bridge in [item.content for item in per_document]
+    assert per_document[0].content.startswith("Câu một")  # passage được xếp đúng thứ tự
+    assert all(item.document_id == "d9" for item in per_document)
+
+
 def test_fused_retriever_survives_failing_source():
     class Broken:
         def search(self, claim, top_k=3):

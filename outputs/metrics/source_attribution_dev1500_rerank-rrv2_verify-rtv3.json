@@ -1,0 +1,160 @@
+{
+  "split": "dev",
+  "n_claims": 1252,
+  "reranker": "models/phobert_reranker_v2/best_model",
+  "verifier": true,
+  "config": "configs/source_attribution.yaml (window_scope document, verifier.model_path models/rt_v3_windows/best_model)",
+  "passage_retrieval": {
+    "legacy_bm25_passage": {
+      "hit@1": 0.8317,
+      "hit@3": 0.875,
+      "hit@5": 0.8783
+    },
+    "new_hybrid_window": {
+      "hit@1": 0.8433,
+      "hit@3": 0.8967,
+      "hit@5": 0.9083
+    },
+    "new_hybrid_reranked": {
+      "hit@1": 0.86,
+      "hit@3": 0.9017,
+      "hit@5": 0.9183
+    },
+    "n": 600
+  },
+  "seconds_per_claim": 0.216,
+  "new_pipeline": {
+    "thresholds": {
+      "relevance": 0.8,
+      "support": 0.4,
+      "conflict": 0.5,
+      "lexical_support": 0.55
+    },
+    "groups": {
+      "A_in_corpus": {
+        "n": 300,
+        "accuracy": 0.8233,
+        "labels": {
+          "SOURCE_FOUND": 247,
+          "SOURCE_CONFLICT": 34,
+          "NO_SOURCE": 19
+        },
+        "expected": "SOURCE_FOUND"
+      },
+      "B_refuted": {
+        "n": 300,
+        "accuracy": 0.74,
+        "labels": {
+          "SOURCE_CONFLICT": 222,
+          "NO_SOURCE": 37,
+          "SOURCE_FOUND": 41
+        },
+        "expected": "SOURCE_CONFLICT"
+      },
+      "C_leave_gold_out": {
+        "n": 187,
+        "accuracy": 0.8449,
+        "labels": {
+          "NO_SOURCE": 158,
+          "SOURCE_FOUND": 18,
+          "SOURCE_CONFLICT": 11
+        },
+        "expected": "NO_SOURCE"
+      },
+      "D_nei": {
+        "n": 300,
+        "accuracy": 0.66,
+        "labels": {
+          "SOURCE_CONFLICT": 85,
+          "NO_SOURCE": 198,
+          "SOURCE_FOUND": 17
+        },
+        "expected": "NO_SOURCE"
+      },
+      "E_perturbed": {
+        "n": 165,
+        "accuracy": 0.9152,
+        "labels": {
+          "NO_SOURCE": 3,
+          "SOURCE_CONFLICT": 148,
+          "SOURCE_FOUND": 14
+        },
+        "expected": "NOT_FOUND"
+      }
+    },
+    "source_found_binary": {
+      "precision": 0.8345,
+      "recall": 0.8233,
+      "f1": 0.8289,
+      "false_found_rate": 0.0752
+    },
+    "mean_group_accuracy": 0.7967
+  },
+  "sweep_best": {
+    "thresholds": {
+      "relevance": 0.95,
+      "support": 0.7,
+      "conflict": 0.5,
+      "lexical_support": 0.55
+    },
+    "groups": {
+      "A_in_corpus": {
+        "n": 300,
+        "accuracy": 0.79,
+        "labels": {
+          "SOURCE_FOUND": 237,
+          "SOURCE_CONFLICT": 41,
+          "NO_SOURCE": 22
+        },
+        "expected": "SOURCE_FOUND"
+      },
+      "B_refuted": {
+        "n": 300,
+        "accuracy": 0.7633,
+        "labels": {
+          "SOURCE_CONFLICT": 229,
+          "NO_SOURCE": 40,
+          "SOURCE_FOUND": 31
+        },
+        "expected": "SOURCE_CONFLICT"
+      },
+      "C_leave_gold_out": {
+        "n": 187,
+        "accuracy": 0.8503,
+        "labels": {
+          "NO_SOURCE": 159,
+          "SOURCE_FOUND": 14,
+          "SOURCE_CONFLICT": 14
+        },
+        "expected": "NO_SOURCE"
+      },
+      "D_nei": {
+        "n": 300,
+        "accuracy": 0.68,
+        "labels": {
+          "SOURCE_CONFLICT": 82,
+          "NO_SOURCE": 204,
+          "SOURCE_FOUND": 14
+        },
+        "expected": "NO_SOURCE"
+      },
+      "E_perturbed": {
+        "n": 165,
+        "accuracy": 0.9273,
+        "labels": {
+          "NO_SOURCE": 4,
+          "SOURCE_CONFLICT": 149,
+          "SOURCE_FOUND": 12
+        },
+        "expected": "NOT_FOUND"
+      }
+    },
+    "source_found_binary": {
+      "precision": 0.8556,
+      "recall": 0.79,
+      "f1": 0.8215,
+      "false_found_rate": 0.0613
+    },
+    "mean_group_accuracy": 0.8022
+  }
+}

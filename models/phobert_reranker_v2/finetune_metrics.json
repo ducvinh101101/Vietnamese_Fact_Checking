@@ -1,0 +1,55 @@
+{
+  "experiment": "RR-V1 PhoBERT reranker",
+  "init_model": "D:\\Vietnamese_Fact_Checking\\models\\rt_v2_balanced\\best_model",
+  "smoke_only": false,
+  "train_rows": 20485,
+  "dev_rows": 3609,
+  "before_dev": {
+    "before_dev_loss": 0.6788497567176819,
+    "before_dev_model_preparation_time": 0.0015,
+    "before_dev_accuracy": 0.5899141036298143,
+    "before_dev_f1_related": 0.5415117719950434,
+    "before_dev_auc": 0.7230863134055083,
+    "before_dev_runtime": 5.5485,
+    "before_dev_samples_per_second": 650.445,
+    "before_dev_steps_per_second": 20.366
+  },
+  "after_dev": {
+    "dev_loss": 0.10163652151823044,
+    "dev_model_preparation_time": 0.0015,
+    "dev_accuracy": 0.9733998337489609,
+    "dev_f1_related": 0.9593564775613886,
+    "dev_auc": 0.9967579110919532,
+    "dev_runtime": 5.6269,
+    "dev_samples_per_second": 641.384,
+    "dev_steps_per_second": 20.082
+  },
+  "dev_mrr": 0.9920246913580247,
+  "dev_top1": 0.9866666666666667,
+  "training": {
+    "lr": 2e-05,
+    "epochs_max": 2,
+    "batch": 16,
+    "max_length": 256,
+    "seed": 42
+  },
+  "versions": {
+    "torch": "2.14.0+cu130",
+    "transformers": "4.46.3"
+  },
+  "data_manifest": {
+    "train": {
+      "hard_other_article": 9177,
+      "gold_window": 5543,
+      "random": 3134,
+      "same_article_other_part": 2631
+    },
+    "dev": {
+      "gold_window": 1196,
+      "hard_other_article": 1156,
+      "random": 672,
+      "same_article_other_part": 585
+    }
+  },
+  "note": "Chọn checkpoint theo AUC dev mức cặp; ngưỡng NO_SOURCE phải chọn lại bằng evaluate_source_attribution --sweep"
+}
