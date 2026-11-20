@@ -203,6 +203,27 @@ Nhận xét:
 * Web thật (2 claim minh họa ở §5.2, cấu hình mới): tin thật → `SOURCE_FOUND` (vtv.vn, vietnamnet.vn);
   tin bịa → `NO_SOURCE`.
 
+### 5.3b Tập test (chạy MỘT lần, 20/11/2026, không dò lại ngưỡng)
+
+Cùng cách tạo nhóm, cùng seed 42, cùng ngưỡng đã chốt trên dev. Test 1.259 claim (A 300, B 300, C 184, D 300, E 175)
+– `outputs/metrics/source_attribution_test1500_*.json`.
+
+| Pipeline | A | B | C | D | E | TB 5 nhóm | Báo nhầm "có nguồn" | P / R | F1 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| Cũ, RT-V2 (BM25 top-3 → rank policy) | 88 | 53 | 66 | 69 | 75 | 70,0 | 19,9% | 66,8 / 87,7 | 75,8 |
+| Cũ (BM25 top-3 → rank policy) nhưng thay verifier bằng RT-V3 | 74 | 64 | 89 | 84 | 93 | 80,8 | 6,1% | 84,7 / 73,7 | 78,8 |
+| **RT-V3 blend + RT-V3 (mặc định)** | 79 | 72 | 89 | 83 | 94 | **83,3** | **5,2%** | 87,4 / 78,7 | **82,8** |
+
+Retrieval (nhóm A+B, n=600): Hit@1 / Hit@5 BM25 cũ 83,7% / 88,7% → cửa sổ cấp bài 88,8% / 94,5%; sau rerank 87,5% / 94,2%.
+
+Nhận xét:
+* **Số test khớp số dev** (83,3% so với 83,1%; báo nhầm 5,2% so với 5,8%) → ngưỡng chọn trên dev không bị quá khớp.
+* So với pipeline cũ: +13,3 điểm TB, báo nhầm giảm ~3,8 lần; recall "có nguồn" giảm 87,7% → 78,7% (đánh đổi đã biết).
+* **Tách đóng góp:** chỉ thay verifier RT-V2 → RT-V3 trong pipeline cũ đã đạt 80,8%; retrieval mới (cửa sổ cấp bài,
+  rerank, ngưỡng tuyệt đối, kiểm tra số/ngày) thêm +2,5 điểm TB, +5 điểm recall và +4 điểm F1.
+  Phần lớn cải thiện đến từ RT-V3.
+* Dòng "RT-V2 blend + RT-V2" của dev không chạy lại trên test vì ngưỡng mặc định hiện tại được dò cho RT-V3.
+
 Bi-encoder (chưa train): `kaggle/finetune_bi_encoder.py` dùng `reranker_v2`, sau đó đặt
 `local.dense: {model: models/bi_encoder_v1, segment: true}` rồi dò lại ngưỡng.
 
@@ -230,7 +251,8 @@ streamlit run app.py             # chọn chế độ "Kiểm tra nguồn"
 
 ## 7. Giới hạn
 
-* Ngưỡng và checkpoint chọn trên dev đã xem → số dev lạc quan; test chưa chạy.
+* Ngưỡng và checkpoint chọn trên dev; test đã chạy một lần (§5.3b) và khớp dev. Test giờ đã "dùng" – mọi thay đổi
+  ngưỡng/model sau này phải dò trên dev, không dò lại trên test.
 * Dấu vết gán nhãn của ViFactCheck (§5.3): một phần điểm verifier có thể đến từ độ trùng từ, không phải hiểu nghĩa.
 * Web search mới chỉ được chạy thật trên vài claim minh họa; chưa có phép đo trên tập thực tế (§5.4).
 * Nhóm C chỉ là cận trên của báo nhầm: kho có thể có bài khác đưa cùng tin.

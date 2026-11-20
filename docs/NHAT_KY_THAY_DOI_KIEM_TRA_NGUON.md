@@ -17,8 +17,9 @@
 | Tìm nguồn ngoài kho (web) | Không có | Tavily, 25 tên miền chính thống | mới |
 | Model tự train | E2, RT-V1, RT-V2 | + **RT-V3**, **RR-V2** (train trên GPU máy nhóm) | phần NLP được giữ và mở rộng |
 
-> **Lưu ý trung thực:** ngưỡng và checkpoint được chọn trên tập dev nên số dev còn lạc quan; **tập test chưa chạy**.
-> Web mới thử trên vài claim minh họa, chưa có phép đo trên tập thực tế.
+> **Tập test (chạy một lần, 1.259 claim, không dò lại ngưỡng):** pipeline cũ 70,0% → mặc định **83,3%**; báo nhầm
+> 19,9% → **5,2%**; recall "có nguồn" 87,7% → 78,7%; F1 75,8 → **82,8**. Số test khớp số dev nên ngưỡng không bị quá khớp
+> (chi tiết §5.6). Web mới thử trên vài claim minh họa, chưa có phép đo trên tập thực tế.
 
 ---
 
@@ -183,6 +184,21 @@ Tập lớn hơn ~4 lần nên ít nhiễu hơn vòng 1.
 | Bộ Y tế khuyến cáo nước chanh ấm chữa khỏi ung thư gan (tin bịa) | Không tìm thấy nguồn |
 | Giá xăng RON 95 giảm 500 đồng mỗi lít (lệch số) | Có nguồn nhưng lệch chi tiết – vnexpress.net, lệch "số 500" |
 
+### 5.6 Tập test – chốt số liệu (20/11, chạy một lần)
+
+Cùng cách tạo nhóm, seed và ngưỡng như dev; 1.259 claim (A 300, B 300, C 184, D 300, E 175).
+
+| Pipeline | A | B | C | D | E | TB 5 nhóm | Báo nhầm | P / R | F1 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| Cũ, RT-V2 | 88 | 53 | 66 | 69 | 75 | 70,0 | 19,9% | 66,8 / 87,7 | 75,8 |
+| Cũ nhưng thay verifier bằng RT-V3 | 74 | 64 | 89 | 84 | 93 | 80,8 | 6,1% | 84,7 / 73,7 | 78,8 |
+| **RT-V3 + RT-V3 (mặc định)** | 79 | 72 | 89 | 83 | 94 | **83,3** | **5,2%** | 87,4 / 78,7 | **82,8** |
+
+* Test khớp dev (83,3% / 83,1%) → kết quả đáng tin hơn con số dev.
+* Phần lớn cải thiện đến từ **RT-V3** (pipeline cũ + RT-V3 đã đạt 80,8%); retrieval mới thêm +2,5 điểm TB, +5 điểm recall.
+* Lệnh: `python scripts/evaluate_source_attribution.py --split test --limit 1500 --verifier --legacy-baseline`
+  (dòng "Cũ, RT-V2" chạy với config trỏ verifier về `models/rt_v2_balanced/best_model`).
+
 ---
 
 ## 6. Cấu hình mặc định hiện tại (`configs/source_attribution.yaml`)
@@ -201,7 +217,7 @@ Tập lớn hơn ~4 lần nên ít nhiễu hơn vòng 1.
 
 | Việc | Ưu tiên | Ghi chú |
 |---|---|---|
-| Chạy **tập test một lần** để chốt số | Cao | Chưa làm để giữ test sạch |
+| ~~Chạy tập test một lần để chốt số~~ | Xong (20/11) | §5.6 – không dò ngưỡng trên test nữa |
 | Gán nhãn ~200–300 claim thực tế, đo web | Cao | Mẫu: `data/evaluation/source_attribution_realworld_template.csv` |
 | Tạo Pull Request vào `main` sau khi nhóm/thầy xem | Cao | Nhánh đã push; model mới (~1 GB) lưu qua Git LFS |
 | Giảm dấu vết gán nhãn (mẫu tương phản) | Trung bình | Xem §4 |
