@@ -26,3 +26,6 @@ tools/java17/
 
 # Kết quả chấm trung gian (pickle) của scripts/evaluate_source_attribution.py --save-assessments
 outputs/assessments/
+
+# Cài đặt cá nhân của editor
+.vscode/
