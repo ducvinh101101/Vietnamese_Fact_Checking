@@ -16,7 +16,7 @@ PhoBERT nhị phân do nhóm fine-tune hoặc cross-encoder đa ngữ.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from math import isfinite
 from typing import Protocol, Sequence
 from urllib.parse import urlparse
@@ -110,6 +110,9 @@ class SourceAttributionResult:
     assessed: list[PassageAssessment]
     queries: list[str]
     retrieved_count: int
+    # Trạng thái tra web: None = pipeline không có web; "ok"/"no_eligible_passages" = đã tra được;
+    # giá trị khác (xem web_retriever.WEB_FAILURE_MESSAGES) = web lỗi, kết quả chỉ dựa trên kho cục bộ.
+    web_status: str | None = None
 
     @property
     def independent_domains(self) -> list[str]:
@@ -194,7 +197,19 @@ class SourceAttributionPipeline:
             facets = check_facets(text, item.evidence.content)
             assessed.append(PassageAssessment(item, item.score, probabilities[index], facets,
                                               self._status(item.score, probabilities[index], facets)))
-        return self._decide(text, assessed, queries, len(candidates))
+        result = self._decide(text, assessed, queries, len(candidates))
+        return replace(result, web_status=self._web_status())
+
+    def _web_status(self) -> str | None:
+        """Đọc trạng thái của retriever web (nếu có) sau lần search vừa rồi."""
+        retrievers = getattr(self.retriever, "retrievers", [self.retriever])
+        web = [r for r in retrievers if type(r).__name__ == "WebRetriever"]
+        if not web:
+            return None
+        errors = getattr(self.retriever, "last_errors", [])
+        if any(error.startswith("WebRetriever:") for error in errors):
+            return "error"  # ngoại lệ ngoài dự kiến đã bị FusedRetriever nuốt
+        return str(getattr(web[0], "last_status", "error"))
 
     def _decide(self, claim: str, assessed: list[PassageAssessment], queries: list[str], retrieved: int) -> SourceAttributionResult:
         supports = [a for a in assessed if a.status == "supports"]
@@ -281,6 +296,7 @@ def build_source_output(result: SourceAttributionResult) -> dict[str, object]:
         "queries": result.queries,
         "retrieval": {
             "retrieved_count": result.retrieved_count,
+            "web_status": result.web_status,
             "assessed": [_assessment_record(a) for a in result.assessed],
         },
         "citations": [_assessment_record(a) for a in result.citations],

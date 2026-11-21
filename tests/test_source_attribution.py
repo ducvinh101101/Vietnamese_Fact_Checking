@@ -157,3 +157,29 @@ def test_verifier_relevance_scorer_uses_non_nei_mass_and_blend():
     assert scorer.score("claim", ["a", "b"]) == [0.8, 0.8]
     blended = VerifierRelevanceScorer(FakeVerifier([0.0, 0.0, 1.0]), blend=0.5)
     assert blended.score("giá xăng giảm", ["giá xăng giảm"])[0] > 0
+
+
+def test_output_reports_web_status():
+    """web_status: None khi không có web; trạng thái của WebRetriever; "error" khi nó ném ngoại lệ."""
+    assert build_source_output(pipeline().run("Giá xăng RON 95 giảm 500 đồng mỗi lít"))["retrieval"]["web_status"] is None
+
+    class WebRetriever:  # cùng tên lớp với retriever web thật
+        def __init__(self, status=None, fail=False):
+            self.last_status, self.fail = status, fail
+
+        def search(self, claim, top_k=3):
+            if self.fail:
+                raise RuntimeError("boom")
+            return []
+
+    def run_with(web):
+        fused = FusedRetriever([HybridSourceRetriever(CORPUS, window=1), web])
+        source = SourceAttributionPipeline(fused, LexicalSourceScorer(), None,
+                                           AttributionThresholds(relevance=0.4, lexical_support=0.6))
+        return build_source_output(source.run("Giá xăng RON 95 giảm 500 đồng mỗi lít"))
+
+    assert run_with(WebRetriever("pages_unreachable"))["retrieval"]["web_status"] == "pages_unreachable"
+    assert run_with(WebRetriever("ok"))["retrieval"]["web_status"] == "ok"
+    failed = run_with(WebRetriever(fail=True))
+    assert failed["retrieval"]["web_status"] == "error"
+    assert failed["verdict"]["label"] == "SOURCE_FOUND"  # kho cục bộ vẫn chạy

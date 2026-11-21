@@ -76,6 +76,8 @@ cả RT-V3 và RR-V2), pipeline cũ vẫn chạy được trong app (chế độ
 | Nhiều truy vấn bị nối liền → truy vấn 2 không bao giờ được đọc | Xen kẽ kết quả các truy vấn |
 | Allowlist chỉ **3** tên miền | **25** tên miền: cơ quan nhà nước, TTXVN, báo chí chính thống, tingia.gov.vn |
 | File `.env` không được đọc → không có `TAVILY_API_KEY` | `src/env_loader.py` nạp `.env` (không in, không log giá trị) |
+| (21/11) Web lỗi tạm thời bị **im lặng**: app chỉ tra kho cục bộ, báo "Không tìm thấy nguồn" cho tin thật và **cache** kết quả sai | Trạng thái web có trong JSON (`retrieval.web_status`): tách `pages_unreachable` (tìm được bài nhưng không tải được trang), `rate_limited`, `budget_exhausted` khỏi "không có kết quả". App tự thử lại 1 lần với lỗi tạm thời, hiện cảnh báo nếu vẫn lỗi và **không cache** kết quả lỗi |
+| (21/11) Không tải được `robots.txt` (mạng) bị coi như trang cấm tải | Tính là lỗi tải trang (thử lại được); trang bị `robots.txt` chặn thật vẫn bỏ qua |
 
 ### 3.3 Model train mới (trên GPU máy nhóm: RTX 5060 Laptop 8 GB)
 
@@ -106,6 +108,8 @@ Môi trường: cài `torch 2.14.0+cu130` vào `.venv` (bản cũ là CPU-only n
 * Thẻ kết luận (điểm khớp có thanh đo, số nguồn độc lập, số đoạn đã đánh giá) và thẻ nguồn (đoạn trích, chip "Khớp / Lệch", xác suất RT-V3, nút "Mở bài gốc").
 * Kết quả không mất khi thao tác; liên kết chia sẻ `?q=<phát biểu>`; hiển thị gọn trên điện thoại.
 * Nội dung lấy từ web được escape trước khi hiển thị.
+* (21/11) Sửa lỗi: sau lần kiểm tra đầu, bấm kiểm tra câu mới lại chấm **câu cũ** (URL `?q=` do app tự ghi bị coi là
+  link chia sẻ và ghi đè ô nhập). Test chạy app thật bằng Streamlit AppTest: `tests/test_streamlit_app_flow.py`.
 
 ---
 

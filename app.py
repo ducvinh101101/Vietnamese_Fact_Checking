@@ -9,6 +9,7 @@ import yaml
 
 from src.env_loader import load_dotenv
 from src.pipeline import FactCheckingPipeline
+from src.web_retriever import WEB_FAILURE_MESSAGES, WEB_RETRYABLE_STATUSES
 
 
 ROOT = Path(__file__).parent
@@ -175,9 +176,39 @@ def run_cached(claim: str) -> dict[str, object]:
     return get_pipeline().run_json(claim)
 
 
+class WebUnavailable(Exception):
+    """Ném ra BÊN TRONG hàm cache khi web lỗi: st.cache_data không lưu ngoại lệ, nên kết quả
+    "chỉ kho cục bộ" do lỗi mạng tạm thời không bị ghi nhớ và lần sau sẽ tra web lại."""
+
+    def __init__(self, response: dict[str, object]) -> None:
+        super().__init__(str(response["retrieval"]["web_status"]))  # type: ignore[index]
+        self.response = response
+
+
+def web_status(response: dict[str, object]) -> str | None:
+    return response.get("retrieval", {}).get("web_status")  # type: ignore[union-attr]
+
+
 @st.cache_data(show_spinner=False)
 def run_source_cached(claim: str) -> dict[str, object]:
-    return get_source_pipeline().run_json(claim)
+    response = get_source_pipeline().run_json(claim)
+    if web_status(response) in WEB_FAILURE_MESSAGES:
+        raise WebUnavailable(response)
+    return response
+
+
+def run_source(claim: str) -> dict[str, object]:
+    """Chạy kiểm tra nguồn; web lỗi tạm thời thì tự thử lại một lần, vẫn lỗi thì trả kết quả kèm trạng thái lỗi."""
+    try:
+        return run_source_cached(claim)
+    except WebUnavailable as failure:
+        response = failure.response
+    if web_status(response) in WEB_RETRYABLE_STATUSES:
+        try:
+            return run_source_cached(claim)
+        except WebUnavailable as failure:
+            response = failure.response
+    return response
 
 
 def web_enabled() -> bool:
@@ -253,6 +284,12 @@ def probabilities_line(probabilities: dict | None) -> str:
 
 def show_source_result(claim: str, response: dict, seconds: float) -> None:
     verdict = response["verdict"]
+    status = web_status(response)
+    if status in WEB_FAILURE_MESSAGES:
+        retry = " Bấm “Kiểm tra nguồn” để thử lại." if status in WEB_RETRYABLE_STATUSES else ""
+        st.warning(f"**Lần này chưa tra được web – kết quả chỉ dựa trên kho dữ liệu cục bộ**, nên có thể báo "
+                   f"“Không tìm thấy nguồn” dù tin có thật. {WEB_FAILURE_MESSAGES[status]}{retry}",
+                   icon=":material/wifi_off:")
     sources = verdict["independent_sources"]
     assessed = response["retrieval"]["assessed"]
     domains = "".join(chip(domain, "accent") for domain in sources)
@@ -416,10 +453,13 @@ if submitted:
         try:
             started = time.perf_counter()
             with st.spinner("Đang tìm và đối chiếu nguồn… lần đầu cần nạp mô hình, có thể mất 20–40 giây."):
-                response = run_source_cached(text) if mode == SOURCE_MODE else run_cached(text)
+                response = run_source(text) if mode == SOURCE_MODE else run_cached(text)
             st.session_state["result"] = {"mode": mode, "claim": text, "response": response,
                                           "seconds": time.perf_counter() - started}
             st.query_params["q"] = text
+            # URL ?q= do app tự ghi (để chia sẻ link) – đánh dấu đã xử lý, nếu không lần bấm sau
+            # khối deep-link sẽ ghi đè phát biểu mới bằng phát biểu cũ trong URL.
+            st.session_state["_deeplink_done"] = True
         except (RuntimeError, ValueError) as error:
             st.session_state.pop("result", None)
             st.error(f"Không kiểm tra được: {error}", icon=":material/error:")

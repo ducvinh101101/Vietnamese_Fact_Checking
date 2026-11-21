@@ -63,7 +63,7 @@ def test_usage_budget_is_persisted_without_claim_or_page_content(tmp_path):
     assert retriever.search("claim one") == []
     assert retriever.last_status == "no_eligible_passages"
     assert retriever.search("claim two") == []
-    assert retriever.last_status == "local_only"
+    assert retriever.last_status == "budget_exhausted"
     ledger = (tmp_path / "cache" / "usage.json").read_text(encoding="utf-8")
     assert "claim" not in ledger and "key" not in ledger and "content" not in ledger
 
@@ -165,3 +165,59 @@ def test_web_retriever_interleaves_results_of_multiple_queries(tmp_path):
                  robots_fetcher=lambda *_: "User-agent: *\nAllow: /").search("Theo Bộ Y tế, Hà Nội có 120 ca mắc mới", 3)
     assert len(calls) == 2
     assert fetched == ["https://vnexpress.net/a0", "https://vnexpress.net/b0"]
+
+
+def test_failure_statuses_distinguish_unreachable_pages_from_empty_results(tmp_path):
+    from src.web_retriever import WEB_FAILURE_MESSAGES, WEB_RETRYABLE_STATUSES, WebRetrievalError
+
+    def provider(payload, key, timeout):
+        return {"results": [{"url": "https://vnexpress.net/a"}, {"url": "https://vnexpress.net/b"}]}
+
+    def timeout_fetch(url, timeout):
+        raise WebRetrievalError("Hết thời gian")
+
+    unreachable = WebRetriever(config(tmp_path), api_key="key", provider_request=provider,
+                               page_fetcher=timeout_fetch, robots_fetcher=lambda *_: "")
+    assert unreachable.search("claim") == []
+    assert unreachable.last_status == "pages_unreachable"
+    assert "pages_unreachable" in WEB_FAILURE_MESSAGES and "pages_unreachable" in WEB_RETRYABLE_STATUSES
+
+    def broken_provider(payload, key, timeout):
+        raise WebRetrievalError("down")
+
+    down = WebRetriever(config(tmp_path), api_key="key", provider_request=broken_provider)
+    assert down.search("claim") == []
+    assert down.last_status == "local_only"
+
+    empty = WebRetriever(config(tmp_path), api_key="key", provider_request=lambda *_: {"results": []})
+    assert empty.search("claim") == []
+    assert empty.last_status == "no_eligible_passages"
+    assert "no_eligible_passages" not in WEB_FAILURE_MESSAGES
+
+
+def test_per_minute_limit_is_not_retryable(tmp_path):
+    from src.web_retriever import WEB_FAILURE_MESSAGES, WEB_RETRYABLE_STATUSES
+
+    configured = config(tmp_path)
+    configured["limits"]["requests_per_minute"] = 1
+    configured["limits"]["requests_per_claim"] = 1
+    retriever = WebRetriever(configured, api_key="key", provider_request=lambda *_: {"results": []})
+    retriever.search("claim one")
+    assert retriever.search("claim two") == []
+    assert retriever.last_status == "rate_limited"
+    assert "rate_limited" in WEB_FAILURE_MESSAGES and "rate_limited" not in WEB_RETRYABLE_STATUSES
+
+
+def test_robots_download_failure_counts_as_unreachable_not_blocked(tmp_path):
+    from src.web_retriever import WebRetrievalError
+
+    def robots_down(url, timeout):
+        raise WebRetrievalError("timeout")
+
+    retriever = WebRetriever(
+        config(tmp_path), api_key="key",
+        provider_request=lambda *_: {"results": [{"url": "https://vnexpress.net/a"}]},
+        page_fetcher=lambda url, timeout: (url, ""), robots_fetcher=robots_down,
+    )
+    assert retriever.search("claim") == []
+    assert retriever.last_status == "pages_unreachable"

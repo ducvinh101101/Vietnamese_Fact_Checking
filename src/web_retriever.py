@@ -37,6 +37,27 @@ class WebRetrievalError(RuntimeError):
     """A controlled web-retrieval failure; callers should fall back to local."""
 
 
+class WebLimitError(WebRetrievalError):
+    """Hết hạn mức request (tháng hoặc phút) – thử lại ngay không giúp được."""
+
+    def __init__(self, message: str, status: str) -> None:
+        super().__init__(message)
+        self.status = status
+
+
+# last_status → câu giải thích cho người dùng khi web KHÔNG tra được (kết quả chỉ dựa trên kho cục bộ).
+WEB_FAILURE_MESSAGES = {
+    "local_only": "Không kết nối được dịch vụ tìm kiếm web.",
+    "invalid_provider_response": "Dịch vụ tìm kiếm web trả kết quả không hợp lệ.",
+    "pages_unreachable": "Tìm được bài trên web nhưng không tải được trang nào (mạng chậm hoặc trang chặn).",
+    "rate_limited": "Đã chạm giới hạn số lần tìm web mỗi phút; đợi khoảng 1 phút rồi thử lại.",
+    "budget_exhausted": "Đã dùng hết hạn mức tìm web của tháng.",
+    "error": "Tìm kiếm web gặp lỗi không mong đợi.",
+}
+# Lỗi tạm thời: thử lại ngay có thể thành công (hạn mức thì không).
+WEB_RETRYABLE_STATUSES = frozenset({"local_only", "invalid_provider_response", "pages_unreachable", "error"})
+
+
 class _NoRedirect(HTTPRedirectHandler):
     def redirect_request(self, request, fp, code, msg, headers, newurl):  # type: ignore[override]
         return None
@@ -247,9 +268,9 @@ class UsageLedger:
                 state = {"month": month, "requests": 0, "recent": []}
             recent = [stamp for stamp in state.get("recent", []) if now.timestamp() - float(stamp) < 60]
             if state["requests"] >= self.monthly_budget:
-                raise WebRetrievalError("Đã dùng hết ngân sách credit web của tháng")
+                raise WebLimitError("Đã dùng hết ngân sách credit web của tháng", "budget_exhausted")
             if len(recent) >= self.per_minute:
-                raise WebRetrievalError("Đã chạm giới hạn request web mỗi phút")
+                raise WebLimitError("Đã chạm giới hạn request web mỗi phút", "rate_limited")
             state["requests"] += 1
             state["recent"] = recent + [now.timestamp()]
             temporary = self.path.with_suffix(".tmp")
@@ -318,7 +339,7 @@ class WebRetriever:
         except WebRetrievalError:
             if self.policy.get("robots_failure", "deny") == "allow":
                 return True
-            return False
+            raise  # không tải được robots.txt = lỗi mạng (tạm thời), khác với robots.txt chặn trang
 
     def _request_tavily(self, payload: dict[str, object], api_key: str, timeout: float) -> dict[str, object]:
         body = json.dumps(payload).encode("utf-8")
@@ -376,6 +397,7 @@ class WebRetriever:
         queries = [query.text for query in generate_queries(claim)][:query_count]
         batches: list[list[object]] = []
         provider_failed = False
+        limit_status: str | None = None
         for query in queries:
             payload = {
                 "query": query[:400],
@@ -390,6 +412,9 @@ class WebRetriever:
             try:
                 self.ledger.reserve()
                 response = self.provider_request(payload, self.api_key, float(self.limits["timeout_seconds"]))
+            except WebLimitError as error:
+                provider_failed, limit_status = True, error.status
+                break
             except WebRetrievalError:
                 provider_failed = True
                 break
@@ -401,13 +426,14 @@ class WebRetriever:
         # Xen kẽ kết quả các truy vấn để trang của truy vấn từ khóa cũng được đọc.
         results = [batch[i] for i in range(max((len(b) for b in batches), default=0)) for batch in batches if i < len(batch)]
         if provider_failed and not results:
-            self.last_status = "local_only"
+            self.last_status = limit_status or "local_only"
             return []
         # Lấy passage từ NHIỀU trang (trước đây dừng ngay sau trang đầu vì
         # top_k = số passage/trang), rồi xếp hạng toàn cục theo độ liên quan.
         max_pages = int(self.extraction.get("max_pages", len(results) or 1))  # type: ignore[union-attr]
         main_content = str(self.extraction.get("main_content_extractor", "")) == "trafilatura"  # type: ignore[union-attr]
         pages_used = 0
+        pages_failed = 0  # trang tải lỗi (timeout, robots, redirect) – khác với trang tải được nhưng không có đoạn
         collected: list[RetrievedEvidence] = []
         seen_urls: set[str] = set()
         for rank, result in enumerate(results):
@@ -421,7 +447,7 @@ class WebRetriever:
             seen_urls.add(url)
             try:
                 if not self._robots_allow(url, float(self.limits["timeout_seconds"])):
-                    raise WebRetrievalError("robots.txt không cho phép tải trang nguồn")
+                    continue  # robots.txt chặn: chính sách của trang, không tính là lỗi tải
                 final_url, html = self.page_fetcher(url, float(self.limits["timeout_seconds"]))
                 final_url = canonical_url(final_url)
                 if not allowed_url(final_url, set(self.allowed_sources)):
@@ -435,6 +461,7 @@ class WebRetriever:
                     main_content=main_content,
                 )
             except WebRetrievalError:
+                pages_failed += 1
                 continue
             if not passages:
                 continue
@@ -464,5 +491,10 @@ class WebRetriever:
                 collected.append(RetrievedEvidence(evidence, score))
         collected.sort(key=lambda item: (-item.score, item.evidence.passage_id))
         collected = collected[:top_k]
-        self.last_status = "ok" if collected else "no_eligible_passages"
+        if collected:
+            self.last_status = "ok"
+        elif pages_failed and not pages_used:
+            self.last_status = "pages_unreachable"
+        else:
+            self.last_status = "no_eligible_passages"
         return collected
