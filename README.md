@@ -53,9 +53,9 @@ py -3.13 -m pytest -q --basetemp=.pytest_tmp           # ~300 test, không cần
 
 ## Báo cáo bài tập lớn
 
-Báo cáo môn Xử lý ngôn ngữ tự nhiên nằm trong `docs/`:
+Báo cáo bài tập lớn môn Xử lý ngôn ngữ tự nhiên (Trường Đại học Giao thông Vận tải, Khoa Công nghệ thông tin, lớp N05; giảng viên hướng dẫn Nguyễn Quang Trung; sinh viên Mai Đức Vinh và Trịnh Mạnh Quang) nằm trong `docs/`:
 
-- [`BAO_CAO_DE_TAI_XLNNTN_chuan_v2.docx`](docs/BAO_CAO_DE_TAI_XLNNTN_chuan_v2.docx): bản đã chỉnh theo form báo cáo bài tập lớn (A4, Times New Roman 13, dãn dòng 1,5, có bìa, mục lục, danh mục hình/bảng, đánh số trang). Trước khi nộp cần điền các ô tô vàng trên bìa (tên trường, khoa, giảng viên, MSSV, lớp, địa điểm).
+- [`BAO_CAO_DE_TAI_XLNNTN_chuan_v3.docx`](docs/BAO_CAO_DE_TAI_XLNNTN_chuan_v3.docx): bản chính thức, đã chỉnh theo form báo cáo bài tập lớn (A4, Times New Roman 13, dãn dòng 1,5, có bìa, mục lục, danh mục hình/bảng, đánh số trang, công thức dạng công thức Word).
 - [`SLIDE_BAO_CAO_DE_TAI.pptx`](docs/SLIDE_BAO_CAO_DE_TAI.pptx) / [`.pdf`](docs/SLIDE_BAO_CAO_DE_TAI.pdf): slide báo cáo.
 
 Cấu trúc báo cáo (6 chương):
