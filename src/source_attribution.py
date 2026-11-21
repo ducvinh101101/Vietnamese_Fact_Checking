@@ -178,11 +178,24 @@ class SourceAttributionPipeline:
         # Đoạn thiếu một con số của claim → tối đa "related", không "xác nhận" (dev: báo nhầm 5,8% → 5,1%).
         self.require_claim_numbers = require_claim_numbers
 
-    def _status(self, relevance: float, probabilities: list[float] | None, facets: FacetCheck) -> str:
+    def _status(self, relevance: float, probabilities: list[float] | None, facets: FacetCheck,
+                article_numbers: set[str] | frozenset[str] = frozenset()) -> str:
+        """``article_numbers``: số của claim đã thấy ở đoạn khác của cùng bài (báo hay tách số ra đoạn khác)."""
         status = self._base_status(relevance, probabilities, facets)
-        if status == "supports" and self.require_claim_numbers and any(m.startswith("số ") for m in facets.missing):
+        if status == "supports" and self.require_claim_numbers and any(
+                m.startswith("số ") and m not in article_numbers for m in facets.missing):
             return "related"
         return status
+
+    def assign_statuses(self, assessed: list[PassageAssessment]) -> list[PassageAssessment]:
+        """Gán trạng thái từng đoạn; số của claim được gom theo bài (URL) khi xét ``require_claim_numbers``."""
+        numbers_by_article: dict[str, set[str]] = {}
+        for a in assessed:
+            key = a.item.evidence.url or a.item.evidence.document_id
+            numbers_by_article.setdefault(key, set()).update(m for m in a.facets.matched if m.startswith("số "))
+        return [replace(a, status=self._status(a.relevance, a.verifier_probabilities, a.facets,
+                                               numbers_by_article[a.item.evidence.url or a.item.evidence.document_id]))
+                for a in assessed]
 
     def _base_status(self, relevance: float, probabilities: list[float] | None, facets: FacetCheck) -> str:
         t = self.thresholds
@@ -219,11 +232,10 @@ class SourceAttributionPipeline:
             scored = self.verifier.predict_probabilities_batch(text, [item.evidence.content for item in relevant])
             for index, value in enumerate(scored):
                 probabilities[index] = [float(v) for v in value]
-        assessed = []
-        for index, item in enumerate(reranked):
-            facets = check_facets(text, item.evidence.content)
-            assessed.append(PassageAssessment(item, item.score, probabilities[index], facets,
-                                              self._status(item.score, probabilities[index], facets)))
+        assessed = self.assign_statuses([
+            PassageAssessment(item, item.score, probabilities[index], check_facets(text, item.evidence.content), "")
+            for index, item in enumerate(reranked)
+        ])
         result = self._decide(text, assessed, queries, len(candidates))
         return replace(result, web_status=self._web_status())
 

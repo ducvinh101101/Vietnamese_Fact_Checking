@@ -209,8 +209,7 @@ def decide_with(pipeline: SourceAttributionPipeline, stored: list[dict], thresho
                      if lexical_blend and texts else [0.0] * len(assessed))
             assessed = [replace(a, relevance=a.relevance + d, facets=check_facets(claim, a.item.evidence.content))
                         for a, d in zip(assessed, delta)]
-        assessed = [replace(a, status=pipeline._status(a.relevance, a.verifier_probabilities, a.facets))
-                    for a in assessed]
+        assessed = pipeline.assign_statuses(list(assessed))
         result = pipeline._decide(entry["case"]["claim"], assessed, entry["queries"], entry["retrieved"])
         records.append({"group": entry["case"]["group"], "claim": entry["case"]["claim"], "label": result.label,
                         "confidence": result.confidence,

@@ -154,6 +154,32 @@ def test_require_claim_numbers_blocks_support_when_passage_omits_a_number():
     assert lenient._status(0.9, probabilities, facets) == "supports"
     assert strict._status(0.9, probabilities, facets) == "related"
     assert strict._status(0.9, probabilities, FacetCheck(matched=["số 3"], missing=["tên riêng Hà Nội"])) == "supports"
+    # số nằm ở đoạn khác của CÙNG bài thì không tính là thiếu
+    assert strict._status(0.9, probabilities, facets, article_numbers={"số 4.7"}) == "supports"
+
+
+def test_assign_statuses_pools_numbers_per_article():
+    from src.source_attribution import FacetCheck, PassageAssessment
+
+    def assessment(url, matched, missing):
+        item = RetrievedEvidence(Evidence(url, url + "-p", "nội dung", url=url), 0.9)
+        return PassageAssessment(item, 0.9, [0.95, 0.03, 0.02], FacetCheck(matched=matched, missing=missing), "")
+
+    strict = SourceAttributionPipeline(object(), verifier=object(), thresholds=AttributionThresholds(0.5, 0.8),
+                                       require_claim_numbers=True)
+    statuses = [a.status for a in strict.assign_statuses([
+        assessment("https://a.vn/1", ["số 3"], ["số 107"]),
+        assessment("https://a.vn/1", ["số 107"], ["số 3"]),
+        assessment("https://b.vn/2", ["số 3"], ["số 107"]),  # bài khác không có 107 → chưa xác nhận
+    ])]
+    assert statuses == ["supports", "supports", "related"]
+
+
+def test_percent_ranges_are_numbers_not_dates():
+    """'8-10%' không phải ngày 08/10; '15-35%' giữ được 35% (trước đây bị bỏ vì regex ngày bắt nhầm)."""
+    assert extract_dates("giảm 8-10% tổng tiêu thụ") == set()
+    assert {"10%", "35%"} <= extract_numbers("tiết kiệm 8-10%, giảm thải 15-35%")
+    assert extract_dates("ngày 21-11") == {"21/11"} and extract_numbers("ngày 21-11") == set()
 
 
 def test_extract_numbers_reads_numbers_with_attached_units():

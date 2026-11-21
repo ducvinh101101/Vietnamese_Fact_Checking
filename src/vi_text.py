@@ -46,7 +46,12 @@ NUMBER_UNITS = {
 NUMBER_WITH_UNIT = re.compile(
     r"(?<![\w.,])(\d+(?:[.,]\d+)?)\s*(nghìn|ngàn|vạn|triệu|tỷ|tỉ)(?![\w])", re.IGNORECASE
 )
-DATE_DMY = re.compile(r"(?<!\d)(\d{1,2})[/\-.](\d{1,2})(?:[/\-.](\d{2,4}))?(?!\d)")
+# Không bắt khoảng phần trăm "8-10%" / "15-35%" (là số, không phải ngày).
+DATE_DMY = re.compile(r"(?<!\d)(\d{1,2})[/\-.](\d{1,2})(?:[/\-.](\d{2,4}))?(?!\d|\s*%)")
+
+
+def _valid_dmy(match: re.Match) -> bool:
+    return 1 <= int(match.group(1)) <= 31 and 1 <= int(match.group(2)) <= 12
 DATE_WORDS = re.compile(
     r"ngày\s+(\d{1,2})(?:\s*(?:tháng|/)\s*(\d{1,2}))?(?:\s*(?:năm|/)\s*(\d{4}))?"
     r"|tháng\s+(\d{1,2})(?:\s*(?:năm|/)\s*(\d{4}))?"
@@ -137,7 +142,9 @@ def extract_numbers(text: str) -> set[str]:
     cùng một giá trị để tránh báo lệch giả.
     """
     text = normalize_text(text)
-    date_spans = [match.span() for match in DATE_DMY.finditer(text)] + [match.span() for match in DATE_WORDS.finditer(text)]
+    # Chỉ bỏ qua vùng là ngày HỢP LỆ – "15-35" (tháng 35) vẫn là hai con số.
+    date_spans = ([match.span() for match in DATE_DMY.finditer(text) if _valid_dmy(match)]
+                  + [match.span() for match in DATE_WORDS.finditer(text)])
     values: set[str] = set()
     unit_spans: list[tuple[int, int]] = []
     for match in NUMBER_WITH_UNIT.finditer(text):
