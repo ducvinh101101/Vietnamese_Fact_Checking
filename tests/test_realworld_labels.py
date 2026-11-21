@@ -82,3 +82,35 @@ def test_generated_form_round_trip(tmp_path):
     with pytest.raises(SystemExit):
         form.main.__globals__["sys"].argv = ["x", "--output", str(path)]
         form.main()
+
+
+def _eval_module():
+    spec = importlib.util.spec_from_file_location("rw_eval", ROOT / "scripts" / "evaluate_source_attribution_realworld.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_same_article_ignores_host_change():
+    module = _eval_module()
+    assert module.same_article("https://nld.com.vn/nld/bai-abc-1962.htm", "https://tuoitre.vn/nld/bai-abc-1962.htm")
+    assert not module.same_article("https://vnexpress.net/a-1.html", "https://vnexpress.net/b-2.html")
+
+
+def test_run_with_retry_waits_on_rate_limit_and_retries_transient_once(monkeypatch):
+    module = _eval_module()
+    monkeypatch.setattr(module.time, "sleep", lambda _s: None)
+
+    class Pipeline:
+        def __init__(self, statuses):
+            self.statuses, self.calls = statuses, 0
+
+        def run_json(self, claim):
+            status = self.statuses[min(self.calls, len(self.statuses) - 1)]
+            self.calls += 1
+            return {"retrieval": {"web_status": status}}
+
+    limited = Pipeline(["rate_limited", "rate_limited", "ok"])
+    assert module.run_with_retry(limited, "c")[1] == "ok" and limited.calls == 3
+    flaky = Pipeline(["pages_unreachable"])
+    assert module.run_with_retry(flaky, "c")[1] == "pages_unreachable" and flaky.calls == 2

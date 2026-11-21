@@ -241,6 +241,35 @@ python scripts/evaluate_source_attribution_realworld.py data/evaluation/source_a
 
 So sánh có/không web là con số chính để báo cáo phần retrieval mở.
 
+**Kết quả (21/11/2026, chạy một lần, ngưỡng giữ nguyên từ dev).** Phiếu `data/evaluation/PHIEU_GAN_NHAN_NGUON_V1.xlsx`:
+300 claim (100 `recent_real`, 60 `paraphrase`, 70 `fabricated`, 70 `perturbed`), tin 2024–2026 trên 8 báo; cả 100 URL
+nguồn đã kiểm tra mở được và khớp nội dung; 80 claim được kiểm tra chéo (đồng ý 100%). Kết quả:
+`outputs/metrics/source_attribution_realworld_{local,web}.json`.
+
+| | Chỉ kho cục bộ | Kho cục bộ + web |
+|---|---:|---:|
+| Độ chính xác (300 claim) | 23,7% | **49,3%** |
+| Macro-F1 | 13,7 | **48,0** |
+| Tin thật / viết lại → "Có nguồn xác nhận" | 0% / 0% | 33% / 30% |
+| Tin bị sửa → "Lệch chi tiết" | 1% | 39% |
+| Tin bịa → "Không tìm thấy nguồn" | 100% | **100%** |
+| Báo nhầm "có nguồn" (tin bịa + tin bị sửa) | 0% | **0%** |
+| Precision / recall `SOURCE_FOUND` | – | **100%** / 32% |
+| Khi báo "có nguồn", trích dẫn đúng bài gốc | – | 65% (33/51; phần còn lại là bài khác cùng tin) |
+
+Web lỗi 1/300 claim (`web_status = error`); số trên 299 claim tra web được gần như giống hệt (49,5%).
+
+Nhận xét:
+* Hệ thống **không bao giờ bịa nguồn** trên tin thật ngoài đời: 0/140 tin bịa hoặc bị sửa bị báo "có nguồn",
+  và mọi lần báo "có nguồn" đều đúng (precision 100%).
+* Điểm yếu là **recall**: chỉ ~1/3 tin thật được xác nhận. 23% tin thật bị báo "Lệch chi tiết" và 44% "Không tìm
+  thấy" – cần phân tích lỗi (Tavily không trả bài gốc / tìm được bài nhưng điểm liên quan dưới ngưỡng / facet số-ngày
+  lệch do cách viết). Ngưỡng được dò trên ViFactCheck nên có thể quá chặt với văn bản báo điện tử 2026; **không dò
+  lại trên tập này** (tập đã dùng để đo), nếu dò phải gán thêm tập riêng.
+* Trước lần chạy này đã sửa các lỗi web làm mất nguồn: robots.txt của laodong.vn (charset sai), tienphong.vn (gzip
+  không khai báo), qdnd.vn / vietnamplus.vn / nld.com.vn / plo.vn (robots.txt chuyển hướng) bị coi là "cấm tải";
+  cand.com.vn đã chuyển sang cand.vn. moh.gov.vn và www.sggp.org.vn vẫn lỗi chứng chỉ SSL phía máy chủ.
+
 ## 6. Chạy thử
 
 ```powershell

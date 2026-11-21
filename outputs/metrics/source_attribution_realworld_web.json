@@ -1,0 +1,3908 @@
+{
+  "report": {
+    "web": true,
+    "verifier": true,
+    "n": 300,
+    "accuracy": 0.4933,
+    "macro_f1": 0.4798,
+    "per_label": {
+      "SOURCE_FOUND": {
+        "precision": 1.0,
+        "recall": 0.3187,
+        "f1": 0.4834
+      },
+      "SOURCE_CONFLICT": {
+        "precision": 0.45,
+        "recall": 0.3857,
+        "f1": 0.4154
+      },
+      "NO_SOURCE": {
+        "precision": 0.3704,
+        "recall": 1.0,
+        "f1": 0.5405
+      }
+    },
+    "per_group_accuracy": {
+      "recent_real": 0.33,
+      "paraphrase": 0.3,
+      "perturbed": 0.3857,
+      "fabricated": 1.0
+    },
+    "false_found_rate": 0.0,
+    "citation_hits_expected_url": 0.6471,
+    "web_status_counts": {
+      "ok": 299,
+      "error": 1
+    },
+    "web_reached": {
+      "n": 299,
+      "accuracy": 0.495,
+      "macro_f1": 0.4812,
+      "per_label": {
+        "SOURCE_FOUND": {
+          "precision": 1.0,
+          "recall": 0.3208,
+          "f1": 0.4857
+        },
+        "SOURCE_CONFLICT": {
+          "precision": 0.45,
+          "recall": 0.3857,
+          "f1": 0.4154
+        },
+        "NO_SOURCE": {
+          "precision": 0.3723,
+          "recall": 1.0,
+          "f1": 0.5426
+        }
+      },
+      "per_group_accuracy": {
+        "recent_real": 0.3333,
+        "paraphrase": 0.3,
+        "perturbed": 0.3857,
+        "fabricated": 1.0
+      },
+      "false_found_rate": 0.0,
+      "citation_hits_expected_url": 0.6471
+    }
+  },
+  "rows": [
+    {
+      "claim_id": "rw001",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.9457,
+      "cited_urls": [
+        "https://vnexpress.net/tam-dung-tuyen-dung-cong-chuc-tren-toan-quoc-5147400.html",
+        "https://vnexpress.net/chinh-quyen-ba-cap-chuyen-tu-sap-xep-xong-sang-van-hanh-hieu-qua-5091905.html",
+        "https://www.vietnamplus.vn/sap-xep-tinh-gon-to-chuc-bo-may-phu-hop-yeu-cau-phat-trien-trong-giai-doan-moi-post1121538.vnp"
+      ],
+      "cites_expected_url": true,
+      "independent_sources": [
+        "vnexpress.net",
+        "www.vietnamplus.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw002",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.7688,
+      "cited_urls": [
+        "https://dantri.com.vn/thoi-su/cho-phep-ap-dung-co-che-dac-thu-de-day-nhanh-3-tuyen-cao-toc-mien-nui-20261121103353252.htm",
+        "https://vov.vn/kinh-te/chinh-phu-de-xuat-dau-tu-cong-hon-162000-ty-dong-lam-3-tuyen-cao-toc-dai-430-km-post1348077.vov",
+        "https://vov.vn/kinh-te/chinh-phu-de-xuat-dau-tu-cong-hon-162000-ty-dong-lam-3-tuyen-cao-toc-dai-430-km-post1348077.vov"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "dantri.com.vn",
+        "vov.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw003",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.9224,
+      "cited_urls": [
+        "https://vnexpress.net/cam-hut-thuoc-trong-toan-bo-khuon-vien-dai-hoc-cao-dang-5147359.html"
+      ],
+      "cites_expected_url": true,
+      "independent_sources": [
+        "vnexpress.net"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw004",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.9852,
+      "cited_urls": [
+        "https://vnexpress.net/hai-tram-bot-ben-thuy-thu-phi-tro-lai-tu-25-11-5147393.html"
+      ],
+      "cites_expected_url": true,
+      "independent_sources": [
+        "vnexpress.net"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw005",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.9787,
+      "cited_urls": [
+        "https://baochinhphu.vn/luat-kinh-doanh-bat-dong-san-sua-doi-siet-dat-coc-thanh-toan-tang-bao-ve-nguoi-mua-nha-102261121104739579.htm"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "baochinhphu.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw006",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.3048,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw007",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.7971,
+      "cited_urls": [
+        "https://www.vietnamplus.vn/co-ban-hoan-thanh-giai-phong-mat-bang-cao-toc-thanh-pho-ho-chi-minh-long-thanh-post1090825.vnp",
+        "https://tuoitre.vn/phe-duyet-chu-truong-dau-tu-hon-16-300-ti-dong-mo-rong-cao-toc-tp-hcm-long-thanh-20250606203448012.htm",
+        "https://vnexpress.net/cao-toc-tp-hcm-long-thanh-co-the-mo-rong-bang-von-trai-phieu-chinh-phu-4839456.html"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "www.vietnamplus.vn",
+        "tuoitre.vn",
+        "vnexpress.net"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw008",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.9758,
+      "cited_urls": [
+        "https://vietnamnet.vn/luat-hien-lay-ghep-mo-tang-quy-dinh-ve-nguoi-hien-tang-nguoi-nhan-ra-sao-2577302.html"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "vietnamnet.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw009",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.4477,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw010",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.953,
+      "cited_urls": [
+        "https://vnexpress.net/it-nhat-15-ngan-sach-chi-su-nghiep-khoa-hoc-danh-cho-cong-nghe-chien-luoc-5147349.html"
+      ],
+      "cites_expected_url": true,
+      "independent_sources": [
+        "vnexpress.net"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw011",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.8707,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw012",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.9813,
+      "cited_urls": [
+        "https://tuoitre.vn/phuong-vung-tau-ra-mat-diem-sinh-hoat-cham-soc-nguoi-cao-tuoi-ban-ngay-tai-cong-dong-100261121123459592.htm",
+        "https://tuoitre.vn/phuong-vung-tau-ra-mat-diem-sinh-hoat-cham-soc-nguoi-cao-tuoi-ban-ngay-tai-cong-dong-100261121123459592.htm"
+      ],
+      "cites_expected_url": true,
+      "independent_sources": [
+        "tuoitre.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw013",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.706,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw014",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.3156,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw015",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.7723,
+      "cited_urls": [
+        "https://tienphong.vn/de-xuat-quoc-hoi-bo-sung-277-la-ngay-nghi-duoc-huong-nguyen-luong-post1892674.tpo",
+        "https://dantri.com.vn/thoi-su/de-nghi-quoc-hoi-bo-sung-277-la-ngay-nghi-duoc-huong-nguyen-luong-20261109095532614.htm"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "tienphong.vn",
+        "dantri.com.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw016",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.9757,
+      "cited_urls": [
+        "https://vnexpress.net/ong-trump-doa-danh-thue-doanh-nghiep-xay-trung-tam-du-lieu-o-nuoc-ngoai-5147345.html"
+      ],
+      "cites_expected_url": true,
+      "independent_sources": [
+        "vnexpress.net"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw017",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.8188,
+      "cited_urls": [
+        "https://vnexpress.net/gia-vang-moi-nhat-hom-nay-ngay-21-11-5147347.html"
+      ],
+      "cites_expected_url": true,
+      "independent_sources": [
+        "vnexpress.net"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw018",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.9271,
+      "cited_urls": [
+        "https://vnexpress.net/100-xe-giuong-nam-dien-chay-ba-tuyen-lien-tinh-tu-tp-hcm-5147370.html",
+        "https://thanhnien.vn/phuong-trang-dua-xe-khach-giuong-nam-thuan-dien-chay-lien-tinh-dau-tien-o-viet-nam-185261121111907517.htm"
+      ],
+      "cites_expected_url": true,
+      "independent_sources": [
+        "vnexpress.net",
+        "thanhnien.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw019",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.9348,
+      "cited_urls": [
+        "https://tuoitre.vn/tong-thong-azerbaijan-va-phu-nhan-den-ha-noi-bat-dau-tham-chinh-thuc-viet-nam-1002611191942184.htm",
+        "https://tuoitre.vn/tong-bi-thu-chu-tich-nuoc-to-lam-chu-tri-le-don-tong-thong-azerbaijan-100261120232908348.htm",
+        "https://vov.vn/chinh-tri/viet-nam-azerbaijan-tao-xung-luc-moi-cho-quan-he-doi-tac-chien-luoc-post1352135.vov"
+      ],
+      "cites_expected_url": true,
+      "independent_sources": [
+        "tuoitre.vn",
+        "vov.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw020",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.0733,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw021",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.9756,
+      "cited_urls": [
+        "https://tuoitre.vn/viet-nam-chinh-thuc-co-them-2-ngay-nghi-le-hang-nam-huong-nguyen-luong-100261121082729357.htm",
+        "https://vietnamnet.vn/chinh-thuc-bo-sung-2-ngay-nghi-le-duoc-huong-nguyen-luong-2577264.html"
+      ],
+      "cites_expected_url": true,
+      "independent_sources": [
+        "tuoitre.vn",
+        "vietnamnet.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw022",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.3211,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw023",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.6459,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw024",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.8302,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw025",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.6377,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw026",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.6802,
+      "cited_urls": [
+        "https://www.vietnamplus.vn/bo-noi-vu-tam-dung-tuyen-moi-cong-chuc-khi-xay-dung-phuong-an-bien-che-2027-2031-post1149777.vnp"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "www.vietnamplus.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw027",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.7168,
+      "cited_urls": [
+        "https://vnexpress.net/nguoi-dan-ong-tu-vong-khi-cuu-phu-nu-duoi-nuoc-o-bien-nha-trang-5147414.html"
+      ],
+      "cites_expected_url": true,
+      "independent_sources": [
+        "vnexpress.net"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw028",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.8101,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw029",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.3417,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw030",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.735,
+      "cited_urls": [
+        "https://znews.vn/pnj-dieu-chinh-chinh-sach-mua-lai-khach-ban-vang-nhan-tien-sau-2-ngay-post1686486.html"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "znews.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw031",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.7704,
+      "cited_urls": [
+        "https://vietnamnet.vn/phuong-trang-sap-dua-100-xe-khach-giuong-nam-thuan-dien-chay-tuyen-lien-tinh-2567991.html",
+        "https://thanhnien.vn/100-xe-giuong-nam-thuan-dien-kim-long-motor-sap-chay-tuyen-lien-tinh-18526102316143517.htm",
+        "https://baochinhphu.vn/xe-bus-giuong-nam-thuan-dien-do-viet-nam-san-xuat-lan-dau-duoc-dua-vao-van-tai-lien-tinh-102261023125224848.htm"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "vietnamnet.vn",
+        "thanhnien.vn",
+        "baochinhphu.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw032",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.6244,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw033",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.2372,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw034",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.782,
+      "cited_urls": [
+        "https://tuoitre.vn/tphcm-phu-1000-banner-100-pano-don-festival-ocop-viet-nam-2026-100261120173131589.htm"
+      ],
+      "cites_expected_url": true,
+      "independent_sources": [
+        "tuoitre.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw035",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.3553,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw036",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.836,
+      "cited_urls": [
+        "https://thanhnien.vn/benh-vien-nhan-dan-115-cuu-tho-sua-o-to-bi-thanh-sat-xuyen-vao-dau-185261121114601169.htm"
+      ],
+      "cites_expected_url": true,
+      "independent_sources": [
+        "thanhnien.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw037",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.8191,
+      "cited_urls": [
+        "https://dantri.com.vn/thoi-su/du-an-cai-tao-kenh-hang-bang-2000-ty-dong-dang-do-sau-11-nam-20260422202856093.htm"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "dantri.com.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw038",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.8047,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw039",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.8886,
+      "cited_urls": [
+        "https://www.vietnamplus.vn/dang-bo-quan-khu-5-80-nam-ban-linh-kien-trung-viet-tiep-trang-su-vang-post1149815.amp"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "www.vietnamplus.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw040",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.7224,
+      "cited_urls": [
+        "https://thanhnien.vn/vuong-mat-bang-ba-du-an-o-ca-mau-gan-2186-ti-dong-xin-gia-han-sang-2027-185261121104851274.htm"
+      ],
+      "cites_expected_url": true,
+      "independent_sources": [
+        "thanhnien.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw041",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.4497,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw042",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.3163,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw043",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.7374,
+      "cited_urls": [
+        "https://tuoitre.vn/nld/hon-13000-nguoi-o-ca-mau-duoc-tiep-can-co-hoi-viec-lam-on-dinh-196260425112435591.htm"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "tuoitre.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw044",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.8099,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw045",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.796,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "error"
+    },
+    {
+      "claim_id": "rw046",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.7406,
+      "cited_urls": [
+        "https://thanhnien.vn/gia-vang-mieng-giam-manh-3-trieu-dong-luong-luc-ban-vang-tang-185250911172451781.htm",
+        "https://thanhnien.vn/gia-mua-vang-mieng-sjc-bi-thoi-bay-gan-2-trieu-dong-luong-185250912102206352.htm"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "thanhnien.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw047",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.5689,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw048",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.3738,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw049",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.4884,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw050",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.362,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw051",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.8073,
+      "cited_urls": [
+        "https://www.vietnamplus.vn/sap-xep-tinh-gon-to-chuc-bo-may-phu-hop-yeu-cau-phat-trien-trong-giai-doan-moi-post1121538.vnp"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "www.vietnamplus.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw052",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.4296,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw053",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.8421,
+      "cited_urls": [
+        "https://vnexpress.net/cam-hut-thuoc-trong-toan-bo-khuon-vien-dai-hoc-cao-dang-5147359.html",
+        "https://vnexpress.net/cam-hut-thuoc-trong-toan-bo-khuon-vien-dai-hoc-cao-dang-5147359.html"
+      ],
+      "cites_expected_url": true,
+      "independent_sources": [
+        "vnexpress.net"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw054",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.8941,
+      "cited_urls": [
+        "https://vnexpress.net/hai-tram-bot-ben-thuy-thu-phi-tro-lai-tu-25-11-5147393.html"
+      ],
+      "cites_expected_url": true,
+      "independent_sources": [
+        "vnexpress.net"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw055",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.7223,
+      "cited_urls": [
+        "https://cand.vn/quoc-hoi-chot-muc-tien-dat-truoc-den-50-de-han-che-tinh-trang-bo-coc-trong-dau-gia-dat-post828234.html"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "cand.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw056",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.8752,
+      "cited_urls": [
+        "https://znews.vn/ro-cach-tinh-gia-dat-boi-thuong-khi-bi-thu-hoi-tu-112028-post1697993.html"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "znews.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw057",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.8875,
+      "cited_urls": [
+        "https://vnexpress.net/cao-toc-tp-hcm-long-thanh-rao-chan-de-thi-cong-mo-rong-4949011.html",
+        "https://vnexpress.net/dien-mao-cao-toc-noi-tp-hcm-voi-san-bay-long-thanh-dang-mo-rong-5106624.html"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "vnexpress.net"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw058",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.6727,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw059",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.6868,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw060",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.5811,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw061",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.6704,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw062",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.9481,
+      "cited_urls": [
+        "https://tuoitre.vn/phuong-vung-tau-ra-mat-diem-sinh-hoat-cham-soc-nguoi-cao-tuoi-ban-ngay-tai-cong-dong-100261121123459592.htm"
+      ],
+      "cites_expected_url": true,
+      "independent_sources": [
+        "tuoitre.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw063",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.3381,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw064",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.3124,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw065",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.776,
+      "cited_urls": [
+        "https://tienphong.vn/de-xuat-quoc-hoi-bo-sung-277-la-ngay-nghi-duoc-huong-nguyen-luong-post1892674.tpo",
+        "https://vtv.vn/infographic-nguoi-lao-dong-viet-nam-duoc-nghi-bao-nhieu-ngay-le-100260607165812624.htm",
+        "https://znews.vn/them-ngay-nghi-2411-nguoi-lao-dong-duoc-huong-nguyen-luong-post1645310.html"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "tienphong.vn",
+        "vtv.vn",
+        "znews.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw066",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.7947,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw067",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.7485,
+      "cited_urls": [
+        "https://vnexpress.net/gia-vang-moi-nhat-hom-nay-ngay-21-11-5147347.html"
+      ],
+      "cites_expected_url": true,
+      "independent_sources": [
+        "vnexpress.net"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw068",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.742,
+      "cited_urls": [
+        "https://vnexpress.net/100-xe-giuong-nam-dien-chay-ba-tuyen-lien-tinh-tu-tp-hcm-5147370.html"
+      ],
+      "cites_expected_url": true,
+      "independent_sources": [
+        "vnexpress.net"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw069",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.614,
+      "cited_urls": [
+        "https://thanhnien.vn/le-don-tong-bi-thu-to-lam-va-phu-nhan-tham-cap-nha-nuoc-azerbaijan-185250507212314679.htm"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "thanhnien.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw070",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.8661,
+      "cited_urls": [
+        "https://suckhoedoisong.vn/de-xuat-co-che-moi-thu-hoi-tai-san-lien-quan-den-toi-pham-169261018084517097.htm",
+        "https://suckhoedoisong.vn/de-xuat-co-che-moi-thu-hoi-tai-san-lien-quan-den-toi-pham-169261018084517097.htm"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "suckhoedoisong.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw071",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.7962,
+      "cited_urls": [
+        "https://baochinhphu.vn/quoc-hoi-dong-y-bo-sung-2-ngay-nghi-le-duoc-huong-nguyen-luong-102261121121448218.htm"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "baochinhphu.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw072",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.385,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw073",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.7232,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw074",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.8673,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw075",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.7966,
+      "cited_urls": [
+        "https://tuoitre.vn/con-tom-om-giac-mo-lam-giau-100261121114826131.htm"
+      ],
+      "cites_expected_url": true,
+      "independent_sources": [
+        "tuoitre.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw076",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.7094,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw077",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.8805,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw078",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.4863,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw079",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.7433,
+      "cited_urls": [
+        "https://vietnamnet.vn/tu-1-8-tien-coc-mua-nha-tren-giay-toi-da-5-gia-ban-2299946.html"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "vietnamnet.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw080",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.3223,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw081",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.492,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw082",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.3622,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw083",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.7278,
+      "cited_urls": [
+        "https://tuoitre.vn/bo-y-te-de-xuat-cam-hoan-toan-viec-hut-thuoc-trong-nha-noi-cong-cong-20260203181859013.htm",
+        "https://nhandan.vn/khong-de-khoi-thuoc-anh-huong-den-chat-luong-day-va-hoc-post915511.html"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "tuoitre.vn",
+        "nhandan.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw084",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.7947,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw085",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.5035,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw086",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.6315,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw087",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.8957,
+      "cited_urls": [
+        "https://vnexpress.net/cao-toc-tp-hcm-long-thanh-rao-chan-de-thi-cong-mo-rong-4949011.html",
+        "https://vnexpress.net/dien-mao-cao-toc-noi-tp-hcm-voi-san-bay-long-thanh-dang-mo-rong-5106624.html",
+        "https://vnexpress.net/cao-toc-tp-hcm-long-thanh-sau-hon-mot-nam-mo-rong-5142778.html"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "vnexpress.net"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw088",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.6463,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw089",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.3533,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw090",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.3734,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw091",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.8817,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw092",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.9356,
+      "cited_urls": [
+        "https://tuoitre.vn/phuong-vung-tau-ra-mat-diem-sinh-hoat-cham-soc-nguoi-cao-tuoi-ban-ngay-tai-cong-dong-100261121123459592.htm"
+      ],
+      "cites_expected_url": true,
+      "independent_sources": [
+        "tuoitre.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw093",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.4851,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw094",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.3154,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw095",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.7418,
+      "cited_urls": [
+        "https://nhandan.vn/dai-bieu-quoc-hoi-de-xuat-bo-sung-ngay-277-la-ngay-nghi-huong-nguyen-luong-post1001206.html"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "nhandan.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw096",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.3643,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw097",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.7881,
+      "cited_urls": [
+        "https://vnexpress.net/gia-vang-mieng-lap-ky-luc-gan-155-trieu-dong-4987611.html",
+        "https://vnexpress.net/gia-vang-giam-hon-7-trieu-dong-trong-ngay-5083082.html"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "vnexpress.net"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw098",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.3485,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw099",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.7979,
+      "cited_urls": [
+        "https://tuoitre.vn/tong-thong-azerbaijan-va-phu-nhan-den-ha-noi-bat-dau-tham-chinh-thuc-viet-nam-1002611191942184.htm",
+        "https://tuoitre.vn/tong-thong-azerbaijan-va-phu-nhan-sap-tham-viet-nam-100261116182101026.htm"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "tuoitre.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw100",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.8711,
+      "cited_urls": [
+        "https://suckhoedoisong.vn/de-xuat-co-che-moi-thu-hoi-tai-san-lien-quan-den-toi-pham-169261018084517097.htm",
+        "https://vnexpress.net/thi-diem-thu-hoi-tai-san-lien-quan-toi-pham-khong-qua-ket-toi-5147321.html",
+        "https://tuoitre.vn/trinh-quoc-hoi-de-xuat-co-che-thu-hoi-tai-san-khong-qua-ket-toi-voi-toi-rua-tien-tham-nhung-kinh-te-100261018092158955.htm"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "suckhoedoisong.vn",
+        "vnexpress.net",
+        "tuoitre.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw101",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.7696,
+      "cited_urls": [
+        "https://baochinhphu.vn/quoc-hoi-thong-qua-luat-sua-doi-bo-sung-mot-so-dieu-cua-luat-do-luong-102261113100130043.htm",
+        "https://baochinhphu.vn/quoc-hoi-thong-qua-luat-sua-doi-bo-sung-mot-so-dieu-cua-luat-do-luong-102261113100130043.htm"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "baochinhphu.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw102",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.3684,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw103",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.7031,
+      "cited_urls": [
+        "https://dantri.com.vn/noi-vu/trinh-quoc-hoi-phuong-an-dua-40km2-dat-1000-nguoi-dan-phu-tho-ve-ha-noi-20261111144000829.htm"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "dantri.com.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw104",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.8018,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw105",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.6319,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw106",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.3508,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw107",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.3173,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw108",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.796,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw109",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.7826,
+      "cited_urls": [
+        "https://tuoitre.vn/plo/nhung-quy-dinh-moi-noi-bat-cua-luat-dat-dai-luat-nha-o-luat-kinh-doanh-bds-co-hieu-luc-tu-1-8-109803056.htm",
+        "https://www.vietnamplus.vn/luat-kinh-doanh-bat-dong-san-sua-doi-siet-chat-tinh-minh-bach-va-trach-nhiem-post1149788.vnp",
+        "https://www.vietnamplus.vn/luat-kinh-doanh-bat-dong-san-sua-doi-siet-chat-tinh-minh-bach-va-trach-nhiem-post1149788.vnp"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "tuoitre.vn",
+        "www.vietnamplus.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw110",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.7345,
+      "cited_urls": [
+        "https://znews.vn/pnj-dieu-chinh-chinh-sach-mua-lai-khach-ban-vang-nhan-tien-sau-2-ngay-post1686486.html"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "znews.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw111",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.7833,
+      "cited_urls": [
+        "https://thanhnien.vn/xe-giuong-nam-thuan-dien-dau-tien-cua-kim-long-motor-trinh-lang-185261121123133663.htm",
+        "https://vietnamnet.vn/phuong-trang-sap-dua-100-xe-khach-giuong-nam-thuan-dien-chay-tuyen-lien-tinh-2567991.html",
+        "https://baochinhphu.vn/lan-dau-tien-thi-truong-van-tai-hanh-khach-lien-tinh-co-xe-giuong-nam-thuan-dien-ev-102261121123426241.htm"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "thanhnien.vn",
+        "vietnamnet.vn",
+        "baochinhphu.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw112",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.4712,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw113",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.8376,
+      "cited_urls": [
+        "https://tuoitre.vn/tan-cong-bang-deepfake-tai-viet-nam-cao-gan-gap-doi-the-gioi-10026112109331112.htm",
+        "https://vietnamnet.vn/tan-cong-deepfake-tai-viet-nam-cao-gap-doi-toan-cau-2577094.html"
+      ],
+      "cites_expected_url": true,
+      "independent_sources": [
+        "tuoitre.vn",
+        "vietnamnet.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw114",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.8066,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw115",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.762,
+      "cited_urls": [
+        "https://vnexpress.net/ly-do-thu-nghiem-mo-rong-dien-tich-trong-sam-ngoc-linh-that-bai-4850669.html"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "vnexpress.net"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw116",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.3676,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw117",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.7207,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw118",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.4601,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw119",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.6364,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw120",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.6451,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw121",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.4653,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw122",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.8037,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw123",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.5914,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw124",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.8165,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw125",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.3787,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw126",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.74,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw127",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.799,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw128",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.7735,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw129",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.8406,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw130",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.6608,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw131",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.5873,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw132",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.7865,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw133",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.8274,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw134",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.772,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw135",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.8357,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw136",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.7443,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw137",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.5918,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw138",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.7483,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw139",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.7174,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw140",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.7774,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw141",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.3887,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw142",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.7577,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw143",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.8433,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw144",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.8215,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw145",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.7551,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw146",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.7645,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw147",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.7986,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw148",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.7219,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw149",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.7869,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw150",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.7568,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw151",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.4194,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw152",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.6974,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw153",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.4675,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw154",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.9282,
+      "cited_urls": [
+        "https://vietnamnet.vn/de-xuat-phuong-an-moi-cho-hoat-dong-ga-ha-noi-giap-bat-2575648.html",
+        "https://znews.vn/ga-ha-noi-chuyen-ve-phu-xuyen-khu-dat-vang-noi-do-dung-lam-gi-post1697203.html"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "vietnamnet.vn",
+        "znews.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw155",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.9069,
+      "cited_urls": [
+        "https://vietnamnet.vn/bai-3-nha-may-dien-rac-hon-20-nam-van-chua-xong-2563437.html"
+      ],
+      "cites_expected_url": true,
+      "independent_sources": [
+        "vietnamnet.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw156",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.739,
+      "cited_urls": [
+        "https://thanhnien.vn/khong-khi-lanh-suy-yeu-vung-nui-mien-bac-ret-dam-11-do-c-185261121064212258.htm"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "thanhnien.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw157",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.7499,
+      "cited_urls": [
+        "https://vnexpress.net/hai-ke-cuop-1-85-ty-dong-o-ngan-hang-nhu-phim-hanh-dong-bi-de-nghi-truy-to-5050462.html",
+        "https://tuoitre.vn/print/de-nghi-truy-to-hai-ke-cuop-ngan-hang-tai-gia-lai-20260314172714878.htm"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "vnexpress.net",
+        "tuoitre.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw158",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.7469,
+      "cited_urls": [
+        "https://tuoitre.vn/cong-an-tp-hue-thong-tin-ve-2-vu-an-mua-ban-dam-va-dua-nhan-hoi-lo-o-truong-hoc-xon-xao-mang-xa-hoi-100261121100113952.htm"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "tuoitre.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw159",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.4593,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw160",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.7272,
+      "cited_urls": [
+        "https://suckhoedoisong.vn/be-gai-so-sinh-nam-trong-thung-xop-giua-rung-cao-su-169261120170216655.htm"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "suckhoedoisong.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw161",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.3146,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw162",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.348,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw163",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.301,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw164",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.4335,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw165",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.8772,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw166",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.7378,
+      "cited_urls": [
+        "https://vietnamnet.vn/gia-vang-hom-nay-21-11-the-gioi-di-xuong-vang-sjc-giam-manh-2577216.html"
+      ],
+      "cites_expected_url": true,
+      "independent_sources": [
+        "vietnamnet.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw167",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.8163,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw168",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.654,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw169",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.3081,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw170",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.7251,
+      "cited_urls": [
+        "https://thanhnien.vn/chenh-lech-gia-mua-va-ban-vang-mieng-sjc-tang-len-55-trieu-dong-luong-18526112011171067.htm"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "thanhnien.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw171",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.7656,
+      "cited_urls": [
+        "https://vtv.vn/hang-loat-my-pham-bi-bo-y-te-dinh-chi-luu-hanh-thu-hoi-100260909100202928.htm",
+        "https://tuoitre.vn/mot-cong-ty-bi-thu-hoi-dinh-chi-luu-hanh-77-loai-my-pham-20260121082447479.htm"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "vtv.vn",
+        "tuoitre.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw172",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.7701,
+      "cited_urls": [
+        "https://vnexpress.net/bo-chinh-tri-se-ap-chi-tieu-tiet-kiem-nang-luong-cho-tung-nganh-dia-phuong-4934999.html"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "vnexpress.net"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw173",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.9536,
+      "cited_urls": [
+        "https://dantri.com.vn/kinh-doanh/pnj-dieu-chinh-phuong-an-thu-doi-tu-2111-ceo-noi-tai-chinh-het-suc-khan-cap-20261121095615083.htm"
+      ],
+      "cites_expected_url": true,
+      "independent_sources": [
+        "dantri.com.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw174",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.7122,
+      "cited_urls": [
+        "https://dantri.com.vn/kinh-doanh/ngan-hang-rao-ban-khoan-no-cua-ong-le-hai-tra-20261121091923274.htm"
+      ],
+      "cites_expected_url": true,
+      "independent_sources": [
+        "dantri.com.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw175",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.9265,
+      "cited_urls": [
+        "https://dantri.com.vn/suc-khoe/ha-noi-du-kien-co-them-benh-vien-thuc-hanh-quy-mo-600-giuong-20261120181053272.htm"
+      ],
+      "cites_expected_url": true,
+      "independent_sources": [
+        "dantri.com.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw176",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.7903,
+      "cited_urls": [
+        "https://tuoitre.vn/plo/chu-tich-thaco-toi-dang-bat-tay-voi-2-dai-gia-gioi-109560682.htm"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "tuoitre.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw177",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.8034,
+      "cited_urls": [
+        "https://dantri.com.vn/kinh-doanh/quyen-tre-em-khong-phai-la-cau-chuyen-ben-le-cua-doanh-nghiep-20261120161735736.htm"
+      ],
+      "cites_expected_url": true,
+      "independent_sources": [
+        "dantri.com.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw178",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.4126,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw179",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.6153,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw180",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.9611,
+      "cited_urls": [
+        "https://vtv.vn/quoc-hoi-thong-qua-luat-dat-dai-sua-doi-100261121105716872.htm"
+      ],
+      "cites_expected_url": true,
+      "independent_sources": [
+        "vtv.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw181",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.3128,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw182",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.9382,
+      "cited_urls": [
+        "https://suckhoedoisong.vn/chot-thu-thue-02-doi-voi-dat-bo-hoang-tu-ngay-1-7-2027-169261120161203492.htm"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "suckhoedoisong.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw183",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.8985,
+      "cited_urls": [
+        "https://tuoitre.vn/quoc-hoi-chinh-thuc-cho-phep-tinh-gia-dien-sinh-hoat-theo-gio-cao-diem-thap-diem-100261121082341552.htm"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "tuoitre.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw184",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.8135,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw185",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.9837,
+      "cited_urls": [
+        "https://baochinhphu.vn/thu-tuong-chinh-phu-pham-minh-chinh-la-truong-ban-chi-dao-xay-dung-de-an-trung-tam-tai-chinh-khu-vuc-va-quoc-te-102240915193437858.htm"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "baochinhphu.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw186",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.6212,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw187",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.884,
+      "cited_urls": [
+        "https://vtv.vn/xa-hoi/can-15000-tan-giong-lua-de-khoi-phuc-san-xuat-sau-bao-so-3-va-mua-lu-20240919105341083.htm"
+      ],
+      "cites_expected_url": true,
+      "independent_sources": [
+        "vtv.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw188",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.9839,
+      "cited_urls": [
+        "https://baochinhphu.vn/print/thanh-lap-to-cong-tac-trien-khai-dau-tu-cac-tuyen-duong-sat-ket-noi-voi-trung-quoc-va-lao-102240918152938508.htm",
+        "https://vtv.vn/trong-nuoc.htm"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "baochinhphu.vn",
+        "vtv.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw189",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.398,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw190",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.8108,
+      "cited_urls": [
+        "https://baochinhphu.vn/thu-tuong-chinh-phu-quyet-dinh-ho-tro-khan-cap-khac-phuc-thiet-hai-do-con-bao-so-3-102240909184911556.htm",
+        "https://baochinhphu.vn/ho-tro-khan-cap-140-ty-dong-cho-4-tinh-khac-phuc-hau-qua-mua-lu-102251008101554787.htm",
+        "https://baochinhphu.vn/ho-tro-khan-cap-140-ty-dong-cho-4-tinh-khac-phuc-hau-qua-mua-lu-102251008101554787.htm"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "baochinhphu.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw191",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.9748,
+      "cited_urls": [
+        "https://tuoitre.vn/nld/tphcm-dau-tu-4-nha-giu-xe-cao-tang-tai-cac-ben-xe-buyt-lon-196260626005547094.htm"
+      ],
+      "cites_expected_url": true,
+      "independent_sources": [
+        "tuoitre.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw192",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.7858,
+      "cited_urls": [
+        "https://vietnamnet.vn/ha-giang-dat-muc-tieu-don-3-2-trieu-luot-khach-trong-nam-2024-2341694.html"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "vietnamnet.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw193",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.5044,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw194",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.8831,
+      "cited_urls": [
+        "https://tuoitre.vn/nld/thi-truong-hang-hoa-6-thang-cuoi-nam-rui-ro-tang-gia-tro-lai-196260629171609334.htm"
+      ],
+      "cites_expected_url": true,
+      "independent_sources": [
+        "tuoitre.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw195",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.9569,
+      "cited_urls": [
+        "https://tuoitre.vn/nld/phuong-hoa-hung-quyet-tam-xay-ngoi-nha-sau-nam-dau-tien-dat-nen-mong-196260630101518923.htm"
+      ],
+      "cites_expected_url": true,
+      "independent_sources": [
+        "tuoitre.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw196",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.6646,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw197",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.9512,
+      "cited_urls": [
+        "https://vov.vn/doanh-nghiep/doanh-nghiep-24h/vinamilk-la-cai-ten-gay-bat-ngo-tai-giai-thuong-danh-gia-cua-nganh-sua-the-gioi-post1311063.vov",
+        "https://baochinhphu.vn/print/vinamilk-dat-5-giai-thuong-tai-hoi-nghi-sua-toan-cau-2026-102260618164533331.htm",
+        "https://tuoitre.vn/nld/vinamilk-thang-lon-tai-giai-thuong-doi-moi-sang-tao-nganh-sua-toan-cau-2026-196260618172849726.htm"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "vov.vn",
+        "baochinhphu.vn",
+        "tuoitre.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw198",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.7635,
+      "cited_urls": [
+        "https://tuoitre.vn/nld/vietnam-airlines.html"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "tuoitre.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw199",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.8712,
+      "cited_urls": [
+        "https://baochinhphu.vn/keo-dai-thoi-han-ap-dung-thue-nhap-khau-uu-dai-thue-bvmt-thue-gtgt-doi-voi-xang-dau-den-het-2026-102260930231914727.htm",
+        "https://baochinhphu.vn/keo-dai-thoi-han-ap-dung-uu-dai-thue-voi-mat-hang-xang-dau-den-30-9-2026-102260701163839168.htm",
+        "https://vov.vn/kinh-te/keo-dai-thoi-han-ap-dung-loat-sac-thue-uu-dai-doi-voi-xang-dau-post1337538.vov"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "baochinhphu.vn",
+        "vov.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw200",
+      "group": "recent_real",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.8194,
+      "cited_urls": [
+        "https://tuoitre.vn/plo/thanh-lap-ban-nghien-cuu-phat-trien-tphcm-109913373.htm",
+        "https://tienphong.vn/bi-thu-thanh-uy-tphcm-tran-luu-quang-nhan-them-nhiem-vu-moi-post1855589.tpo",
+        "https://dantri.com.vn/thoi-su/bi-thu-tran-luu-quang-lam-truong-ban-nghien-cuu-phat-trien-tphcm-20260630122145525.htm"
+      ],
+      "cites_expected_url": true,
+      "independent_sources": [
+        "tuoitre.vn",
+        "tienphong.vn",
+        "dantri.com.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw201",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.759,
+      "cited_urls": [
+        "https://vietnamnet.vn/phuong-trang-sap-dua-100-xe-khach-giuong-nam-thuan-dien-chay-tuyen-lien-tinh-2567991.html",
+        "https://baochinhphu.vn/xe-bus-giuong-nam-thuan-dien-do-viet-nam-san-xuat-lan-dau-duoc-dua-vao-van-tai-lien-tinh-102261023125224848.htm"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "vietnamnet.vn",
+        "baochinhphu.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw202",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.8049,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw203",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.4297,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw204",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.4018,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw205",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.3707,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw206",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.8137,
+      "cited_urls": [
+        "https://thanhnien.vn/benh-vien-nhan-dan-115-cuu-tho-sua-o-to-bi-thanh-sat-xuyen-vao-dau-185261121114601169.htm"
+      ],
+      "cites_expected_url": true,
+      "independent_sources": [
+        "thanhnien.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw207",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.7571,
+      "cited_urls": [
+        "https://dantri.com.vn/thoi-su/du-an-cai-tao-kenh-hang-bang-2000-ty-dong-dang-do-sau-11-nam-20260422202856093.htm"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "dantri.com.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw208",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.8215,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw209",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.8021,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw210",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.3523,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw211",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.7019,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw212",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.8103,
+      "cited_urls": [
+        "https://thanhnien.vn/the-art-of-living-well-hanh-trinh-trai-nghiem-thanh-pho-dang-song-one-era-185261121102102362.htm"
+      ],
+      "cites_expected_url": true,
+      "independent_sources": [
+        "thanhnien.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw213",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.7174,
+      "cited_urls": [
+        "https://tuoitre.vn/nld/hon-13000-nguoi-o-ca-mau-duoc-tiep-can-co-hoi-viec-lam-on-dinh-196260425112435591.htm"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "tuoitre.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw214",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.8083,
+      "cited_urls": [
+        "https://thanhnien.vn/noi-am-anh-mang-ten-duong-truong-chinh-gio-tan-tam-185261119095931457.htm",
+        "https://thanhnien.vn/mong-cho-metro-cuu-ket-xe-tphcm-1852611202204036.htm"
+      ],
+      "cites_expected_url": true,
+      "independent_sources": [
+        "thanhnien.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw215",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.9193,
+      "cited_urls": [
+        "https://thanhnien.vn/bo-doi-tphcm-thi-tai-ve-van-hoa-ung-xu-185261121111917976.htm"
+      ],
+      "cites_expected_url": true,
+      "independent_sources": [
+        "thanhnien.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw216",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.5164,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw217",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.47,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw218",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.4188,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw219",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.8941,
+      "cited_urls": [
+        "https://thanhnien.vn/co-dong-abbank-sap-duoc-mua-them-co-phieu-ty-le-50-nhan-thuong-12-185261121143925344.htm"
+      ],
+      "cites_expected_url": true,
+      "independent_sources": [
+        "thanhnien.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw220",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.315,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw221",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.5244,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw222",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.7319,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw223",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.6858,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw224",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.8382,
+      "cited_urls": [
+        "https://znews.vn/ga-ha-noi-chuyen-ve-phu-xuyen-khu-dat-vang-noi-do-dung-lam-gi-post1697203.html"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "znews.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw225",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.7543,
+      "cited_urls": [
+        "https://vtv.vn/thanh-hoa-keu-goi-dau-tu-nha-may-dien-rac-hon-1270-ty-dong-tai-tho-xuan-100250624084042699.htm"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "vtv.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw226",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.8261,
+      "cited_urls": [
+        "https://vietnamnet.vn/du-bao-thoi-tiet-cuoi-tuan-mien-bac-ret-trung-bo-mua-lon-150mm-2572299.html",
+        "https://nhandan.vn/thoi-tiet-ngay-1911-khong-khi-lanh-tang-cuong-gay-mua-lon-va-ret-dam-o-nhieu-khu-vuc-post1003780.html"
+      ],
+      "cites_expected_url": true,
+      "independent_sources": [
+        "vietnamnet.vn",
+        "nhandan.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw227",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_FOUND",
+      "confidence": 0.8821,
+      "cited_urls": [
+        "https://vietnamnet.vn/9-vu-an-dac-biet-nghiem-trong-do-tai-den-va-dan-em-gay-ra-2577076.html"
+      ],
+      "cites_expected_url": true,
+      "independent_sources": [
+        "vietnamnet.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw228",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.7263,
+      "cited_urls": [
+        "https://tuoitre.vn/cong-an-tp-hue-thong-tin-ve-2-vu-an-mua-ban-dam-va-dua-nhan-hoi-lo-o-truong-hoc-xon-xao-mang-xa-hoi-100261121100113952.htm"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "tuoitre.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw229",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.6383,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw230",
+      "group": "paraphrase",
+      "expected": "SOURCE_FOUND",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.5503,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw231",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.3147,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw232",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.8171,
+      "cited_urls": [
+        "https://dantri.com.vn/thoi-su/du-an-cai-tao-kenh-hang-bang-2000-ty-dong-dang-do-sau-11-nam-20260422202856093.htm"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "dantri.com.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw233",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.7968,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw234",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.8541,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw235",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.4672,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw236",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.4539,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw237",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.3483,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw238",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.7152,
+      "cited_urls": [
+        "https://tuoitre.vn/nld/hon-13000-nguoi-o-ca-mau-duoc-tiep-can-co-hoi-viec-lam-on-dinh-196260425112435591.htm"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "tuoitre.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw239",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.8016,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw240",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.7809,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw241",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.7204,
+      "cited_urls": [
+        "https://thanhnien.vn/gia-vang-mieng-giam-manh-3-trieu-dong-luong-luc-ban-vang-tang-185250911172451781.htm",
+        "https://nhandan.vn/gia-vang-ngay-2011-chua-the-dung-da-giam-vang-mieng-sjc-roi-xuong-muc-thap-nhat-ke-tu-dau-nam-post1004159.html",
+        "https://thanhnien.vn/gia-mua-vang-mieng-sjc-bi-thoi-bay-gan-2-trieu-dong-luong-185250912102206352.htm"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "thanhnien.vn",
+        "nhandan.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw242",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.809,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw243",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.3538,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw244",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.458,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw245",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.7056,
+      "cited_urls": [
+        "https://tuoitre.vn/nld/gia-usd-tiep-tuc-tang-nong-ngan-hang-nha-nuoc-manh-tay-can-thiep-196250212100427803.htm"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "tuoitre.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw246",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.3365,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw247",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.7541,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw248",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.7471,
+      "cited_urls": [
+        "https://www.vietnamplus.vn/ha-noi-dieu-chinh-to-chuc-giao-thong-nut-giao-truong-dinh-duong-vanh-dai-25-post1149766.vnp",
+        "https://dantri.com.vn/thoi-su/ha-noi-to-chuc-lai-giao-thong-nut-giao-truong-dinh-vanh-dai-25-20261121094412179.htm"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "www.vietnamplus.vn",
+        "dantri.com.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw249",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.8899,
+      "cited_urls": [
+        "https://tuoitre.vn/de-xuat-tam-chuyen-ga-ha-noi-ve-phu-xuyen-cach-trung-tam-35km-100261117083811063.htm",
+        "https://vietnamnet.vn/de-xuat-phuong-an-moi-cho-hoat-dong-ga-ha-noi-giap-bat-2575648.html",
+        "https://vnexpress.net/de-xuat-chuyen-ga-ha-noi-giap-bat-ve-ga-phu-xuyen-de-mo-rong-quoc-lo-1-5145263.html"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "tuoitre.vn",
+        "vietnamnet.vn",
+        "vnexpress.net"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw250",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.7673,
+      "cited_urls": [
+        "https://vtv.vn/thanh-hoa-keu-goi-dau-tu-nha-may-dien-rac-hon-1270-ty-dong-tai-tho-xuan-100250624084042699.htm",
+        "https://vnexpress.net/nghe-an-lan-dau-co-nha-may-dien-rac-5110670.html",
+        "https://www.vietnamplus.vn/day-nhanh-tien-do-nha-may-dien-rac-o-thanh-hoa-truoc-ap-luc-xu-ly-rac-thai-post1128364.vnp"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "vtv.vn",
+        "vnexpress.net",
+        "www.vietnamplus.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw251",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.7574,
+      "cited_urls": [
+        "https://vietnamnet.vn/du-bao-thoi-tiet-20-11-2026-khong-khi-lanh-bo-sung-mien-bac-ret-2572301.html",
+        "https://nhandan.vn/thoi-tiet-ngay-2111-bac-bo-ngay-nang-sang-va-dem-troi-ret-nam-trung-bo-co-mua-vua-mua-to-post924746.html"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "vietnamnet.vn",
+        "nhandan.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw252",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.3641,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw253",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.3266,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw254",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.4528,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw255",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.7555,
+      "cited_urls": [
+        "https://suckhoedoisong.vn/be-gai-so-sinh-nam-trong-thung-xop-giua-rung-cao-su-169261120170216655.htm"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "suckhoedoisong.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw256",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.3584,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw257",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.3772,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw258",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.7031,
+      "cited_urls": [
+        "https://vnexpress.net/cong-ty-ong-tran-ba-duong-chot-don-xuat-khau-chuoi-gan-nua-ty-usd-5144068.html"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "vnexpress.net"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw259",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.7021,
+      "cited_urls": [
+        "https://vietnamnet.vn/kien-cong-ty-sau-khi-bi-cham-dut-hop-dong-nguoi-lao-dong-nhan-900-trieu-dong-2542102.html"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "vietnamnet.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw260",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.915,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw261",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.3768,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw262",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.7925,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw263",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.7416,
+      "cited_urls": [
+        "https://www.vietnamplus.vn/nam-2026-viet-nam-co-8-ty-phu-usd-trong-danh-sach-cua-forbes-post1098125.vnp"
+      ],
+      "cites_expected_url": false,
+      "independent_sources": [
+        "www.vietnamplus.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw264",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.449,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw265",
+      "group": "perturbed",
+      "expected": "SOURCE_CONFLICT",
+      "predicted": "SOURCE_CONFLICT",
+      "confidence": 0.7465,
+      "cited_urls": [
+        "https://dantri.com.vn/kinh-doanh/gia-vang-thap-nhat-14-thang-chenh-lech-mua-ban-len-ky-luc-6-trieu-dongluong-20261121123822503.htm",
+        "https://dantri.com.vn/kinh-doanh/gia-vang-thap-nhat-14-thang-chenh-lech-mua-ban-len-ky-luc-6-trieu-dongluong-20261121123822503.htm"
+      ],
+      "cites_expected_url": true,
+      "independent_sources": [
+        "dantri.com.vn"
+      ],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw266",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.7994,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw267",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.6133,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw268",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.8224,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw269",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.8542,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw270",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.6729,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw271",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.7358,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw272",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.8097,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw273",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.8288,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw274",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.7728,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw275",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.5812,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw276",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.6953,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw277",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.77,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw278",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.7588,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw279",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.792,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw280",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.8166,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw281",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.8047,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw282",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.4361,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw283",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.8758,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw284",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.7431,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw285",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.7963,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw286",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.7702,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw287",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.8097,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw288",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.8445,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw289",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.3219,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw290",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.7188,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw291",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.6949,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw292",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.797,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw293",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.835,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw294",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.8685,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw295",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.6632,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw296",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.8787,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw297",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.6764,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw298",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.804,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw299",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.7795,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    },
+    {
+      "claim_id": "rw300",
+      "group": "fabricated",
+      "expected": "NO_SOURCE",
+      "predicted": "NO_SOURCE",
+      "confidence": 0.8695,
+      "cited_urls": [],
+      "cites_expected_url": false,
+      "independent_sources": [],
+      "web_status": "ok"
+    }
+  ]
+}

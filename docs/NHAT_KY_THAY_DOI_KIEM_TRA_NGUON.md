@@ -78,6 +78,7 @@ cả RT-V3 và RR-V2), pipeline cũ vẫn chạy được trong app (chế độ
 | File `.env` không được đọc → không có `TAVILY_API_KEY` | `src/env_loader.py` nạp `.env` (không in, không log giá trị) |
 | (21/11) Web lỗi tạm thời bị **im lặng**: app chỉ tra kho cục bộ, báo "Không tìm thấy nguồn" cho tin thật và **cache** kết quả sai | Trạng thái web có trong JSON (`retrieval.web_status`): tách `pages_unreachable` (tìm được bài nhưng không tải được trang), `rate_limited`, `budget_exhausted` khỏi "không có kết quả". App tự thử lại 1 lần với lỗi tạm thời, hiện cảnh báo nếu vẫn lỗi và **không cache** kết quả lỗi |
 | (21/11) Không tải được `robots.txt` (mạng) bị coi như trang cấm tải | Tính là lỗi tải trang (thử lại được); trang bị `robots.txt` chặn thật vẫn bỏ qua |
+| (21/11) 7 nguồn trong allowlist **luôn bị loại**: robots.txt của laodong.vn (charset `utf-8,gbk`), tienphong.vn (gzip không khai báo), qdnd.vn, vietnamplus.vn, nld.com.vn, plo.vn (robots.txt chuyển hướng) không đọc được → "cấm tải"; cand.com.vn đã chuyển sang cand.vn | Giải mã robots.txt chịu lỗi, đi theo chuyển hướng trong allowlist (RFC 9309), cache robots.txt theo host, thêm `cand.vn`. Còn lỗi: moh.gov.vn, www.sggp.org.vn (chứng chỉ SSL máy chủ thiếu) |
 
 ### 3.3 Model train mới (trên GPU máy nhóm: RTX 5060 Laptop 8 GB)
 
@@ -222,7 +223,8 @@ Cùng cách tạo nhóm, seed và ngưỡng như dev; 1.259 claim (A 300, B 300,
 | Việc | Ưu tiên | Ghi chú |
 |---|---|---|
 | ~~Chạy tập test một lần để chốt số~~ | Xong (20/11) | §5.6 – không dò ngưỡng trên test nữa |
-| Gán nhãn ~200–300 claim thực tế, đo web | Cao | Mẫu: `data/evaluation/source_attribution_realworld_template.csv` |
+| ~~Gán nhãn ~200–300 claim thực tế, đo web~~ | Xong (21/11) | 300 claim; có web 49,3% (không web 23,7%), báo nhầm "có nguồn" 0%, recall tin thật ~32% – xem SOURCE_ATTRIBUTION.md §5.4 |
+| Phân tích lỗi recall trên tập thực tế | Cao | Tách: Tavily không trả bài gốc / dưới ngưỡng liên quan / facet lệch; không dò ngưỡng trên tập đã đo |
 | Tạo Pull Request vào `main` sau khi nhóm/thầy xem | Cao | Nhánh đã push; model mới (~1 GB) lưu qua Git LFS |
 | Giảm dấu vết gán nhãn (mẫu tương phản) | Trung bình | Xem §4 |
 | Train bi-encoder BE-V1 | Trung bình | Script đã có |

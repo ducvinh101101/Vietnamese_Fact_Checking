@@ -22,6 +22,8 @@ import json
 import os
 from pathlib import Path
 import sys
+import time
+from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
@@ -33,6 +35,59 @@ from src.env_loader import load_dotenv
 from src.realworld_labels import load_labeled_claims
 from src.source_attribution import SOURCE_LABELS
 from src.source_attribution_factory import build_pipeline, load_config
+from src.web_retriever import WEB_RETRYABLE_STATUSES
+
+
+def same_article(expected: str, cited: str) -> bool:
+    """Cùng bài báo: so phần cuối đường dẫn (mã bài), bỏ qua tên miền – vd. nld.com.vn chuyển sang tuoitre.vn/nld/."""
+    def tail(url: str) -> str:
+        return urlsplit(url).path.rstrip("/").rsplit("/", 1)[-1].lower()
+    return expected == cited or (bool(tail(expected)) and tail(expected) == tail(cited))
+
+
+def run_with_retry(pipeline, claim: str, max_waits: int = 12) -> tuple[dict, str | None]:
+    """Chạm giới hạn request/phút → đợi rồi chạy lại; lỗi web tạm thời → thử lại một lần."""
+    retried = False
+    for _ in range(max_waits + 2):
+        output = pipeline.run_json(claim)
+        status = output["retrieval"].get("web_status")
+        if status == "rate_limited":
+            time.sleep(15)
+            continue
+        if status in WEB_RETRYABLE_STATUSES and not retried:
+            retried = True
+            time.sleep(5)
+            continue
+        return output, status
+    return output, status
+
+
+def summarise(rows: list[dict]) -> dict:
+    by_group: dict[str, Counter] = defaultdict(Counter)
+    for row in rows:
+        by_group[row["group"]]["n"] += 1
+        by_group[row["group"]]["correct"] += row["expected"] == row["predicted"]
+    per_label = {}
+    for label in SOURCE_LABELS:
+        tp = sum(r["expected"] == label and r["predicted"] == label for r in rows)
+        fp = sum(r["expected"] != label and r["predicted"] == label for r in rows)
+        fn = sum(r["expected"] == label and r["predicted"] != label for r in rows)
+        p = tp / (tp + fp) if tp + fp else 0.0
+        r = tp / (tp + fn) if tp + fn else 0.0
+        per_label[label] = {"precision": round(p, 4), "recall": round(r, 4),
+                            "f1": round(2 * p * r / (p + r), 4) if p + r else 0.0}
+    with_url = [r for r in rows if r["expected"] == "SOURCE_FOUND" and r["predicted"] == "SOURCE_FOUND"]
+    not_found = [r for r in rows if r["group"] in ("fabricated", "perturbed")]
+    return {
+        "n": len(rows),
+        "accuracy": round(sum(r["expected"] == r["predicted"] for r in rows) / max(1, len(rows)), 4),
+        "macro_f1": round(sum(v["f1"] for v in per_label.values()) / len(per_label), 4),
+        "per_label": per_label,
+        "per_group_accuracy": {g: round(c["correct"] / c["n"], 4) for g, c in by_group.items()},
+        # Báo nhầm "có nguồn": tin bịa / tin bị sửa mà hệ thống nói SOURCE_FOUND.
+        "false_found_rate": round(sum(r["predicted"] == "SOURCE_FOUND" for r in not_found) / max(1, len(not_found)), 4),
+        "citation_hits_expected_url": round(sum(r["cites_expected_url"] for r in with_url) / max(1, len(with_url)), 4),
+    }
 
 
 def main() -> None:
@@ -60,40 +115,27 @@ def main() -> None:
     pipeline = build_pipeline(use_web=not args.no_web, use_verifier=not args.no_verifier)
     rows = []
     for record in frame.itertuples():
-        output = pipeline.run_json(str(record.claim))
+        output, status = run_with_retry(pipeline, str(record.claim))
+        if status == "budget_exhausted":
+            print("Hết hạn mức web của tháng – dừng sớm, chỉ chấm các claim đã chạy.")
+            break
         cited = [c["url"] for c in output["citations"]]
         source_url = str(getattr(record, "source_url", "") or "")
         rows.append({
             "claim_id": record.claim_id, "group": record.group, "expected": record.expected_label,
             "predicted": output["verdict"]["label"], "confidence": output["verdict"]["confidence"],
-            "cited_urls": cited, "cites_expected_url": bool(source_url) and source_url in cited,
-            "independent_sources": output["verdict"]["independent_sources"],
+            "cited_urls": cited, "cites_expected_url": bool(source_url) and any(same_article(source_url, u) for u in cited),
+            "independent_sources": output["verdict"]["independent_sources"], "web_status": status,
         })
-        print(f"{record.claim_id}: {record.expected_label} → {output['verdict']['label']}", flush=True)
+        print(f"{record.claim_id}: {record.expected_label} → {output['verdict']['label']}"
+              f"{'' if status in (None, 'ok', 'no_eligible_passages') else f'  [web: {status}]'}", flush=True)
 
-    by_group: dict[str, Counter] = defaultdict(Counter)
-    for row in rows:
-        by_group[row["group"]]["n"] += 1
-        by_group[row["group"]]["correct"] += row["expected"] == row["predicted"]
-    labels = list(SOURCE_LABELS)
-    per_label = {}
-    for label in labels:
-        tp = sum(r["expected"] == label and r["predicted"] == label for r in rows)
-        fp = sum(r["expected"] != label and r["predicted"] == label for r in rows)
-        fn = sum(r["expected"] == label and r["predicted"] != label for r in rows)
-        p = tp / (tp + fp) if tp + fp else 0.0
-        r = tp / (tp + fn) if tp + fn else 0.0
-        per_label[label] = {"precision": round(p, 4), "recall": round(r, 4),
-                            "f1": round(2 * p * r / (p + r), 4) if p + r else 0.0}
-    with_url = [r for r in rows if r["expected"] == "SOURCE_FOUND" and r["predicted"] == "SOURCE_FOUND"]
-    report = {
-        "n": len(rows), "web": not args.no_web, "verifier": not args.no_verifier,
-        "accuracy": round(sum(r["expected"] == r["predicted"] for r in rows) / max(1, len(rows)), 4),
-        "macro_f1": round(sum(v["f1"] for v in per_label.values()) / len(labels), 4),
-        "per_label": per_label,
-        "per_group_accuracy": {g: round(c["correct"] / c["n"], 4) for g, c in by_group.items()},
-        "citation_hits_expected_url": round(sum(r["cites_expected_url"] for r in with_url) / max(1, len(with_url)), 4),
-    }
+    report = {"web": not args.no_web, "verifier": not args.no_verifier, **summarise(rows),
+              "web_status_counts": dict(Counter(str(r["web_status"]) for r in rows))}
+    if not args.no_web:
+        # Chỉ các claim tra web thành công: tách lỗi mạng/hạn mức khỏi lỗi của mô hình.
+        reached = [r for r in rows if r["web_status"] in ("ok", "no_eligible_passages")]
+        report["web_reached"] = summarise(reached)
     output = args.output or ROOT / f"outputs/metrics/source_attribution_realworld_{'web' if not args.no_web else 'local'}.json"
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps({"report": report, "rows": rows}, ensure_ascii=False, indent=2), encoding="utf-8")
