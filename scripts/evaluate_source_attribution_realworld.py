@@ -45,6 +45,63 @@ def same_article(expected: str, cited: str) -> bool:
     return expected == cited or (bool(tail(expected)) and tail(expected) == tail(cited))
 
 
+REACHED = ("ok", "no_eligible_passages")
+
+
+def diagnose_source(source_url: str, trace: dict | None, assessed: list[dict], relevance_threshold: float) -> dict:
+    """Bài gốc (source_url) đi tới đâu trong pipeline: có trong kết quả tìm kiếm không, tải được không,
+    đoạn tốt nhất của nó được chấm bao nhiêu. Chỉ đọc vết đã lưu, không gọi lại web."""
+    trace = trace or {}
+    hits = [r for r in trace.get("search_results", []) if r.get("url") and same_article(source_url, r["url"])]
+    pages = [p for p in trace.get("pages", [])
+             if same_article(source_url, p.get("url", "")) or same_article(source_url, p.get("final_url", ""))]
+    # Trang trùng URL chỉ ghi "duplicate" – lấy lần xử lý thật.
+    page = next((p for p in pages if p.get("outcome") != "duplicate"), pages[0] if pages else {})
+    own = [a for a in assessed if same_article(source_url, a.get("url", ""))]
+    best = max(own, key=lambda a: a["relevance"], default=None)
+    return {
+        "in_search_results": bool(hits),
+        "search_rank": [hits[0]["query_index"], hits[0]["rank"]] if hits else None,
+        "page_outcome": page.get("outcome"),
+        "page_error": page.get("error"),
+        "web_max_relevance": page.get("max_relevance"),
+        "assessed_max_relevance": best["relevance"] if best else None,
+        "assessed_status": best["status"] if best else None,
+        "conflicting_details": best.get("conflicting_details", []) if best else [],
+        "relevance_threshold": relevance_threshold,
+    }
+
+
+def miss_stage(source_url: str, web_status: str | None, diagnosis: dict, relevance_threshold: float) -> str:
+    """Tầng làm trượt một tin thật (chỉ gọi khi không ra SOURCE_FOUND)."""
+    if not source_url:
+        return "no_source_url"
+    if web_status not in REACHED:
+        return "web_error"
+    if not diagnosis["in_search_results"]:
+        return "search_miss"
+    if diagnosis["page_outcome"] != "used":
+        return str(diagnosis["page_outcome"] or "not_read")
+    if diagnosis["assessed_max_relevance"] is None:
+        return "outranked"  # tải được nhưng đoạn của bài gốc không lọt top assess_k
+    if diagnosis["assessed_max_relevance"] < relevance_threshold:
+        return "below_threshold"
+    if diagnosis["conflicting_details"]:
+        return "facet_conflict"
+    return "verifier"
+
+
+def web_retriever_of(pipeline) -> object | None:
+    retrievers = getattr(pipeline.retriever, "retrievers", [pipeline.retriever])
+    return next((r for r in retrievers if type(r).__name__ == "WebRetriever"), None)
+
+
+def compact_assessed(assessed: list[dict]) -> list[dict]:
+    keys = ("url", "relevance", "status", "verifier_probabilities", "matched_details", "conflicting_details",
+            "missing_details")
+    return [{**{k: a.get(k) for k in keys}, "content": str(a.get("content", ""))[:400]} for a in assessed]
+
+
 def run_with_retry(pipeline, claim: str, max_waits: int = 12) -> tuple[dict, str | None]:
     """Chạm giới hạn request/phút → đợi rồi chạy lại; lỗi web tạm thời → thử lại một lần."""
     retried = False
@@ -113,6 +170,8 @@ def main() -> None:
         raise SystemExit("Chưa đặt TAVILY_API_KEY; dùng --no-web nếu chỉ muốn đo kho cục bộ.")
 
     pipeline = build_pipeline(use_web=not args.no_web, use_verifier=not args.no_verifier)
+    web = web_retriever_of(pipeline)
+    threshold = float(pipeline.thresholds.relevance)
     rows = []
     for record in frame.itertuples():
         output, status = run_with_retry(pipeline, str(record.claim))
@@ -121,20 +180,38 @@ def main() -> None:
             break
         cited = [c["url"] for c in output["citations"]]
         source_url = str(getattr(record, "source_url", "") or "")
-        rows.append({
-            "claim_id": record.claim_id, "group": record.group, "expected": record.expected_label,
+        assessed = output["retrieval"]["assessed"]
+        trace = getattr(web, "last_trace", None) if web is not None else None
+        row = {
+            "claim_id": record.claim_id, "group": record.group, "claim": str(record.claim),
+            "expected": record.expected_label, "source_url": source_url,
             "predicted": output["verdict"]["label"], "confidence": output["verdict"]["confidence"],
             "cited_urls": cited, "cites_expected_url": bool(source_url) and any(same_article(source_url, u) for u in cited),
             "independent_sources": output["verdict"]["independent_sources"], "web_status": status,
-        })
-        print(f"{record.claim_id}: {record.expected_label} → {output['verdict']['label']}"
-              f"{'' if status in (None, 'ok', 'no_eligible_passages') else f'  [web: {status}]'}", flush=True)
+            # Chi tiết để phân tích lỗi mà không tốn lại lượt Tavily.
+            "best_relevance": max((a["relevance"] for a in assessed), default=None),
+            "assessed": compact_assessed(assessed),
+            "web_trace": trace,
+            "last_errors": list(getattr(pipeline.retriever, "last_errors", [])),
+        }
+        if source_url:
+            row["source_diagnosis"] = diagnose_source(source_url, trace, assessed, threshold)
+        if row["expected"] == "SOURCE_FOUND" and row["predicted"] != "SOURCE_FOUND":
+            row["miss_stage"] = ("no_web" if web is None
+                                 else miss_stage(source_url, status, row.get("source_diagnosis", {}), threshold))
+        rows.append(row)
+        web_note = "" if status in (None, *REACHED) else f"  [web: {status}]"
+        stage_note = f"  ({row['miss_stage']})" if "miss_stage" in row else ""
+        print(f"{record.claim_id}: {record.expected_label} → {output['verdict']['label']}{web_note}{stage_note}",
+              flush=True)
 
     report = {"web": not args.no_web, "verifier": not args.no_verifier, **summarise(rows),
-              "web_status_counts": dict(Counter(str(r["web_status"]) for r in rows))}
+              "web_status_counts": dict(Counter(str(r["web_status"]) for r in rows)),
+              # Tin thật bị trượt: trượt ở tầng nào (tìm kiếm / tải trang / ngưỡng / facet / verifier).
+              "miss_stage_counts": dict(Counter(r["miss_stage"] for r in rows if "miss_stage" in r))}
     if not args.no_web:
         # Chỉ các claim tra web thành công: tách lỗi mạng/hạn mức khỏi lỗi của mô hình.
-        reached = [r for r in rows if r["web_status"] in ("ok", "no_eligible_passages")]
+        reached = [r for r in rows if r["web_status"] in REACHED]
         report["web_reached"] = summarise(reached)
     output = args.output or ROOT / f"outputs/metrics/source_attribution_realworld_{'web' if not args.no_web else 'local'}.json"
     output.parent.mkdir(parents=True, exist_ok=True)

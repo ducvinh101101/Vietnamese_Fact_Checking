@@ -321,6 +321,9 @@ class WebRetriever:
             int(self.limits["monthly_credit_budget"]),  # type: ignore[index]
         )
         self.last_status = "not_run"
+        # Vết lần search gần nhất (truy vấn, URL provider trả, kết quả tải từng trang) – để phân tích lỗi sau,
+        # không chứa key; xem _new_trace().
+        self.last_trace: dict[str, object] = self._new_trace()
         # robots.txt theo host, chỉ lưu khi tải THÀNH CÔNG (lỗi tạm thời được thử lại lần sau).
         self._robots_cache: dict[str, str] = {}
 
@@ -408,9 +411,20 @@ class WebRetriever:
                 raise WebRetrievalError("Hết thời gian hoặc không tải được trang nguồn web") from error
         raise WebRetrievalError("Trang web chuyển hướng quá nhiều lần")
 
+    @staticmethod
+    def _new_trace() -> dict[str, object]:
+        # pages[].outcome: used | no_passages | robots_blocked | fetch_failed | not_allowed | duplicate | not_read
+        return {"queries": [], "provider_error": None, "search_results": [], "pages": []}
+
+    @staticmethod
+    def _error_text(error: BaseException) -> str:
+        cause = error.__cause__
+        return f"{error} ({type(cause).__name__}: {cause})" if cause is not None else str(error)
+
     def search(self, claim: str, top_k: int = 3) -> list[RetrievedEvidence]:
         if top_k < 1:
             raise ValueError("top_k phải lớn hơn 0")
+        self.last_trace = trace = self._new_trace()
         if not self.enabled:
             self.last_status = "disabled"
             return []
@@ -442,14 +456,23 @@ class WebRetriever:
                 response = self.provider_request(payload, self.api_key, float(self.limits["timeout_seconds"]))
             except WebLimitError as error:
                 provider_failed, limit_status = True, error.status
+                trace["provider_error"] = self._error_text(error)
                 break
-            except WebRetrievalError:
+            except WebRetrievalError as error:
                 provider_failed = True
+                trace["provider_error"] = self._error_text(error)
                 break
+            trace["queries"].append(payload["query"])  # type: ignore[union-attr]
             batch = response.get("results", [])
             if not isinstance(batch, list):
                 self.last_status = "invalid_provider_response"
                 return []
+            for rank, item in enumerate(batch):
+                if isinstance(item, dict):
+                    trace["search_results"].append({  # type: ignore[union-attr]
+                        "query_index": len(batches), "rank": rank, "url": item.get("url"),
+                        "title": item.get("title"), "score": item.get("score"),
+                    })
             batches.append(batch)
         # Xen kẽ kết quả các truy vấn để trang của truy vấn từ khóa cũng được đọc.
         results = [batch[i] for i in range(max((len(b) for b in batches), default=0)) for batch in batches if i < len(batch)]
@@ -464,17 +487,26 @@ class WebRetriever:
         pages_failed = 0  # trang tải lỗi (timeout, robots, redirect) – khác với trang tải được nhưng không có đoạn
         collected: list[RetrievedEvidence] = []
         seen_urls: set[str] = set()
+        pages = trace["pages"]
         for rank, result in enumerate(results):
-            if pages_used >= max_pages:
-                break
             if not isinstance(result, dict) or not isinstance(result.get("url"), str):
                 continue
             url = canonical_url(result["url"])
-            if url in seen_urls or not allowed_url(url, set(self.allowed_sources)):
+            page: dict[str, object] = {"url": url}
+            pages.append(page)  # type: ignore[union-attr]
+            if url in seen_urls:
+                page["outcome"] = "duplicate"
+                continue
+            if not allowed_url(url, set(self.allowed_sources)):
+                page["outcome"] = "not_allowed"
+                continue
+            if pages_used >= max_pages:
+                page["outcome"] = "not_read"
                 continue
             seen_urls.add(url)
             try:
                 if not self._robots_allow(url, float(self.limits["timeout_seconds"])):
+                    page["outcome"] = "robots_blocked"
                     continue  # robots.txt chặn: chính sách của trang, không tính là lỗi tải
                 final_url, html = self.page_fetcher(url, float(self.limits["timeout_seconds"]))
                 final_url = canonical_url(final_url)
@@ -488,10 +520,13 @@ class WebRetriever:
                     query=claim,
                     main_content=main_content,
                 )
-            except WebRetrievalError:
+            except WebRetrievalError as error:
                 pages_failed += 1
+                page.update(outcome="fetch_failed", error=self._error_text(error))
                 continue
+            page["final_url"] = final_url
             if not passages:
+                page["outcome"] = "no_passages"
                 continue
             pages_used += 1
             source = self.allowed_sources[urlsplit(final_url).hostname or ""]
@@ -500,6 +535,8 @@ class WebRetriever:
             from src.source_reranker import LexicalSourceScorer
 
             relevance = LexicalSourceScorer().score(claim, passages)
+            page.update(outcome="used", title=title or result.get("title"), passages=len(passages),
+                        max_relevance=round(max(relevance), 4))
             for passage_index, passage in enumerate(passages):
                 evidence = Evidence(
                     document_id=document_id,

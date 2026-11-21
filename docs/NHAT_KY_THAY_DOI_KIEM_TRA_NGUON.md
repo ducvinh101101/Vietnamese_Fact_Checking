@@ -220,11 +220,14 @@ Cùng cách tạo nhóm, seed và ngưỡng như dev; 1.259 claim (A 300, B 300,
 
 ## 7. Việc còn lại
 
+> Danh sách chi tiết lỗi còn mở và hướng cải thiện (kèm số liệu): [GHI_CHU_LOI_VA_CAI_TIEN.md](GHI_CHU_LOI_VA_CAI_TIEN.md).
+
 | Việc | Ưu tiên | Ghi chú |
 |---|---|---|
 | ~~Chạy tập test một lần để chốt số~~ | Xong (20/11) | §5.6 – không dò ngưỡng trên test nữa |
 | ~~Gán nhãn ~200–300 claim thực tế, đo web~~ | Xong (21/11) | 300 claim; có web 49,3% (không web 23,7%), báo nhầm "có nguồn" 0%, recall tin thật ~32% – xem SOURCE_ATTRIBUTION.md §5.4 |
-| Phân tích lỗi recall trên tập thực tế | Cao | Tách: Tavily không trả bài gốc / dưới ngưỡng liên quan / facet lệch; không dò ngưỡng trên tập đã đo |
+| ~~Lưu chi tiết chấm từng claim~~ | Xong (21/11) | `WebRetriever.last_trace` (URL Tavily trả, kết quả tải từng trang + lỗi, điểm liên quan); script chấm lưu vết, chẩn đoán bài gốc, `last_errors` và `miss_stage` |
+| Phân tích lỗi recall trên tập thực tế | Cao | Chạy lại ~60–100 tin thật khi có lượt Tavily (đầu 12/2026), đọc `report.miss_stage_counts`; không dò ngưỡng trên tập đã đo |
 | Tạo Pull Request vào `main` sau khi nhóm/thầy xem | Cao | Nhánh đã push; model mới (~1 GB) lưu qua Git LFS |
 | Giảm dấu vết gán nhãn (mẫu tương phản) | Trung bình | Xem §4 |
 | Train bi-encoder BE-V1 | Trung bình | Script đã có |

@@ -232,6 +232,60 @@ def test_robots_decoder_handles_undeclared_gzip_and_bogus_charset():
     assert decode_robots_response(text.encode(), None) == text
 
 
+def test_last_trace_records_search_results_and_page_outcomes(tmp_path):
+    """Vết từng lần search để phân tích lỗi không tốn thêm lượt Tavily."""
+    from src.web_retriever import WebRetrievalError
+
+    configured = config(tmp_path)
+    configured["limits"]["requests_per_claim"] = 1
+    configured["extraction"]["max_pages"] = 1
+    good = "<article><p>" + "Giá xăng RON 95 giảm 500 đồng mỗi lít theo điều hành của liên Bộ. " * 3 + "</p></article>"
+
+    def fetch(url, timeout):
+        if url.endswith("/down"):
+            raise WebRetrievalError("Không tải được trang nguồn web") from ConnectionError("ssl")
+        return url, good
+
+    retriever = WebRetriever(
+        configured, api_key="key",
+        provider_request=lambda *_: {"results": [
+            {"url": "https://evil.example/x", "title": "Ngoài", "score": 0.9},
+            {"url": "https://vnexpress.net/private/a", "title": "Chặn", "score": 0.8},
+            {"url": "https://vnexpress.net/down", "score": 0.7},
+            {"url": "https://vnexpress.net/ok", "title": "Bài", "score": 0.6},
+            {"url": "https://vnexpress.net/late", "score": 0.5},
+        ]},
+        page_fetcher=fetch, robots_fetcher=lambda *_: "User-agent: *\nDisallow: /private",
+    )
+    assert retriever.search("Giá xăng RON 95 giảm 500 đồng", 3)
+    trace = retriever.last_trace
+    assert trace["queries"] == ["Giá xăng RON 95 giảm 500 đồng"]
+    assert trace["provider_error"] is None
+    assert [r["url"] for r in trace["search_results"]][:2] == ["https://evil.example/x", "https://vnexpress.net/private/a"]
+    assert trace["search_results"][0] == {"query_index": 0, "rank": 0, "url": "https://evil.example/x",
+                                          "title": "Ngoài", "score": 0.9}
+    outcomes = {page["url"]: page for page in trace["pages"]}
+    assert outcomes["https://evil.example/x"]["outcome"] == "not_allowed"
+    assert outcomes["https://vnexpress.net/private/a"]["outcome"] == "robots_blocked"
+    assert outcomes["https://vnexpress.net/down"]["outcome"] == "fetch_failed"
+    assert "ConnectionError: ssl" in outcomes["https://vnexpress.net/down"]["error"]
+    assert outcomes["https://vnexpress.net/ok"]["outcome"] == "used"
+    assert 0 < outcomes["https://vnexpress.net/ok"]["max_relevance"] <= 1
+    assert outcomes["https://vnexpress.net/late"]["outcome"] == "not_read"  # quá max_pages
+
+
+def test_last_trace_records_provider_failure(tmp_path):
+    from src.web_retriever import WebRetrievalError
+
+    def broken(payload, key, timeout):
+        raise WebRetrievalError("down")
+
+    retriever = WebRetriever(config(tmp_path), api_key="key", provider_request=broken)
+    retriever.search("claim")
+    assert retriever.last_trace["provider_error"] == "down"
+    assert retriever.last_trace["pages"] == []
+
+
 def test_robots_txt_is_fetched_once_per_host(tmp_path):
     calls = []
 

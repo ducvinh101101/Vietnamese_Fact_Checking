@@ -97,6 +97,90 @@ def test_same_article_ignores_host_change():
     assert not module.same_article("https://vnexpress.net/a-1.html", "https://vnexpress.net/b-2.html")
 
 
+SRC = "https://vnexpress.net/bai-goc-123.html"
+
+
+def _trace(*pages, search=(SRC,)):
+    return {"queries": ["q"], "provider_error": None,
+            "search_results": [{"query_index": 0, "rank": i, "url": u, "title": None, "score": None}
+                               for i, u in enumerate(search)],
+            "pages": list(pages)}
+
+
+def _assessed(relevance, status, conflicting=(), url=SRC):
+    return {"url": url, "relevance": relevance, "status": status, "conflicting_details": list(conflicting)}
+
+
+@pytest.mark.parametrize("trace, assessed, web_status, stage", [
+    (_trace(search=("https://vnexpress.net/khac-9.html",)), [], "ok", "search_miss"),
+    (_trace({"url": SRC, "outcome": "fetch_failed", "error": "SSL"}), [], "ok", "fetch_failed"),
+    (_trace({"url": SRC, "outcome": "not_read"}), [], "ok", "not_read"),
+    (_trace({"url": SRC, "outcome": "used", "max_relevance": 0.9}), [], "ok", "outranked"),
+    (_trace({"url": SRC, "outcome": "used"}), [_assessed(0.68, "unrelated")], "ok", "below_threshold"),
+    (_trace({"url": SRC, "outcome": "used"}), [_assessed(0.9, "conflicts", ["số 162.400"])], "ok", "facet_conflict"),
+    (_trace({"url": SRC, "outcome": "used"}), [_assessed(0.9, "related")], "ok", "verifier"),
+    (_trace(), [], "pages_unreachable", "web_error"),
+])
+def test_diagnose_source_assigns_failure_stage(trace, assessed, web_status, stage):
+    module = _eval_module()
+    diagnosis = module.diagnose_source(SRC, trace, assessed, relevance_threshold=0.7)
+    assert module.miss_stage(SRC, web_status, diagnosis, 0.7) == stage
+
+
+def test_diagnose_source_reports_best_passage_of_expected_article():
+    module = _eval_module()
+    trace = _trace({"url": "https://vnexpress.net/bai-goc-123.html", "final_url": SRC, "outcome": "used",
+                    "max_relevance": 0.55}, search=("https://x.vn/a", SRC))
+    assessed = [_assessed(0.9, "supports", url="https://x.vn/a"), _assessed(0.4, "unrelated"),
+                _assessed(0.6, "related", ["thời gian 21/11"])]
+    d = module.diagnose_source(SRC, trace, assessed, relevance_threshold=0.7)
+    assert d["in_search_results"] and d["search_rank"] == [0, 1]
+    assert d["page_outcome"] == "used" and d["web_max_relevance"] == 0.55
+    assert d["assessed_max_relevance"] == 0.6 and d["assessed_status"] == "related"
+    assert d["conflicting_details"] == ["thời gian 21/11"]
+    assert module.miss_stage("", "ok", d, 0.7) == "no_source_url"
+
+
+def test_main_saves_per_claim_details_and_miss_stages(tmp_path, monkeypatch):
+    import json
+    import sys
+    from types import SimpleNamespace
+
+    module = _eval_module()
+    path = tmp_path / "claims.csv"
+    path.write_text("claim_id,group,claim,expected_label,source_url\n"
+                    f'a,recent_real,"{CLAIM}",SOURCE_FOUND,{SRC}\n', encoding="utf-8")
+
+    class WebRetriever:
+        last_trace = _trace({"url": SRC, "outcome": "used", "max_relevance": 0.6})
+
+    class Pipeline:
+        retriever = SimpleNamespace(retrievers=[object(), WebRetriever()], last_errors=[])
+        thresholds = SimpleNamespace(relevance=0.7)
+
+        def run_json(self, claim):
+            return {"verdict": {"label": "NO_SOURCE", "confidence": 0.3, "independent_sources": []},
+                    "citations": [],
+                    "retrieval": {"web_status": "ok", "assessed": [
+                        {**_assessed(0.68, "unrelated"), "content": "x" * 900, "verifier_probabilities": None}]}}
+
+    monkeypatch.setattr(module, "build_pipeline", lambda **_: Pipeline())
+    monkeypatch.setattr(module, "load_config", lambda: {"web_retrieval": {
+        "source_policy": {"allowlist": [{"host": "vov.vn"}, {"host": "vnexpress.net"}]},
+        "provider": {"api_key_env": "X_KEY"}}})
+    monkeypatch.setattr(module, "load_dotenv", lambda: None)
+    monkeypatch.setenv("X_KEY", "k")
+    out = tmp_path / "out.json"
+    monkeypatch.setattr(sys, "argv", ["x", str(path), "--output", str(out)])
+    module.main()
+    saved = json.loads(out.read_text(encoding="utf-8"))
+    row = saved["rows"][0]
+    assert row["miss_stage"] == "below_threshold" and saved["report"]["miss_stage_counts"] == {"below_threshold": 1}
+    assert row["source_diagnosis"]["assessed_max_relevance"] == 0.68
+    assert row["web_trace"]["queries"] == ["q"] and row["best_relevance"] == 0.68
+    assert len(row["assessed"][0]["content"]) == 400 and row["last_errors"] == []
+
+
 def test_run_with_retry_waits_on_rate_limit_and_retries_transient_once(monkeypatch):
     module = _eval_module()
     monkeypatch.setattr(module.time, "sleep", lambda _s: None)
