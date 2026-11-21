@@ -55,6 +55,9 @@ decision:
   candidate_k: 20            # số ứng viên được rerank (reranker model chậm hơn lexical)
   assess_k: 8
   max_citations: 3
+  # Đoạn không nhắc tới một con số của claim thì không được "xác nhận" (tối đa "liên quan").
+  # Dev 1.252 claim: TB 5 nhóm 83,2% → 83,5%, báo nhầm 5,8% → 5,1%, recall "có nguồn" 77,0% → 76,7%.
+  require_claim_numbers: true
   # Chọn trên dev (1.252 claim) bằng scripts/evaluate_source_attribution.py --sweep cho reranker
   # "verifier" blend 0.5 + verifier RT-V3. Đổi reranker/verifier phải dò lại. Gợi ý cho "lexical":
   # relevance 0.65, support 0.8, lexical_support 0.55 (candidate_k 40).

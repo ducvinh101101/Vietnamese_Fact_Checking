@@ -129,4 +129,5 @@ def build_pipeline(config: dict[str, Any] | None = None, *, use_web: bool | None
         retriever, build_scorer(config, verifier), verifier, AttributionThresholds(**decision["thresholds"]),
         candidate_k=int(decision["candidate_k"]), assess_k=int(decision["assess_k"]),
         max_citations=int(decision["max_citations"]),
+        require_claim_numbers=bool(decision.get("require_claim_numbers", False)),
     )

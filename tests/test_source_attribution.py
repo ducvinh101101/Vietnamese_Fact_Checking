@@ -57,6 +57,17 @@ def test_generate_queries_adds_keyword_query():
     assert "120" in queries[1].text
 
 
+def test_keyword_query_keeps_numbers_and_dates_as_written():
+    """Truy vấn web phải dùng số/ngày như báo viết – không phải dạng chuẩn hóa 162400000000000 hay 01/01/2028."""
+    claim = "Từ ngày 1/1/2028, Quốc hội chi gần 162.400 tỷ đồng cho 3 tuyến dài 430,5 km, tăng 15%."
+    keywords = generate_queries(claim)[1].text
+    for written in ("1/1/2028", "162.400 tỷ", "430,5", "15%"):
+        assert written in keywords
+    for normalized in ("162400000000000", "01/01/2028", "430.5"):
+        assert normalized not in keywords
+    assert keywords.split().count("2028") == 0 and keywords.count("162.400") == 1
+
+
 def test_sparse_bm25_ignores_stopword_only_matches_and_rrf_orders():
     index = SparseBM25([["y_tế", "ca"], ["xăng"]])
     assert index.search(["xăng"], 5) == [(1, index.search(["xăng"], 5)[0][1])]
@@ -121,9 +132,47 @@ def test_facet_check_detects_number_conflict():
     ("Ngày 21/11 khai mạc.", "Tháng 11/2026 có nhiều sự kiện.", False),
     ("Ngày 21/11 khai mạc.", "Ngày 22/11 khai mạc.", True),
     ("Năm 2025 xuất khẩu tăng.", "Năm 2024 xuất khẩu tăng.", True),
+    # số trong đoạn đã khớp một số khác của claim thì không làm số còn lại thành "lệch"
+    ("Quốc hội thông qua 3 luật, cấm lấy mô của người dưới 18 tuổi.", "Luật cấm lấy mô của người dưới 18 tuổi.", False),
+    ("Có 150 ca mắc, 18 ca nặng.", "Ghi nhận 120 ca mắc, 18 ca nặng.", True),  # 120 không khớp số nào → lệch
+    # số dính đơn vị ("1km") vẫn là số
+    ("Kênh dài khoảng 4,7 km, chia 3 giai đoạn.", "Chỉ khoảng 1km kênh được làm xong; dự án chia 3 giai đoạn.", True),
 ])
 def test_facet_check_number_qualifiers_and_date_kinds(claim, passage, conflict):
     assert check_facets(claim, passage).has_conflict is conflict
+
+
+def test_require_claim_numbers_blocks_support_when_passage_omits_a_number():
+    """Đoạn không nhắc tới số của claim (vd. tin bị sửa '1,7 → 4,7 km') thì chưa đủ để 'xác nhận'."""
+    from src.source_attribution import FacetCheck
+
+    facets = FacetCheck(matched=["số 3"], missing=["số 4.7"])
+    probabilities = [0.95, 0.03, 0.02]
+    lenient = SourceAttributionPipeline(object(), verifier=object(), thresholds=AttributionThresholds(0.5, 0.8))
+    strict = SourceAttributionPipeline(object(), verifier=object(), thresholds=AttributionThresholds(0.5, 0.8),
+                                       require_claim_numbers=True)
+    assert lenient._status(0.9, probabilities, facets) == "supports"
+    assert strict._status(0.9, probabilities, facets) == "related"
+    assert strict._status(0.9, probabilities, FacetCheck(matched=["số 3"], missing=["tên riêng Hà Nội"])) == "supports"
+
+
+def test_extract_numbers_reads_numbers_with_attached_units():
+    assert {"1", "50000", "3", "4.7"} <= extract_numbers("Chỉ 1km kênh, kho 50.000m², 3ha đất, dài 4,7km.")
+    assert "19" in extract_numbers("COVID-19") and "2" not in extract_numbers("H2O")  # chữ dính TRƯỚC số: không phải số đo
+
+
+def test_lexical_scorer_counts_approximate_numbers_like_facets():
+    """Điểm liên quan không được phạt số mà facet coi là khớp ("hơn 430 km" ↔ "430,5 km")."""
+    claim = "Ba tuyến cao tốc dài hơn 430 km với tổng vốn gần 162.400 tỷ đồng."
+    approx = "Ba tuyến cao tốc dài khoảng 430,5 km, tổng mức đầu tư sơ bộ 162.393 tỷ đồng."
+    exact = "Ba tuyến cao tốc dài khoảng 430 km, tổng mức đầu tư sơ bộ 162.400 tỷ đồng."
+    far = "Ba tuyến cao tốc dài khoảng 900 km, tổng mức đầu tư sơ bộ 90.000 tỷ đồng."
+    scorer = LexicalSourceScorer()
+    s_approx, s_exact, s_far = scorer.score(claim, [approx, exact, far])
+    # phần chi tiết cứng (0,30) như nhau; chỉ còn khác ở âm tiết "430,5"/"162.393" của phần độ phủ từ
+    assert s_far < s_approx <= s_exact
+    old = LexicalSourceScorer(approximate=False).score(claim, [approx])[0]
+    assert s_approx - old == pytest.approx(0.30 * 2 / 2)  # 2 số khớp gần đúng / 2 chi tiết cứng
 
 
 def test_lexical_scorer_is_absolute_and_ranks_relevant_higher():

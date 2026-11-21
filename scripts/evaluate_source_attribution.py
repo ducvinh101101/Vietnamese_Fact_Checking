@@ -51,7 +51,7 @@ from src.source_attribution import (
     AttributionThresholds, LEGACY_TO_SOURCE, SourceAttributionPipeline, check_facets,
 )
 from src.source_attribution_factory import build_local_retriever, build_scorer, build_verifier, load_config
-from src.source_reranker import rerank
+from src.source_reranker import LexicalSourceScorer, rerank
 from src.vi_text import content_syllables
 
 
@@ -193,15 +193,22 @@ def assess_all(pipeline: SourceAttributionPipeline, cases: list[dict], full_retr
 
 
 def decide_with(pipeline: SourceAttributionPipeline, stored: list[dict], thresholds: AttributionThresholds,
-                recompute_facets: bool = False) -> list[dict]:
+                recompute_facets: bool = False, lexical_blend: float = 0.0) -> list[dict]:
     """``recompute_facets``: so khớp số/ngày lại bằng code hiện tại (đo tác động của thay đổi facet trên
-    assessment đã lưu, không chạy lại model)."""
+    assessment đã lưu, không chạy lại model). Với reranker verifier trộn ``lexical_blend`` điểm lexical, điểm
+    liên quan được hiệu chỉnh theo chênh lệch lexical mới − cũ (phần model giữ nguyên)."""
     pipeline.thresholds = thresholds
+    new_lexical, old_lexical = LexicalSourceScorer(), LexicalSourceScorer(approximate=False)
     records = []
     for entry in stored:
         assessed = entry["assessed"]
         if recompute_facets:
-            assessed = [replace(a, facets=check_facets(entry["case"]["claim"], a.item.evidence.content)) for a in assessed]
+            claim = entry["case"]["claim"]
+            texts = [a.item.evidence.content for a in assessed]
+            delta = ([lexical_blend * (n - o) for n, o in zip(new_lexical.score(claim, texts), old_lexical.score(claim, texts))]
+                     if lexical_blend and texts else [0.0] * len(assessed))
+            assessed = [replace(a, relevance=a.relevance + d, facets=check_facets(claim, a.item.evidence.content))
+                        for a, d in zip(assessed, delta)]
         assessed = [replace(a, status=pipeline._status(a.relevance, a.verifier_probabilities, a.facets))
                     for a in assessed]
         result = pipeline._decide(entry["case"]["claim"], assessed, entry["queries"], entry["retrieved"])
@@ -281,7 +288,8 @@ def main() -> None:
         if args.legacy_baseline:
             raise SystemExit("--legacy-baseline cần chạy model; không dùng cùng --load-assessments")
         pipeline = SourceAttributionPipeline(object(), None, verifier,
-                                             AttributionThresholds(**config["decision"]["thresholds"]))
+                                             AttributionThresholds(**config["decision"]["thresholds"]),
+                                             require_claim_numbers=bool(config["decision"].get("require_claim_numbers")))
     else:
         started = time.perf_counter()
         full_retriever = build_local_retriever(config)
@@ -292,6 +300,7 @@ def main() -> None:
         pipeline = SourceAttributionPipeline(
             full_retriever, build_scorer(config, model), verifier, AttributionThresholds(**config["decision"]["thresholds"]),
             candidate_k=int(config["decision"]["candidate_k"]), assess_k=int(config["decision"]["assess_k"]),
+            require_claim_numbers=bool(config["decision"].get("require_claim_numbers")),
         )
         legacy_bm25 = BM25Retriever(load_evidence_jsonl(ROOT / config["local"]["corpus"]))
 
@@ -309,7 +318,8 @@ def main() -> None:
                 pickle.dump({"stored": stored, "report": report}, handle)
 
     configured = AttributionThresholds(**config["decision"]["thresholds"])
-    records = decide_with(pipeline, stored, configured, args.recompute_facets)
+    blend = float(config["reranker"].get("lexical_blend", 0.0)) if config["reranker"]["model"] == "verifier" else 0.0
+    records = decide_with(pipeline, stored, configured, args.recompute_facets, blend)
     report["new_pipeline"] = {"thresholds": configured.__dict__, **summarise(records)}
 
     if args.sweep:

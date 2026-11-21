@@ -11,7 +11,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from src.preprocessing import normalize_text
-from src.vi_text import ClaimFacets, VIETNAMESE_STOPWORDS, syllables, unique
+from src.vi_text import ClaimFacets, VIETNAMESE_STOPWORDS, surface_numbers_dates, syllables, unique
 
 
 @dataclass(frozen=True)
@@ -38,10 +38,12 @@ def generate_queries(claim: str, max_keywords: int = 12, ner: object | None = No
     if ner is not None:
         entities = unique([*getattr(ner, "extract_entities")(text), *entities])
     entities.sort(key=text.find)
-    hard = unique([*entities, *sorted(facets.numbers), *sorted(facets.dates)])
+    # Số/ngày như claim viết (báo cũng viết vậy); dạng chuẩn hóa 162400000000000 làm truy vấn web trượt.
+    hard = unique([*entities, *surface_numbers_dates(text)])
 
     queries = [GeneratedQuery("claim", text)]
-    content = [token for token in syllables(text) if token not in VIETNAMESE_STOPWORDS]
+    # Bỏ token số: số/ngày đã có trong ``hard`` ở dạng nguyên văn ("1/1/2028" chứ không phải "1 1 2028").
+    content = [token for token in syllables(text) if token not in VIETNAMESE_STOPWORDS and not token[0].isdigit()]
     entity_tokens = {token for entity in entities for token in syllables(entity)}
     keyword_terms = unique([*hard, *[token for token in content if token not in entity_tokens]])[:max_keywords]
     keywords = " ".join(keyword_terms)

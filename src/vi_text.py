@@ -38,7 +38,8 @@ _UPPER_CLASS = "[" + re.escape(UPPER) + "]"
 SENTENCE_BOUNDARY = re.compile(r"(?<=[.!?…])[\"'”’\)\]]*\s+(?=[\"'“‘\(\[]?(?:" + _UPPER_CLASS + r"|[0-9]))")
 TOKEN = re.compile(r"[0-9]+(?:[.,][0-9]+)*%?|[^\W_]+", re.UNICODE)
 
-NUMBER = re.compile(r"(?<![\w.,])(\d{1,3}(?:[.,]\d{3})+|\d+(?:[.,]\d+)?)(\s*%)?(?![\w])")
+# Số có thể dính đơn vị phía sau ("1km", "50.000m²", "3ha"); chữ dính phía TRƯỚC (H2O, U23) thì không phải số đo.
+NUMBER = re.compile(r"(?<![\w.,])(\d{1,3}(?:[.,]\d{3})+|\d+(?:[.,]\d+)?)(\s*%)?(?!\d|[.,]\d)")
 NUMBER_UNITS = {
     "nghìn": 1e3, "ngàn": 1e3, "vạn": 1e4, "triệu": 1e6, "tỷ": 1e9, "tỉ": 1e9,
 }
@@ -181,6 +182,30 @@ def approximate_numbers(text: str) -> dict[str, tuple[float, float]]:
             number = float(value.rstrip("%"))
             ranges[value] = (number * low, number * high)
     return ranges
+
+
+def number_matches(number: str, passage_numbers: set[str], approximate: dict[str, tuple[float, float]]) -> bool:
+    """Số của claim có trong đoạn: trùng khít, hoặc (nếu claim ghi "hơn/gần/khoảng") nằm trong khoảng cho phép."""
+    if number in passage_numbers:
+        return True
+    if number not in approximate:
+        return False
+    low, high = approximate[number]
+    percent = number.endswith("%")
+    return any(low <= float(value.rstrip("%")) <= high for value in passage_numbers if value.endswith("%") == percent)
+
+
+def surface_numbers_dates(text: str) -> list[str]:
+    """Số và ngày **như được viết** trong câu ("162.400 tỷ", "1/1/2028", "15%", "tháng 11"), theo thứ tự xuất
+    hiện – dùng cho truy vấn tìm kiếm (dạng chuẩn hóa của extract_numbers/extract_dates chỉ để so khớp)."""
+    text = normalize_text(text)
+    spans: list[tuple[int, int]] = []
+    for pattern in (DATE_DMY, DATE_WORDS, NUMBER_WITH_UNIT, NUMBER):
+        for match in pattern.finditer(text):
+            start, end = match.span()
+            if not any(s < end and start < e for s, e in spans):
+                spans.append((start, end))
+    return [text[start:end].strip() for start, end in sorted(spans)]
 
 
 def _format_number(value: float) -> str:

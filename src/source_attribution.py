@@ -24,7 +24,7 @@ from urllib.parse import urlparse
 from src.preprocessing import normalize_text
 from src.schemas import RetrievedEvidence
 from src.source_reranker import LexicalSourceScorer, RelevanceScorer, dates_compatible, entity_present, rerank
-from src.vi_text import ClaimFacets, approximate_numbers, extract_dates, extract_numbers, fold
+from src.vi_text import ClaimFacets, approximate_numbers, extract_dates, extract_numbers, fold, number_matches
 
 
 SCHEMA_VERSION = "source-attribution/v1"
@@ -84,15 +84,16 @@ def check_facets(claim: str, passage: str) -> FacetCheck:
     matched: list[str] = []
     conflicting: list[str] = []
     missing: list[str] = []
-    percent_in_passage = {value for value in passage_numbers if value.endswith("%")}
-    plain_in_passage = passage_numbers - percent_in_passage
+    # Chỉ số "không giải thích được" (không khớp số nào của claim) mới là căn cứ báo lệch: đoạn ghi
+    # "người dưới 18 tuổi" không làm "3 luật" của claim thành lệch khi claim cũng nói "18 tuổi".
+    unexplained = {value for value in passage_numbers
+                   if not any(number_matches(number, {value}, approximate) for number in facets.numbers)}
+    percent_in_passage = {value for value in unexplained if value.endswith("%")}
+    plain_in_passage = unexplained - percent_in_passage
     for number in sorted(facets.numbers):
         same_kind = percent_in_passage if number.endswith("%") else plain_in_passage
-        low, high = approximate.get(number, (None, None))
-        if number in passage_numbers:
+        if number_matches(number, passage_numbers, approximate):  # gồm "hơn/gần/khoảng X" trong khoảng hợp lý
             matched.append(f"số {number}")
-        elif low is not None and any(low <= float(value.rstrip("%")) <= high for value in same_kind):
-            matched.append(f"số {number}")  # "hơn/gần/khoảng X" – nguồn ghi số trong khoảng hợp lý
         elif same_kind:
             conflicting.append(f"số {number}")
         else:
@@ -163,6 +164,7 @@ class SourceAttributionPipeline:
         candidate_k: int = 40,
         assess_k: int = 8,
         max_citations: int = 3,
+        require_claim_numbers: bool = False,
     ) -> None:
         if candidate_k < 1 or assess_k < 1 or max_citations < 1:
             raise ValueError("candidate_k, assess_k, max_citations phải lớn hơn 0")
@@ -173,8 +175,16 @@ class SourceAttributionPipeline:
         self.candidate_k = candidate_k
         self.assess_k = assess_k
         self.max_citations = max_citations
+        # Đoạn thiếu một con số của claim → tối đa "related", không "xác nhận" (dev: báo nhầm 5,8% → 5,1%).
+        self.require_claim_numbers = require_claim_numbers
 
     def _status(self, relevance: float, probabilities: list[float] | None, facets: FacetCheck) -> str:
+        status = self._base_status(relevance, probabilities, facets)
+        if status == "supports" and self.require_claim_numbers and any(m.startswith("số ") for m in facets.missing):
+            return "related"
+        return status
+
+    def _base_status(self, relevance: float, probabilities: list[float] | None, facets: FacetCheck) -> str:
         t = self.thresholds
         if relevance < t.relevance:
             return "unrelated"

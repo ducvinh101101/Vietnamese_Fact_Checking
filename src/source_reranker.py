@@ -19,7 +19,9 @@ from pathlib import Path
 from typing import Callable, Protocol, Sequence
 
 from src.schemas import RetrievedEvidence
-from src.vi_text import ClaimFacets, content_syllables, extract_dates, extract_numbers, fold, tokenize_bm25
+from src.vi_text import (
+    ClaimFacets, approximate_numbers, content_syllables, extract_dates, extract_numbers, fold, number_matches, tokenize_bm25,
+)
 
 
 class RelevanceScorer(Protocol):
@@ -49,8 +51,13 @@ class LexicalSourceScorer:
 
     name = "lexical"
 
+    def __init__(self, approximate: bool = True) -> None:
+        # approximate: số sau "hơn/gần/khoảng" khớp như check_facets (False = hành vi cũ, để so sánh)
+        self.approximate = approximate
+
     def score(self, claim: str, passages: Sequence[str]) -> list[float]:
         facets = ClaimFacets.from_text(claim)
+        approximate = approximate_numbers(claim) if self.approximate else {}
         claim_terms = set(content_syllables(claim))
         claim_bigrams = {token for token in tokenize_bm25(claim) if "_" in token}
         results: list[float] = []
@@ -63,7 +70,7 @@ class LexicalSourceScorer:
                 passage_folded = fold(passage)
                 numbers = extract_numbers(passage)
                 dates = extract_dates(passage)
-                hits = sum(number in numbers for number in facets.numbers)
+                hits = sum(number_matches(number, numbers, approximate) for number in facets.numbers)
                 hits += sum(dates_compatible(date, dates) for date in facets.dates)
                 hits += sum(entity_present(entity, passage_folded) for entity in facets.entities)
                 hard = hits / hard_total
