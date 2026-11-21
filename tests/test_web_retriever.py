@@ -221,3 +221,29 @@ def test_robots_download_failure_counts_as_unreachable_not_blocked(tmp_path):
     )
     assert retriever.search("claim") == []
     assert retriever.last_status == "pages_unreachable"
+
+
+def test_robots_decoder_handles_undeclared_gzip_and_bogus_charset():
+    from src.web_retriever import decode_robots_response
+
+    text = "User-agent: *\nDisallow: /admin\n"
+    assert decode_robots_response(gzip.compress(text.encode()), None) == text  # gzip không khai báo
+    assert decode_robots_response(gzip.compress(text.encode()), "gzip") == text
+    assert decode_robots_response(text.encode(), None) == text
+
+
+def test_robots_txt_is_fetched_once_per_host(tmp_path):
+    calls = []
+
+    def robots(url, timeout):
+        calls.append(url)
+        return "User-agent: *\nAllow: /"
+
+    retriever = WebRetriever(
+        config(tmp_path), api_key="key",
+        provider_request=lambda *_: {"results": [{"url": f"https://vnexpress.net/{i}"} for i in range(3)]},
+        page_fetcher=lambda url, timeout: (url, "<article><p>" + "Nội dung bài báo nguồn. " * 12 + "</p></article>"),
+        robots_fetcher=robots,
+    )
+    assert retriever.search("claim", 5)
+    assert len(calls) == 1

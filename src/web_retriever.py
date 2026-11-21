@@ -143,6 +143,24 @@ def canonical_url(url: str) -> str:
     return urlunsplit((parsed.scheme.lower(), parsed.netloc.lower(), parsed.path or "/", parsed.query, ""))
 
 
+GZIP_MAGIC = bytes([0x1F, 0x8B])
+
+
+def decode_robots_response(raw: bytes, content_encoding: str | None) -> str:
+    """Giải mã robots.txt chịu lỗi máy chủ: gzip không khai báo (tienphong.vn), charset sai kiểu
+    ``utf-8,gbk`` (laodong.vn). robots.txt gần như luôn ASCII nên decode UTF-8 có thay thế là an toàn;
+    trước đây các lỗi này làm cả trang bị coi là "cấm tải" và bị loại khỏi nguồn."""
+    encoding = (content_encoding or "identity").lower().strip()
+    try:
+        if encoding in {"gzip", "x-gzip"} or raw[:2] == GZIP_MAGIC:
+            raw = gzip.decompress(raw)
+        elif encoding == "deflate":
+            raw = zlib.decompress(raw)
+    except (OSError, zlib.error) as error:
+        raise WebRetrievalError("Không giải nén được robots.txt") from error
+    return raw.decode("utf-8", errors="replace")
+
+
 def decode_html_response(raw: bytes, content_encoding: str | None, header_charset: str | None) -> str:
     """Decode a bounded HTML response without silently turning compressed bytes into text."""
     encoding = (content_encoding or "identity").lower().strip()
@@ -303,36 +321,46 @@ class WebRetriever:
             int(self.limits["monthly_credit_budget"]),  # type: ignore[index]
         )
         self.last_status = "not_run"
+        # robots.txt theo host, chỉ lưu khi tải THÀNH CÔNG (lỗi tạm thời được thử lại lần sau).
+        self._robots_cache: dict[str, str] = {}
 
     def _fetch_robots(self, page_url: str, timeout: float) -> str:
-        """Fetch robots.txt from the exact approved host without redirects."""
+        """Tải robots.txt của host được duyệt. Đi theo tối đa 5 lần chuyển hướng như RFC 9309 (vd. qdnd.vn →
+        www.qdnd.vn, nld.com.vn → tuoitre.vn/nld) nhưng mỗi bước vẫn phải nằm trong allowlist và là IP công khai."""
         parsed = urlsplit(page_url)
-        robots_url = urlunsplit(("https", parsed.netloc, "/robots.txt", "", ""))
-        if not allowed_url(robots_url, set(self.allowed_sources)):
-            raise WebRetrievalError("robots.txt nằm ngoài allowlist")
-        assert_public_dns(parsed.hostname or "")
-        request = Request(robots_url, headers={"User-Agent": "VietnameseFactChecking/1.0", "Accept-Encoding": "identity"})
-        try:
-            with build_opener(_NoRedirect()).open(request, timeout=timeout) as response:
-                if not response.headers.get_content_type().startswith("text/"):
-                    raise WebRetrievalError("robots.txt không phải văn bản")
-                raw = response.read(int(self.policy["max_robots_bytes"]) + 1)  # type: ignore[index]
-                if len(raw) > int(self.policy["max_robots_bytes"]):  # type: ignore[index]
-                    raise WebRetrievalError("robots.txt vượt giới hạn kích thước")
-                charset = response.headers.get_content_charset() or "utf-8"
-                return raw.decode(charset)
-        except HTTPError as error:
-            if error.code == 404:
-                return ""
-            raise WebRetrievalError("Không tải được robots.txt") from error
-        except (URLError, TimeoutError, UnicodeDecodeError, LookupError) as error:
-            raise WebRetrievalError("Không tải hoặc giải mã được robots.txt") from error
+        current = urlunsplit(("https", parsed.netloc, "/robots.txt", "", ""))
+        for _ in range(6):
+            if not allowed_url(current, set(self.allowed_sources)):
+                raise WebRetrievalError("robots.txt nằm ngoài allowlist")
+            assert_public_dns(urlsplit(current).hostname or "")
+            request = Request(current, headers={"User-Agent": "VietnameseFactChecking/1.0", "Accept-Encoding": "identity"})
+            try:
+                with build_opener(_NoRedirect()).open(request, timeout=timeout) as response:
+                    if not response.headers.get_content_type().startswith("text/"):
+                        raise WebRetrievalError("robots.txt không phải văn bản")
+                    raw = response.read(int(self.policy["max_robots_bytes"]) + 1)  # type: ignore[index]
+                    if len(raw) > int(self.policy["max_robots_bytes"]):  # type: ignore[index]
+                        raise WebRetrievalError("robots.txt vượt giới hạn kích thước")
+                    return decode_robots_response(raw, response.headers.get("Content-Encoding"))
+            except HTTPError as error:
+                if error.code == 404:
+                    return ""
+                if error.code in {301, 302, 303, 307, 308} and error.headers.get("Location"):
+                    current = canonical_url(urljoin(current, error.headers["Location"]))
+                    continue
+                raise WebRetrievalError("Không tải được robots.txt") from error
+            except (URLError, TimeoutError, UnicodeDecodeError, LookupError) as error:
+                raise WebRetrievalError("Không tải hoặc giải mã được robots.txt") from error
+        raise WebRetrievalError("robots.txt chuyển hướng quá nhiều lần")
 
     def _robots_allow(self, page_url: str, timeout: float) -> bool:
         if not bool(self.policy.get("obey_robots_txt", True)):
             return True
         try:
-            robots = self.robots_fetcher(page_url, timeout)
+            host = (urlsplit(page_url).hostname or "").lower()
+            if host not in self._robots_cache:
+                self._robots_cache[host] = self.robots_fetcher(page_url, timeout)
+            robots = self._robots_cache[host]
             parser = RobotFileParser()
             parser.parse(robots.splitlines())
             return parser.can_fetch("VietnameseFactChecking", page_url)

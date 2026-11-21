@@ -121,6 +121,7 @@ web_retrieval:
       - {host: nld.com.vn, name: Người Lao Động, category: press, scope: Tin tổng hợp, reference: https://nld.com.vn/}
       - {host: plo.vn, name: Pháp Luật TP.HCM, category: press, scope: Pháp luật, reference: https://plo.vn/}
       - {host: cand.com.vn, name: Công an nhân dân, category: press, scope: An ninh trật tự, reference: https://cand.com.vn/}
+      - {host: cand.vn, name: Công an nhân dân, category: press, scope: An ninh trật tự, reference: https://cand.vn/}  # cand.com.vn đã chuyển sang cand.vn (11/2026)
       - {host: znews.vn, name: Znews, category: press, scope: Tin tổng hợp, reference: https://znews.vn/}
       - {host: www.sggp.org.vn, name: Sài Gòn Giải Phóng, category: press, scope: Tin tổng hợp, reference: https://www.sggp.org.vn/}
   cache:
