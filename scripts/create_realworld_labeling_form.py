@@ -32,6 +32,7 @@ N_ROWS = 300
 FIRST = HEADER_ROW + 1
 LAST = HEADER_ROW + N_ROWS
 TARGETS = {"recent_real": 100, "paraphrase": 60, "fabricated": 70, "perturbed": 70}
+PREFIX = "rw"
 GROUP_VI = {
     "recent_real": "Tin thật (2024 trở đi)",
     "paraphrase": "Tin thật viết lại bằng từ khác",
@@ -138,7 +139,7 @@ def build_label_sheet(wb: Workbook, n_sources: int) -> None:
     header(ws, HEADER_ROW, [code for code, *_ in COLUMNS])
 
     for r in range(FIRST, LAST + 1):
-        ws.cell(r, 1, f"rw{r - HEADER_ROW:03d}")
+        ws.cell(r, 1, f"{PREFIX}{r - HEADER_ROW:03d}")
         ws[f"{COL['expected_label']}{r}"] = label_formula(r)
         ws[f"{COL['host']}{r}"] = host_formula(r)
         ws[f"{COL['check']}{r}"] = check_formula(r, n_sources)
@@ -270,17 +271,22 @@ def build_examples_sheet(wb: Workbook) -> None:
         ws.column_dimensions[col].width = w
 
 
-GUIDE = [
+def guide() -> list[tuple[str, str]]:
+    half = N_ROWS // 2
+    first_a, last_a = f"{PREFIX}001", f"{PREFIX}{half:03d}"
+    first_b, last_b = f"{PREFIX}{half + 1:03d}", f"{PREFIX}{N_ROWS:03d}"
+    per_person = ", ".join(f"{(n + 1) // 2} {g}" for g, n in TARGETS.items())
+    return [
     ("h", "1. Phiếu này để làm gì?"),
     ("p", "Hệ thống của nhóm trả lời: một câu phát biểu có nguồn báo chí thật hay không. Để đo nó đúng bao nhiêu trên "
-          "tin THẬT ngoài đời (không phải dữ liệu ViFactCheck), nhóm cần ~300 câu đã biết trước đáp án. Bạn viết câu, "
+          "tin THẬT ngoài đời (không phải dữ liệu ViFactCheck), nhóm cần ~" + str(N_ROWS) + " câu đã biết trước đáp án. Bạn viết câu, "
           "chọn nhóm; phiếu tự điền nhãn đúng và tự báo lỗi."),
     ("h", "2. Màu ô"),
     ("p", "VÀNG = ô bạn nhập.   XÁM = phiếu tự tính, KHÔNG sửa (Mã, Nhãn, Tên miền, Kiểm tra)."),
     ("p", "Cột “Kiểm tra” hiện OK (xanh) là dòng đã đạt. Hiện chữ đỏ thì đọc lỗi và sửa (xem mục 7)."),
     ("h", "3. Chia việc (2 người)"),
-    ("p", "Người A làm rw001–rw150, người B làm rw151–rw300. Mỗi người: 50 recent_real, 30 paraphrase, "
-          "35 fabricated, 35 perturbed. Xem số đã làm ở sheet “Tiến độ”."),
+    ("p", f"Người A làm {first_a}–{last_a}, người B làm {first_b}–{last_b}. Mỗi người: {per_person}. "
+          "Xem số đã làm ở sheet “Tiến độ”."),
     ("p", "Mỗi bài báo dùng tối đa 3 claim; lấy bài từ nhiều chủ đề (thời sự, kinh tế, y tế, giáo dục, thể thao, "
           "pháp luật…) và nhiều trang khác nhau, không dồn vào một trang."),
     ("h", "4. Nhóm recent_real – tin thật (làm trước tiên)"),
@@ -329,7 +335,7 @@ GUIDE = [
     ("h", "11. Lưu file và làm việc chung"),
     ("p", "• Lưu đúng định dạng .xlsx (File → Save). KHÔNG cần đổi sang CSV."),
     ("p", "• Hai người làm chung một file: đưa lên OneDrive/Google Drive và mở cùng lúc, hoặc mỗi người một bản rồi "
-          "dán phần của mình (rw151–rw300) vào file chung."),
+          f"dán phần của mình ({first_b}–{last_b}) vào file chung."),
     ("p", "• Không xóa hay chèn cột, không đổi tên sheet “" + SHEET_NAME + "” – script đọc đúng vị trí này."),
     ("h", "12. Chấm điểm (khi đã xong)"),
     ("p", "Mở PowerShell ở thư mục dự án và chạy (key Tavily đọc từ file .env):"),
@@ -338,7 +344,7 @@ GUIDE = [
     ("p", "Lệnh đầu có web (tốn ~2 lượt Tavily/claim, chỉ chạy 1–2 lần); lệnh sau chỉ dùng kho cục bộ, không tốn lượt. "
           "Dòng không OK được bỏ qua và in ra màn hình. Kết quả ghi vào outputs/metrics/source_attribution_realworld_*.json."),
     ("p", "Nên chạy thử khi mới có ~20 claim OK để phát hiện lỗi sớm."),
-]
+  ]
 
 
 def build_guide_sheet(wb: Workbook) -> None:
@@ -349,7 +355,7 @@ def build_guide_sheet(wb: Workbook) -> None:
     ws.column_dimensions["A"].width = 3
     ws.column_dimensions["B"].width = 120
     r = 4
-    for kind, text in GUIDE:
+    for kind, text in guide():
         if kind == "h" and r > 4:
             r += 1  # dòng trống trước mỗi mục
         cell = ws.cell(r, 2, text)
@@ -364,11 +370,35 @@ def build_guide_sheet(wb: Workbook) -> None:
         r += 1
 
 
+def parse_targets(text: str) -> dict[str, int]:
+    targets = {}
+    for item in text.split(","):
+        group, _, count = item.partition("=")
+        group = group.strip()
+        if group not in GROUP_VI or not count.strip().isdigit() or int(count) <= 0:
+            raise SystemExit(f"--targets sai ở '{item}' (nhóm hợp lệ: {', '.join(GROUP_VI)}; số > 0)")
+        targets[group] = int(count)
+    return targets
+
+
+def configure(prefix: str, targets: dict[str, int]) -> None:
+    """Đặt cỡ phiếu (dùng chung cho mọi sheet và công thức)."""
+    global PREFIX, TARGETS, N_ROWS, LAST
+    PREFIX, TARGETS = prefix, dict(targets)
+    N_ROWS = sum(TARGETS.values())
+    LAST = HEADER_ROW + N_ROWS
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--output", type=Path, default=OUTPUT)
     parser.add_argument("--force", action="store_true", help="ghi đè phiếu đã có (MẤT dữ liệu đã gán)")
+    parser.add_argument("--prefix", default=PREFIX, help="tiền tố mã claim, vd. dv cho tập dev thực tế (dv001…)")
+    parser.add_argument("--targets", default="",
+                        help="chỉ tiêu từng nhóm, vd. recent_real=25,paraphrase=15,fabricated=15,perturbed=15 "
+                             "(số dòng = tổng)")
     args = parser.parse_args()
+    configure(args.prefix, parse_targets(args.targets) if args.targets else TARGETS)
     if args.output.exists() and not args.force:
         raise SystemExit(f"{args.output} đã tồn tại – không ghi đè (dùng --force nếu chắc chắn).")
     allowlist = load_config()["web_retrieval"]["source_policy"]["allowlist"]

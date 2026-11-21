@@ -150,6 +150,16 @@ def append_snapshot(path: Path, claim_id: str, recorder: RecordingWeb) -> None:
         handle.write(json.dumps(record, ensure_ascii=False) + "\n")
 
 
+def drop_overlapping_articles(frame, other_urls: list[str]):
+    """Bỏ (và in ra) claim có link bài gốc trùng bài trong phiếu khác."""
+    if "source_url" not in frame or not other_urls:
+        return frame
+    overlap = frame.source_url.map(lambda u: bool(str(u or "")) and any(same_article(str(u), o) for o in other_urls))
+    for row in frame[overlap].itertuples():
+        print(f"Bỏ {row.claim_id}: bài gốc trùng phiếu khác ({row.source_url})")
+    return frame[~overlap]
+
+
 def load_snapshot(path: Path) -> dict[str, dict]:
     """claim → bản ghi; claim chạy nhiều lần thì lấy lần sau cùng."""
     records = {}
@@ -251,6 +261,11 @@ def main() -> None:
     parser.add_argument("--groups", default="", help="chỉ chạy các nhóm này, vd. recent_real,paraphrase")
     parser.add_argument("--snapshot", type=Path, default=ROOT / ".cache/realworld_web_snapshot.jsonl",
                         help="nơi ghi kết quả web của từng claim khi chạy thật (.cache/ không commit)")
+    parser.add_argument("--exclude-articles", type=Path, default=None,
+                        help="bỏ claim có link bài gốc trùng bài trong phiếu này (vd. phiếu V1) – tránh rò rỉ dev/test")
+    parser.add_argument("--skip-recorded", action="store_true",
+                        help="web thật: bỏ claim đã có trong --snapshot (chạy nối tiếp, không tốn lượt lần nữa)")
+    parser.add_argument("--limit", type=int, default=0, help="chỉ chạy N claim đầu (sau các bộ lọc)")
     parser.add_argument("--replay", type=Path, default=None,
                         help="chấm lại từ bản ghi web, không gọi Tavily (claim chưa ghi → không có web)")
     args = parser.parse_args()
@@ -266,6 +281,16 @@ def main() -> None:
         raise SystemExit(f"expected_label phải thuộc {SOURCE_LABELS}")
     if args.groups:
         frame = frame[frame.group.isin(args.groups.split(","))]
+    if args.exclude_articles is not None:
+        other, _ = load_labeled_claims(args.exclude_articles, allowed_hosts)
+        frame = drop_overlapping_articles(frame, [str(u) for u in other.get("source_url", []) if str(u or "")])
+    if args.skip_recorded and args.replay is None and args.snapshot.exists():
+        recorded = load_snapshot(args.snapshot)
+        before = len(frame)
+        frame = frame[~frame.claim.astype(str).isin(recorded)]
+        print(f"Bỏ {before - len(frame)} claim đã có trong {args.snapshot}.")
+    if args.limit > 0:
+        frame = frame.head(args.limit)
     print(f"{len(frame)} claim hợp lệ, bỏ qua {len(skipped)} dòng.")
     load_dotenv()
     live_web = not args.no_web and args.replay is None

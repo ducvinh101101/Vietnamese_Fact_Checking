@@ -71,6 +71,22 @@ znews cùng nội dung) – tìm kiếm không hẳn trượt, mà bị chặn �
 6. **Tìm kiếm:** đo truy vấn từ khóa mới, thử `topic: news` + giới hạn thời gian của Tavily, `max_pages` 6 → 8–10 –
    so trên tập dev ở bước 3.
 
+### Lệnh cho bước 3–4 (tập dev thực tế)
+
+```powershell
+# 1. Tạo phiếu dev 70 claim (mã dv001–dv070)
+.venv\Scripts\python.exe scripts\create_realworld_labeling_form.py --output data\evaluation\PHIEU_DEV_THUC_TE.xlsx --prefix dv --targets recent_real=25,paraphrase=15,fabricated=15,perturbed=15
+# 2. Chạy thử 0 credit (chỉ kho cục bộ) – bắt lỗi phiếu, trùng bài với V1
+.venv\Scripts\python.exe scripts\evaluate_source_attribution_realworld.py data\evaluation\PHIEU_DEV_THUC_TE.xlsx --no-web --exclude-articles data\evaluation\PHIEU_GAN_NHAN_NGUON_V1.xlsx
+# 3. Web thật MỘT lần (~140 credit thực, script chặn nếu trường hợp xấu nhất vượt 900)
+.venv\Scripts\python.exe scripts\evaluate_source_attribution_realworld.py data\evaluation\PHIEU_DEV_THUC_TE.xlsx --exclude-articles data\evaluation\PHIEU_GAN_NHAN_NGUON_V1.xlsx --snapshot .cache\realdev_web_snapshot.jsonl --skip-recorded --output outputs\metrics\source_attribution_realdev_web.json
+# 4. Mọi lần thử sau: phát lại, 0 credit
+.venv\Scripts\python.exe scripts\evaluate_source_attribution_realworld.py data\evaluation\PHIEU_DEV_THUC_TE.xlsx --replay .cache\realdev_web_snapshot.jsonl --output outputs\metrics\source_attribution_realdev_replay.json
+```
+
+Sau bước 3 **không sửa câu claim** trong phiếu (bản ghi tra theo nội dung claim). Thiếu credit: thêm `--limit N`,
+tháng sau chạy lại đúng lệnh 3 – `--skip-recorded` bỏ các claim đã chạy.
+
 ### Tùy chọn (từ kế hoạch cũ)
 
 * Train bi-encoder BE-V1 (`kaggle/finetune_bi_encoder.py`).

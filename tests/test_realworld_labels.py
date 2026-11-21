@@ -84,6 +84,39 @@ def test_generated_form_round_trip(tmp_path):
         form.main()
 
 
+def test_dev_form_prefix_and_targets(tmp_path):
+    """Phiếu dev: mã dv…, số dòng = tổng chỉ tiêu, nhóm sai bị từ chối."""
+    import sys
+    from openpyxl import load_workbook
+
+    spec = importlib.util.spec_from_file_location("form_dev", ROOT / "scripts" / "create_realworld_labeling_form.py")
+    form = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(form)
+    path = tmp_path / "dev.xlsx"
+    argv, sys.argv = sys.argv, ["x", "--output", str(path), "--prefix", "dv",
+                                "--targets", "recent_real=3,paraphrase=2,fabricated=1,perturbed=1"]
+    try:
+        form.main()
+    finally:
+        sys.argv = argv
+    ws = load_workbook(path)[form.SHEET_NAME]
+    assert ws.cell(form.FIRST, 1).value == "dv001"
+    assert ws.cell(form.FIRST + 6, 1).value == "dv007"
+    assert ws.cell(form.FIRST + 7, 1).value is None
+    with pytest.raises(SystemExit):
+        form.parse_targets("recent_real=3,bogus=2")
+
+
+def test_drop_overlapping_articles():
+    import pandas as pd
+
+    module = _eval_module()
+    frame = pd.DataFrame({"claim_id": ["dv001", "dv002", "dv003"], "claim": ["a", "b", "c"],
+                          "source_url": ["https://vnexpress.net/x-1.html", "https://vov.vn/y-2.vov", ""]})
+    kept = module.drop_overlapping_articles(frame, ["https://vnexpress.net/x-1.html"])
+    assert kept.claim_id.tolist() == ["dv002", "dv003"]
+
+
 def _eval_module():
     spec = importlib.util.spec_from_file_location("rw_eval", ROOT / "scripts" / "evaluate_source_attribution_realworld.py")
     module = importlib.util.module_from_spec(spec)
