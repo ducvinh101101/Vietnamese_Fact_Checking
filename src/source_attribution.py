@@ -24,7 +24,7 @@ from urllib.parse import urlparse
 from src.preprocessing import normalize_text
 from src.schemas import RetrievedEvidence
 from src.source_reranker import LexicalSourceScorer, RelevanceScorer, dates_compatible, entity_present, rerank
-from src.vi_text import ClaimFacets, extract_dates, extract_numbers, fold
+from src.vi_text import ClaimFacets, approximate_numbers, extract_dates, extract_numbers, fold
 
 
 SCHEMA_VERSION = "source-attribution/v1"
@@ -62,6 +62,13 @@ class FacetCheck:
         return bool(self.conflicting)
 
 
+def _date_kind(date: str) -> tuple[int, bool]:
+    """Loại ngày để so lệch: số phần và phần cuối có phải năm không – "11" (tháng) ≠ "2026" (năm),
+    "21/11" (ngày/tháng) ≠ "11/2026" (tháng/năm)."""
+    parts = date.split("/")
+    return len(parts), len(parts[-1]) == 4
+
+
 def check_facets(claim: str, passage: str) -> FacetCheck:
     """So số, ngày, tên riêng của claim với đoạn văn.
 
@@ -70,6 +77,7 @@ def check_facets(claim: str, passage: str) -> FacetCheck:
     **thiếu**. Tên riêng thiếu chỉ là "thiếu" – không đủ căn cứ để gọi là lệch.
     """
     facets = ClaimFacets.from_text(claim)
+    approximate = approximate_numbers(claim)
     passage_numbers = extract_numbers(passage)
     passage_dates = extract_dates(passage)
     passage_folded = fold(passage)
@@ -79,16 +87,20 @@ def check_facets(claim: str, passage: str) -> FacetCheck:
     percent_in_passage = {value for value in passage_numbers if value.endswith("%")}
     plain_in_passage = passage_numbers - percent_in_passage
     for number in sorted(facets.numbers):
+        same_kind = percent_in_passage if number.endswith("%") else plain_in_passage
+        low, high = approximate.get(number, (None, None))
         if number in passage_numbers:
             matched.append(f"số {number}")
-        elif (number.endswith("%") and percent_in_passage) or (not number.endswith("%") and plain_in_passage):
+        elif low is not None and any(low <= float(value.rstrip("%")) <= high for value in same_kind):
+            matched.append(f"số {number}")  # "hơn/gần/khoảng X" – nguồn ghi số trong khoảng hợp lý
+        elif same_kind:
             conflicting.append(f"số {number}")
         else:
             missing.append(f"số {number}")
     for date in sorted(facets.dates):
         if dates_compatible(date, passage_dates):
             matched.append(f"thời gian {date}")
-        elif any(len(other.split("/")) == len(date.split("/")) for other in passage_dates):
+        elif any(_date_kind(other) == _date_kind(date) for other in passage_dates):
             conflicting.append(f"thời gian {date}")
         else:
             missing.append(f"thời gian {date}")

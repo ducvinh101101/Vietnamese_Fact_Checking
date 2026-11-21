@@ -48,7 +48,7 @@ from src.io_utils import load_evidence_jsonl
 from src.retriever import BM25Retriever
 from src.schemas import RetrievedEvidence
 from src.source_attribution import (
-    AttributionThresholds, LEGACY_TO_SOURCE, SourceAttributionPipeline,
+    AttributionThresholds, LEGACY_TO_SOURCE, SourceAttributionPipeline, check_facets,
 )
 from src.source_attribution_factory import build_local_retriever, build_scorer, build_verifier, load_config
 from src.source_reranker import rerank
@@ -192,12 +192,18 @@ def assess_all(pipeline: SourceAttributionPipeline, cases: list[dict], full_retr
     return stored
 
 
-def decide_with(pipeline: SourceAttributionPipeline, stored: list[dict], thresholds: AttributionThresholds) -> list[dict]:
+def decide_with(pipeline: SourceAttributionPipeline, stored: list[dict], thresholds: AttributionThresholds,
+                recompute_facets: bool = False) -> list[dict]:
+    """``recompute_facets``: so khớp số/ngày lại bằng code hiện tại (đo tác động của thay đổi facet trên
+    assessment đã lưu, không chạy lại model)."""
     pipeline.thresholds = thresholds
     records = []
     for entry in stored:
+        assessed = entry["assessed"]
+        if recompute_facets:
+            assessed = [replace(a, facets=check_facets(entry["case"]["claim"], a.item.evidence.content)) for a in assessed]
         assessed = [replace(a, status=pipeline._status(a.relevance, a.verifier_probabilities, a.facets))
-                    for a in entry["assessed"]]
+                    for a in assessed]
         result = pipeline._decide(entry["case"]["claim"], assessed, entry["queries"], entry["retrieved"])
         records.append({"group": entry["case"]["group"], "claim": entry["case"]["claim"], "label": result.label,
                         "confidence": result.confidence,
@@ -249,6 +255,8 @@ def main() -> None:
     parser.add_argument("--output", default=None)
     parser.add_argument("--save-assessments", default=None, help="lưu kết quả chấm (pickle) để dò ngưỡng lại không cần model")
     parser.add_argument("--load-assessments", default=None, help="nạp kết quả chấm đã lưu; bỏ qua retrieval/model")
+    parser.add_argument("--recompute-facets", action="store_true",
+                        help="với --load-assessments: so khớp số/ngày lại bằng code hiện tại")
     args = parser.parse_args()
     if args.sweep and args.split == "test":
         raise SystemExit("Không dò ngưỡng trên test.")
@@ -301,7 +309,7 @@ def main() -> None:
                 pickle.dump({"stored": stored, "report": report}, handle)
 
     configured = AttributionThresholds(**config["decision"]["thresholds"])
-    records = decide_with(pipeline, stored, configured)
+    records = decide_with(pipeline, stored, configured, args.recompute_facets)
     report["new_pipeline"] = {"thresholds": configured.__dict__, **summarise(records)}
 
     if args.sweep:

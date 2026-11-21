@@ -4,6 +4,8 @@ from src.schemas import Evidence, RetrievedEvidence
 from src.source_attribution import (
     AttributionThresholds, SourceAttributionPipeline, build_source_output, check_facets,
 )
+import pytest
+
 from src.source_reranker import LexicalSourceScorer
 from src.vi_text import (
     extract_dates, extract_entities, extract_numbers, sentence_windows, split_sentences, tokenize_bm25,
@@ -102,6 +104,26 @@ def test_facet_check_detects_number_conflict():
     conflict = check_facets("cả nước ghi nhận 150 ca mắc mới", passage)
     assert conflict.conflicting == ["số 150"]
     assert check_facets("ngày 16/3/2023 có ca mắc", passage).has_conflict
+
+
+@pytest.mark.parametrize("claim, passage, conflict", [
+    # từ xấp xỉ: số gần đúng theo nghĩa của từ thì khớp
+    ("Hơn 3.000 người tham dự.", "Có 3.200 người tham dự lễ hội.", False),
+    ("Gần 5 triệu khách quốc tế.", "Đạt 4,8 triệu lượt khách quốc tế.", False),
+    ("Khoảng 200 hộ dân bị ảnh hưởng.", "Có 215 hộ dân bị ảnh hưởng.", False),
+    ("Trên 40% số hộ có điện mặt trời.", "Tỷ lệ này là 43%.", False),
+    # ...nhưng lệch xa vẫn là lệch
+    ("Hơn 3.000 người tham dự.", "Có 9.000 người tham dự lễ hội.", True),
+    ("Gần 5 triệu khách quốc tế.", "Đạt 2,1 triệu lượt khách quốc tế.", True),
+    ("Có 3.000 người tham dự.", "Có 3.200 người tham dự lễ hội.", True),  # không có từ xấp xỉ: so chính xác
+    # ngày: chỉ so cùng loại (tháng ≠ năm, ngày/tháng ≠ tháng/năm)
+    ("Tháng 11/2026 xuất khẩu tăng.", "Trong tháng 11 xuất khẩu tăng mạnh.", False),
+    ("Ngày 21/11 khai mạc.", "Tháng 11/2026 có nhiều sự kiện.", False),
+    ("Ngày 21/11 khai mạc.", "Ngày 22/11 khai mạc.", True),
+    ("Năm 2025 xuất khẩu tăng.", "Năm 2024 xuất khẩu tăng.", True),
+])
+def test_facet_check_number_qualifiers_and_date_kinds(claim, passage, conflict):
+    assert check_facets(claim, passage).has_conflict is conflict
 
 
 def test_lexical_scorer_is_absolute_and_ranks_relevant_higher():

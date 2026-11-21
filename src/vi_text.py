@@ -158,6 +158,31 @@ def extract_numbers(text: str) -> set[str]:
     return values
 
 
+# Từ xấp xỉ đứng trước số → khoảng giá trị (bội số của số trong claim) mà nguồn ghi vẫn coi là khớp.
+# "hơn 3.000" khớp 3.200; "gần 5 triệu" khớp 4,8 triệu. Ngoài khoảng vẫn so như số chính xác.
+APPROXIMATE_QUALIFIERS = {
+    "hơn": (1.0, 1.5), "trên": (1.0, 1.5), "vượt": (1.0, 1.5), "ngoài": (1.0, 1.5),
+    "gần": (0.8, 1.0), "dưới": (0.67, 1.0),
+    "khoảng": (0.8, 1.2), "chừng": (0.8, 1.2), "xấp xỉ": (0.8, 1.2), "ước tính": (0.8, 1.2), "ước": (0.8, 1.2),
+}
+APPROXIMATE_NUMBER = re.compile(
+    r"(?<![\w])(" + "|".join(sorted(APPROXIMATE_QUALIFIERS, key=len, reverse=True)) + r")\s+(?:như\s+|khoảng\s+)?"
+    r"(\d[\d.,]*(?:\s*%|\s*(?:nghìn|ngàn|vạn|triệu|tỷ|tỉ)(?![\w]))?)",
+    re.IGNORECASE,
+)
+
+
+def approximate_numbers(text: str) -> dict[str, tuple[float, float]]:
+    """Số đi sau từ xấp xỉ → khoảng [thấp, cao] chấp nhận được, theo chuỗi chuẩn của ``extract_numbers``."""
+    ranges: dict[str, tuple[float, float]] = {}
+    for match in APPROXIMATE_NUMBER.finditer(normalize_text(text)):
+        low, high = APPROXIMATE_QUALIFIERS[match.group(1).lower()]
+        for value in extract_numbers(match.group(2)):
+            number = float(value.rstrip("%"))
+            ranges[value] = (number * low, number * high)
+    return ranges
+
+
 def _format_number(value: float) -> str:
     return str(int(value)) if float(value).is_integer() else f"{value:g}"
 
