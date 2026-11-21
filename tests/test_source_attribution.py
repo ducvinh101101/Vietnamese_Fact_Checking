@@ -280,3 +280,31 @@ def test_output_reports_web_status():
     failed = run_with(WebRetriever(fail=True))
     assert failed["retrieval"]["web_status"] == "error"
     assert failed["verdict"]["label"] == "SOURCE_FOUND"  # kho cục bộ vẫn chạy
+
+
+def test_web_thresholds_apply_only_to_web_evidence():
+    """Đoạn web (document_id bắt đầu bằng 'web-') dùng web_thresholds; đoạn kho cục bộ giữ nguyên thresholds."""
+    local_ev = evidence("d1-p1", "Giá xăng RON 95 giảm 500 đồng mỗi lít từ chiều nay.")
+    web_ev = evidence("web-abc123-p01", "Giá xăng RON 95 giảm 500 đồng mỗi lít từ chiều nay.")
+
+    class FixedRetriever:
+        def __init__(self, ev):
+            self.ev = ev
+
+        def search(self, claim, top_k=3):
+            return [RetrievedEvidence(self.ev, 0.6)]
+
+    class FixedScorer:
+        def score(self, claim, passages):
+            return [0.6 for _ in passages]
+
+    local_t = AttributionThresholds(relevance=0.75, support=0.8)
+    web_t = AttributionThresholds(relevance=0.55, support=0.7)
+    verifier = FakeVerifier([0.75, 0.05, 0.20])
+
+    p_local = SourceAttributionPipeline(FixedRetriever(local_ev), FixedScorer(), verifier,
+                                        thresholds=local_t, web_thresholds=web_t)
+    p_web = SourceAttributionPipeline(FixedRetriever(web_ev), FixedScorer(), verifier,
+                                      thresholds=local_t, web_thresholds=web_t)
+    assert p_local.run("Giá xăng RON 95 giảm 500 đồng mỗi lít").label == "NO_SOURCE"
+    assert p_web.run("Giá xăng RON 95 giảm 500 đồng mỗi lít").label == "SOURCE_FOUND"

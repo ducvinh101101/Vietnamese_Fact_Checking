@@ -12,6 +12,9 @@
 | Commit `113a9c7` → `9bdcae7` (7 commit) | Đã push lên `feature/source-attribution-retrieval` |
 | Dev ViFactCheck (1.252 claim) | RT-V4: **84,29%** (RT-V3 83,64%, trước nữa 83,08%); báo nhầm "có nguồn" 5,06% (RT-V3 4,91%) |
 | Verifier | **RT-V4** `models/rt_v4_augmented` (mục 1b); ngưỡng relevance 0,7 → 0,75 (dò trên dev) |
+| Ngưỡng riêng cho web | `decision.web_thresholds` relevance 0,55 / support 0,6 – dò trên tập dev thực tế (mục 1c) |
+| Tập dev thực tế | `PHIEU_DEV_THUC_TE.xlsx` 70 claim, bản ghi `.cache/realdev_web_snapshot.jsonl` (144 credit) |
+| Tập thực tế 300 claim (kiểm tra độc lập cho ngưỡng web) | **60,7%** (trước 51,3%); báo nhầm "có nguồn" **4/140** (trước 1/140) |
 | Tập test ViFactCheck | 83,3% (chạy một lần, cấu hình cũ) – **chưa đo lại** với cấu hình mới |
 | Tập thực tế 300 claim | Web thật lần 2: **51,3%**; chấm lại cấu hình mới: **51,0%**; báo nhầm "có nguồn" 1/140 |
 | Credit Tavily (key mới, gói Researcher 1.000/tháng) | **614/900** (hạn mức tự đặt) – còn 286 |
@@ -74,6 +77,29 @@ chọn checkpoint trên dev **gốc**.
   --vncorenlp-dir <abs>\models\vncorenlp --experiment RT-V4 --epochs 2      # ~5 phút trên RTX 5060
 .venv\Scripts\python.exe scripts\evaluate_source_attribution.py --limit 1500 --verifier --sweep `
   --save-assessments outputs\assessments\dev1500_rtv4.pkl
+```
+
+## 1c. Ngưỡng riêng cho web (22/11)
+
+Tập dev thực tế `PHIEU_DEV_THUC_TE.xlsx`: 70 claim (25 recent_real, 15 paraphrase, 15 perturbed, 15 fabricated),
+0 bài trùng V1, kiểm tra chéo 24/24 đồng ý. Web thật 1 lần: 70/70 `ok`, 144 credit (key hiện tại 758/900).
+Dò lưới `--replay --sweep` (relevance 0,45–0,70 × support 0,60–0,80), chọn TB nhóm cao nhất với báo nhầm ≤ 5%.
+Đoạn kho cục bộ giữ ngưỡng cũ → ViFactCheck không đổi.
+
+| | Web dùng ngưỡng chung 0,75/0,8 | Web 0,55/0,6 |
+|---|---:|---:|
+| Dev thực tế 70 claim, TB nhóm | 46,7% | **63,7%** |
+| 300 claim (không dùng để chọn), độ chính xác | 51,3% | **60,7%** |
+| – recent_real / paraphrase / perturbed / fabricated | 35 / 30 / 44,3 / 100% | 42 / 41,7 / 85,7 / **78,6%** |
+| – báo nhầm "có nguồn" | 1/140 | **4/140** |
+
+**Còn mở:** 3 tin bịa được "xác nhận" bằng đoạn liên quan lỏng (relevance 0,56–0,64, verifier SUPPORTED 0,71–0,96,
+vd. "nghỉ hè 6 tháng" ↔ "nghỉ hè tối đa 6 tuần"); 12 tin bịa ra SOURCE_CONFLICT. Dev chỉ có 15 tin bịa nên không
+thấy. **Không chỉnh lại theo 300 claim** – thêm ~30 tin bịa vào tập dev (~60 credit, `--skip-recorded`) rồi dò trên dev
+quy tắc kiểu "relevance < 0,7 thì cần support cao hơn".
+
+```powershell
+.venv\Scripts\python.exe scripts\evaluate_source_attribution_realworld.py data\evaluation\PHIEU_DEV_THUC_TE.xlsx --replay .cache\realdev_web_snapshot.jsonl --sweep --output outputs\metrics\source_attribution_realdev_replay.json
 ```
 
 ---

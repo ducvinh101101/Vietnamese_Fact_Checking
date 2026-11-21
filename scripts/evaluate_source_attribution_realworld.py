@@ -18,7 +18,8 @@ from __future__ import annotations
 
 import argparse
 from collections import Counter, defaultdict
-from dataclasses import asdict
+from dataclasses import asdict, replace
+from itertools import product
 import json
 import os
 from pathlib import Path
@@ -36,7 +37,7 @@ from src.env_loader import load_dotenv
 from src.realworld_labels import load_labeled_claims
 from src.hybrid_retriever import FusedRetriever
 from src.schemas import Evidence, RetrievedEvidence
-from src.source_attribution import SOURCE_LABELS, is_web_retriever
+from src.source_attribution import AttributionThresholds, SOURCE_LABELS, build_source_output, is_web_retriever
 from src.source_attribution_factory import build_pipeline, load_config
 from src.web_retriever import WEB_RETRYABLE_STATUSES
 
@@ -240,16 +241,46 @@ def summarise(rows: list[dict]) -> dict:
                             "f1": round(2 * p * r / (p + r), 4) if p + r else 0.0}
     with_url = [r for r in rows if r["expected"] == "SOURCE_FOUND" and r["predicted"] == "SOURCE_FOUND"]
     not_found = [r for r in rows if r["group"] in ("fabricated", "perturbed")]
+    per_group = {g: round(c["correct"] / c["n"], 4) for g, c in by_group.items()}
     return {
         "n": len(rows),
         "accuracy": round(sum(r["expected"] == r["predicted"] for r in rows) / max(1, len(rows)), 4),
+        "mean_group_accuracy": round(sum(per_group.values()) / max(1, len(per_group)), 4),
         "macro_f1": round(sum(v["f1"] for v in per_label.values()) / len(per_label), 4),
         "per_label": per_label,
-        "per_group_accuracy": {g: round(c["correct"] / c["n"], 4) for g, c in by_group.items()},
+        "per_group_accuracy": per_group,
         # Báo nhầm "có nguồn": tin bịa / tin bị sửa mà hệ thống nói SOURCE_FOUND.
         "false_found_rate": round(sum(r["predicted"] == "SOURCE_FOUND" for r in not_found) / max(1, len(not_found)), 4),
         "citation_hits_expected_url": round(sum(r["cites_expected_url"] for r in with_url) / max(1, len(with_url)), 4),
     }
+
+
+def _redecide_stored(pipeline, stored: list[dict], web_thresholds: AttributionThresholds) -> list[dict]:
+    """Chấm lại trên kết quả assessed đã có sẵn xác suất verifier với bộ ``web_thresholds`` mới."""
+    old_web = pipeline.web_thresholds
+    pipeline.web_thresholds = web_thresholds
+    try:
+        rows = []
+        for entry in stored:
+            assessed = pipeline.assign_statuses(list(entry["raw_assessed"]))
+            decided = replace(
+                pipeline._decide(entry["claim"], assessed, entry["queries"], entry["retrieved_count"]),
+                web_status=entry["status"],
+            )
+            output = build_source_output(decided)
+            cited = [c["url"] for c in output["citations"]]
+            source_url = entry["source_url"]
+            rows.append({
+                "claim_id": entry["claim_id"], "group": entry["group"], "claim": entry["claim"],
+                "expected": entry["expected"], "source_url": source_url,
+                "predicted": output["verdict"]["label"], "confidence": output["verdict"]["confidence"],
+                "cited_urls": cited,
+                "cites_expected_url": bool(source_url) and any(same_article(source_url, u) for u in cited),
+                "independent_sources": output["verdict"]["independent_sources"], "web_status": entry["status"],
+            })
+        return rows
+    finally:
+        pipeline.web_thresholds = old_web
 
 
 def main() -> None:
@@ -268,7 +299,11 @@ def main() -> None:
     parser.add_argument("--limit", type=int, default=0, help="chỉ chạy N claim đầu (sau các bộ lọc)")
     parser.add_argument("--replay", type=Path, default=None,
                         help="chấm lại từ bản ghi web, không gọi Tavily (claim chưa ghi → không có web)")
+    parser.add_argument("--sweep", action="store_true",
+                        help="dò lưới web_thresholds (relevance 0.45..0.70, support 0.60..0.80) trong một lần chạy")
     args = parser.parse_args()
+    if args.sweep and args.replay is None:
+        raise SystemExit("--sweep chỉ chạy với --replay (dò ngưỡng không tốn credit, không bỏ qua cơ chế thử lại).")
 
     config = load_config()
     allowed_hosts = {str(item["host"]).lower() for item in config["web_retrieval"]["source_policy"]["allowlist"]}
@@ -319,10 +354,33 @@ def main() -> None:
         index = next(i for i, r in enumerate(fused.retrievers) if is_web_retriever(r))
         recorder = fused.retrievers[index] = RecordingWeb(fused.retrievers[index])
     web = web_retriever_of(pipeline)
-    threshold = float(pipeline.thresholds.relevance)
+    configured_web = getattr(pipeline, "web_thresholds", None)
+    active_web = configured_web or pipeline.thresholds
+    threshold = float(active_web.relevance)
     rows = []
+    stored = []
     for record in frame.itertuples():
-        output, status = run_with_retry(pipeline, str(record.claim))
+        if args.sweep:
+            # Chấm verifier mọi đoạn web đã rerank để dò lưới ngưỡng mà không chạy lại model.
+            pipeline.web_thresholds = replace(active_web, relevance=0.0)
+            try:
+                raw_result = pipeline.run(str(record.claim))
+            finally:
+                pipeline.web_thresholds = configured_web
+            assessed_objs = pipeline.assign_statuses(list(raw_result.assessed))
+            decided = replace(
+                pipeline._decide(str(record.claim), assessed_objs, raw_result.queries, raw_result.retrieved_count),
+                web_status=raw_result.web_status,
+            )
+            output, status = build_source_output(decided), raw_result.web_status
+            stored.append({
+                "claim_id": record.claim_id, "group": record.group, "claim": str(record.claim),
+                "expected": record.expected_label, "source_url": str(getattr(record, "source_url", "") or ""),
+                "raw_assessed": raw_result.assessed, "queries": raw_result.queries,
+                "retrieved_count": raw_result.retrieved_count, "status": status,
+            })
+        else:
+            output, status = run_with_retry(pipeline, str(record.claim))
         if status == "budget_exhausted":
             print("Hết hạn mức web của tháng – dừng sớm, chỉ chấm các claim đã chạy.")
             break
@@ -364,6 +422,21 @@ def main() -> None:
         # Chỉ các claim tra web thành công: tách lỗi mạng/hạn mức khỏi lỗi của mô hình.
         reached = [r for r in rows if r["web_status"] in REACHED]
         report["web_reached"] = summarise(reached)
+    if args.sweep and stored:
+        base = active_web
+        grid_results = []
+        best = None
+        for rel, sup in product([0.45, 0.50, 0.55, 0.60, 0.65, 0.70], [0.60, 0.65, 0.70, 0.75, 0.80]):
+            cand = AttributionThresholds(rel, sup, base.conflict, base.lexical_support)
+            summary = summarise(_redecide_stored(pipeline, stored, cand))
+            entry = {"web_thresholds": {"relevance": rel, "support": sup}, **summary}
+            grid_results.append(entry)
+            if summary["false_found_rate"] <= 0.05:
+                key = (summary["mean_group_accuracy"], summary["accuracy"], summary["macro_f1"], rel, sup)
+                if best is None or key > best[0]:
+                    best = (key, entry)
+        report["sweep_best"] = best[1] if best else None
+        report["sweep_grid"] = grid_results
     mode = "local" if args.no_web else ("replay" if args.replay else "web")
     output = args.output or ROOT / f"outputs/metrics/source_attribution_realworld_{mode}.json"
     output.parent.mkdir(parents=True, exist_ok=True)

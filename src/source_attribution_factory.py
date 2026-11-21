@@ -125,9 +125,15 @@ def build_pipeline(config: dict[str, Any] | None = None, *, use_web: bool | None
         if use_verifier or config["verifier"].get("enabled"):
             verifier = build_verifier(dict(config, verifier=dict(config["verifier"], enabled=True)))
     decision = config["decision"]
+    base_thresholds = AttributionThresholds(**decision["thresholds"])
+    web_thresholds = (
+        AttributionThresholds(**{**decision["thresholds"], **decision["web_thresholds"]})
+        if decision.get("web_thresholds") else None
+    )
     return SourceAttributionPipeline(
-        retriever, build_scorer(config, verifier), verifier, AttributionThresholds(**decision["thresholds"]),
+        retriever, build_scorer(config, verifier), verifier, base_thresholds,
         candidate_k=int(decision["candidate_k"]), assess_k=int(decision["assess_k"]),
         max_citations=int(decision["max_citations"]),
         require_claim_numbers=bool(decision.get("require_claim_numbers", False)),
+        web_thresholds=web_thresholds,
     )

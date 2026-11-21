@@ -43,6 +43,13 @@ def is_web_retriever(retriever: object) -> bool:
     return type(retriever).__name__ == "WebRetriever" or bool(getattr(retriever, "is_web_retriever", False))
 
 
+def is_web_evidence(evidence: object) -> bool:
+    """Đoạn lấy từ WebRetriever có ``document_id`` / ``passage_id`` bắt đầu bằng ``web-``."""
+    doc_id = str(getattr(evidence, "document_id", "") or "")
+    pid = str(getattr(evidence, "passage_id", "") or "")
+    return doc_id.startswith("web-") or pid.startswith("web-")
+
+
 class PairVerifier(Protocol):
     """Verifier trả xác suất [SUPPORTED, REFUTED, NEI] cho từng đoạn."""
 
@@ -165,6 +172,7 @@ class SourceAttributionPipeline:
         assess_k: int = 8,
         max_citations: int = 3,
         require_claim_numbers: bool = False,
+        web_thresholds: AttributionThresholds | None = None,
     ) -> None:
         if candidate_k < 1 or assess_k < 1 or max_citations < 1:
             raise ValueError("candidate_k, assess_k, max_citations phải lớn hơn 0")
@@ -172,16 +180,24 @@ class SourceAttributionPipeline:
         self.scorer = scorer or LexicalSourceScorer()
         self.verifier = verifier
         self.thresholds = thresholds or AttributionThresholds()
+        self.web_thresholds = web_thresholds
         self.candidate_k = candidate_k
         self.assess_k = assess_k
         self.max_citations = max_citations
         # Đoạn thiếu một con số của claim → tối đa "related", không "xác nhận" (dev: báo nhầm 5,8% → 5,1%).
         self.require_claim_numbers = require_claim_numbers
 
+    def thresholds_for(self, evidence: object) -> AttributionThresholds:
+        """Ngưỡng áp dụng cho một đoạn: dùng ``web_thresholds`` (nếu có) cho đoạn từ web, ngược lại ``thresholds``."""
+        if self.web_thresholds is not None and is_web_evidence(evidence):
+            return self.web_thresholds
+        return self.thresholds
+
     def _status(self, relevance: float, probabilities: list[float] | None, facets: FacetCheck,
-                article_numbers: set[str] | frozenset[str] = frozenset()) -> str:
+                article_numbers: set[str] | frozenset[str] = frozenset(),
+                thresholds: AttributionThresholds | None = None) -> str:
         """``article_numbers``: số của claim đã thấy ở đoạn khác của cùng bài (báo hay tách số ra đoạn khác)."""
-        status = self._base_status(relevance, probabilities, facets)
+        status = self._base_status(relevance, probabilities, facets, thresholds)
         if status == "supports" and self.require_claim_numbers and any(
                 m.startswith("số ") and m not in article_numbers for m in facets.missing):
             return "related"
@@ -193,12 +209,15 @@ class SourceAttributionPipeline:
         for a in assessed:
             key = a.item.evidence.url or a.item.evidence.document_id
             numbers_by_article.setdefault(key, set()).update(m for m in a.facets.matched if m.startswith("số "))
-        return [replace(a, status=self._status(a.relevance, a.verifier_probabilities, a.facets,
-                                               numbers_by_article[a.item.evidence.url or a.item.evidence.document_id]))
-                for a in assessed]
+        return [replace(a, status=self._status(
+            a.relevance, a.verifier_probabilities, a.facets,
+            numbers_by_article[a.item.evidence.url or a.item.evidence.document_id],
+            self.thresholds_for(a.item.evidence),
+        )) for a in assessed]
 
-    def _base_status(self, relevance: float, probabilities: list[float] | None, facets: FacetCheck) -> str:
-        t = self.thresholds
+    def _base_status(self, relevance: float, probabilities: list[float] | None, facets: FacetCheck,
+                     thresholds: AttributionThresholds | None = None) -> str:
+        t = thresholds or self.thresholds
         if relevance < t.relevance:
             return "unrelated"
         if probabilities is not None:
@@ -224,13 +243,17 @@ class SourceAttributionPipeline:
         candidates = self.retriever.search(text, self.candidate_k)  # type: ignore[attr-defined]
         candidates = [item for item in candidates if isfinite(item.score) and item.evidence.content.strip()]
         reranked = rerank(self.scorer, text, candidates, self.assess_k)
-        # reranked đã sắp giảm dần nên các đoạn qua ngưỡng là một tiền tố; chỉ
-        # chạy verifier trên tiền tố đó.
-        relevant = [item for item in reranked if item.score >= self.thresholds.relevance]
+        # Chỉ chạy verifier trên các đoạn đạt ngưỡng liên quan của nguồn tương ứng (local hoặc web).
+        relevant_indices = [
+            index for index, item in enumerate(reranked)
+            if item.score >= self.thresholds_for(item.evidence).relevance
+        ]
         probabilities: list[list[float] | None] = [None] * len(reranked)
-        if self.verifier is not None and relevant:
-            scored = self.verifier.predict_probabilities_batch(text, [item.evidence.content for item in relevant])
-            for index, value in enumerate(scored):
+        if self.verifier is not None and relevant_indices:
+            scored = self.verifier.predict_probabilities_batch(
+                text, [reranked[i].evidence.content for i in relevant_indices]
+            )
+            for index, value in zip(relevant_indices, scored):
                 probabilities[index] = [float(v) for v in value]
         assessed = self.assign_statuses([
             PassageAssessment(item, item.score, probabilities[index], check_facets(text, item.evidence.content), "")

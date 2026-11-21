@@ -70,6 +70,11 @@ decision:
     support: 0.8
     conflict: 0.5
     lexical_support: 0.55    # chỉ dùng khi tắt verifier
+  # Ngưỡng riêng cho đoạn lấy từ web (chọn trên PHIEU_DEV_THUC_TE.xlsx, 70 claim, 0% báo nhầm SOURCE_FOUND).
+  # Ngưỡng kho cục bộ ở trên giữ nguyên nên kết quả ViFactCheck không đổi.
+  web_thresholds:
+    relevance: 0.55
+    support: 0.6
 
 web_retrieval:
   version: 1
