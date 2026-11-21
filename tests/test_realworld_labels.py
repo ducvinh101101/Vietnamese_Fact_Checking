@@ -168,7 +168,9 @@ def test_main_saves_per_claim_details_and_miss_stages(tmp_path, monkeypatch):
     monkeypatch.setattr(module, "build_pipeline", lambda **_: Pipeline())
     monkeypatch.setattr(module, "load_config", lambda: {"web_retrieval": {
         "source_policy": {"allowlist": [{"host": "vov.vn"}, {"host": "vnexpress.net"}]},
-        "provider": {"api_key_env": "X_KEY"}}})
+        "provider": {"api_key_env": "X_KEY"},
+        "limits": {"monthly_credit_budget": 900, "requests_per_claim": 2}}})
+    monkeypatch.setattr(module, "credits_used", lambda *_: (0, 0))  # không gọi Tavily trong test
     monkeypatch.setattr(module, "load_dotenv", lambda: None)
     monkeypatch.setenv("X_KEY", "k")
     out = tmp_path / "out.json"
@@ -219,6 +221,15 @@ def test_web_status_detects_wrapped_web_retrievers():
     pipeline = SourceAttributionPipeline(FusedRetriever([HybridSourceRetriever(corpus, window=1), replay]))
     assert pipeline.run_json("Hà Nội có mưa lớn chiều nay")["retrieval"]["web_status"] == "not_in_snapshot"
     assert module.web_retriever_of(pipeline) is replay
+
+
+def test_credit_guard_refuses_runs_that_could_exceed_budget():
+    module = _eval_module()
+    # 50 claim × 2 request × 2 (thử lại một lần) = 200 lượt tối đa
+    assert module.credit_shortfall(50, 2, budget=900, used_local=600, used_provider=0) == 0
+    assert module.credit_shortfall(50, 2, budget=900, used_local=750, used_provider=0) == 50
+    # Tavily thấy nhiều hơn sổ máy (key dùng ở máy khác) → lấy số lớn hơn
+    assert module.credit_shortfall(50, 2, budget=900, used_local=100, used_provider=800) == 100
 
 
 def test_run_with_retry_waits_on_rate_limit_and_retries_transient_once(monkeypatch):

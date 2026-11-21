@@ -166,6 +166,37 @@ def compact_assessed(assessed: list[dict]) -> list[dict]:
     return [{**{k: a.get(k) for k in keys}, "content": a.get("content", "")} for a in assessed]
 
 
+def credit_shortfall(n_claims: int, requests_per_claim: int, budget: int, used_local: int, used_provider: int) -> int:
+    """Số lượt có thể thiếu nếu chạy hết: mỗi claim tối đa requests_per_claim × 2 (run_with_retry thử lại một lần)."""
+    worst_case = n_claims * requests_per_claim * 2
+    return max(0, worst_case - (budget - max(used_local, used_provider)))
+
+
+def credits_used(web_config: dict, api_key: str) -> tuple[int, int]:
+    """(sổ máy tháng này, Tavily báo) cho key đang dùng. Tavily cập nhật trễ nên chỉ là chặn thêm."""
+    from datetime import datetime, timezone
+    from urllib.request import Request, urlopen
+
+    from src.web_retriever import key_fingerprint
+
+    local = 0
+    try:
+        book = json.loads((ROOT / web_config["cache"]["directory"] / "usage.json").read_text(encoding="utf-8"))
+        state = book.get("accounts", {}).get(key_fingerprint(api_key), {})
+        if state.get("month") == datetime.now(timezone.utc).strftime("%Y-%m"):
+            local = int(state.get("requests", 0))
+    except (FileNotFoundError, ValueError):
+        pass
+    provider = 0
+    try:
+        request = Request("https://api.tavily.com/usage", headers={"Authorization": f"Bearer {api_key}"})
+        with urlopen(request, timeout=15) as response:
+            provider = int(json.load(response).get("key", {}).get("usage") or 0)
+    except Exception as error:  # không đọc được thì vẫn còn sổ máy chặn
+        print(f"Không đọc được lượt dùng từ Tavily ({type(error).__name__}); chỉ dựa vào sổ trên máy.")
+    return local, provider
+
+
 def run_with_retry(pipeline, claim: str, max_waits: int = 12) -> tuple[dict, str | None]:
     """Chạm giới hạn request/phút → đợi rồi chạy lại; lỗi web tạm thời → thử lại một lần."""
     retried = False
@@ -240,6 +271,16 @@ def main() -> None:
     live_web = not args.no_web and args.replay is None
     if live_web and not os.environ.get(load_config()["web_retrieval"]["provider"]["api_key_env"]):
         raise SystemExit("Chưa đặt TAVILY_API_KEY; dùng --no-web nếu chỉ muốn đo kho cục bộ.")
+    if live_web:
+        web_config = config["web_retrieval"]
+        limits = web_config["limits"]
+        budget, per_claim = int(limits["monthly_credit_budget"]), int(limits["requests_per_claim"])
+        used_local, used_provider = credits_used(web_config, os.environ[web_config["provider"]["api_key_env"]])
+        shortfall = credit_shortfall(len(frame), per_claim, budget, used_local, used_provider)
+        print(f"Credit: đã dùng {max(used_local, used_provider)}/{budget}; lần này tối đa {len(frame) * per_claim * 2}.")
+        if shortfall:
+            raise SystemExit(f"Có thể vượt hạn mức {budget} credit (thiếu tới {shortfall}). Chạy ít claim hơn "
+                             "(--groups) hoặc dùng --replay để chấm lại từ bản ghi.")
 
     pipeline = build_pipeline(use_web=live_web, use_verifier=not args.no_verifier)
     recorder = None
