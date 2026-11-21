@@ -51,6 +51,22 @@ py -3.13 -m pytest -q --basetemp=.pytest_tmp           # ~300 test, không cần
 
 Đây là bản thử nghiệm, **chưa được xác nhận đạt 80% ngoài thực tế**. Xem [báo cáo tổng kết](docs/BAO_CAO_TONG_KET.md).
 
+## Báo cáo bài tập lớn
+
+Báo cáo môn Xử lý ngôn ngữ tự nhiên nằm trong `docs/`:
+
+- [`BAO_CAO_DE_TAI_XLNNTN_chuan_v2.docx`](docs/BAO_CAO_DE_TAI_XLNNTN_chuan_v2.docx): bản đã chỉnh theo form báo cáo bài tập lớn (A4, Times New Roman 13, dãn dòng 1,5, có bìa, mục lục, danh mục hình/bảng, đánh số trang). Trước khi nộp cần điền các ô tô vàng trên bìa (tên trường, khoa, giảng viên, MSSV, lớp, địa điểm).
+- [`SLIDE_BAO_CAO_DE_TAI.pptx`](docs/SLIDE_BAO_CAO_DE_TAI.pptx) / [`.pdf`](docs/SLIDE_BAO_CAO_DE_TAI.pdf): slide báo cáo.
+
+Cấu trúc báo cáo (6 chương):
+
+1. Giới thiệu bài toán
+2. Tổng quan nghiên cứu: các công trình đã có, đánh giá và khoảng trống
+3. Kiến thức nền tảng: BM25, RRF, Transformer/PhoBERT, NLI, RAG, độ đo
+4. Giải pháp đề xuất: truy xuất, verifier RT-V2, chính sách theo hạng, lớp hậu kiểm, giao diện
+5. Thực nghiệm và kết quả: dữ liệu, môi trường chạy, kịch bản thử nghiệm, kết quả, đánh giá, so sánh PhoBERT với Gemma 4
+6. Kết luận và hướng phát triển
+
 ## Kết quả chính (dữ liệu ViFactCheck)
 
 | Phép đo | Macro-F1 | Ghi chú |
