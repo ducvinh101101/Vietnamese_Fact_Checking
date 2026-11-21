@@ -9,7 +9,7 @@
 
 | Mục | Trạng thái |
 |---|---|
-| Commit `113a9c7` → `b551592` (6 commit) | **Trên máy, chưa push** |
+| Commit `113a9c7` → `9bdcae7` (7 commit) | Đã push lên `feature/source-attribution-retrieval` |
 | Dev ViFactCheck (1.252 claim) | **83,64%** (trước 83,08%); báo nhầm "có nguồn" **4,91%** (trước 5,83%) |
 | Tập test ViFactCheck | 83,3% (chạy một lần, cấu hình cũ) – **chưa đo lại** với cấu hình mới |
 | Tập thực tế 300 claim | Web thật lần 2: **51,3%**; chấm lại cấu hình mới: **51,0%**; báo nhầm "có nguồn" 1/140 |
@@ -61,7 +61,7 @@ znews cùng nội dung) – tìm kiếm không hẳn trượt, mà bị chặn �
 
 ## 3. Việc nên làm tiếp (theo thứ tự)
 
-1. **Push** 6 commit (cần nhóm đồng ý).
+1. ~~Push~~ – đã xong.
 2. **Chạy lại tập test ViFactCheck một lần** với cấu hình mới để chốt số (dev 83,6%, không dò gì trên test).
 3. **Tập dev thực tế riêng (~100 claim, cùng phiếu Excel)** – điều kiện để làm 4 và 5 mà không quá khớp tập 300 claim.
    Tốn ~200–400 credit (có chốt chặn hạn mức trong script).
