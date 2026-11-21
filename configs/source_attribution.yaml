@@ -80,8 +80,8 @@ web_retrieval:
     max_results: 10
   limits:
     requests_per_claim: 2      # claim gốc + truy vấn từ khóa/thực thể
-    requests_per_minute: 10
-    monthly_credit_budget: 900
+    requests_per_minute: 60    # Tavily cho key dev 100/phút; trước là 10 (~5 claim/phút)
+    monthly_credit_budget: 900 # đếm riêng cho từng API key (gói Researcher: 1.000 credit/tháng)
     timeout_seconds: 15
     max_retries: 1
     retry_statuses: [429, 500, 502, 503, 504]

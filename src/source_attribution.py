@@ -38,6 +38,11 @@ LABEL_TEXT = {
 LEGACY_TO_SOURCE = {"SUPPORTED": "SOURCE_FOUND", "REFUTED": "SOURCE_CONFLICT", "NOT_ENOUGH_INFO": "NO_SOURCE"}
 
 
+def is_web_retriever(retriever: object) -> bool:
+    """WebRetriever thật hoặc lớp bọc nó (ghi/phát lại kết quả web khi đánh giá) – khai báo ``is_web_retriever``."""
+    return type(retriever).__name__ == "WebRetriever" or bool(getattr(retriever, "is_web_retriever", False))
+
+
 class PairVerifier(Protocol):
     """Verifier trả xác suất [SUPPORTED, REFUTED, NEI] cho từng đoạn."""
 
@@ -203,11 +208,11 @@ class SourceAttributionPipeline:
     def _web_status(self) -> str | None:
         """Đọc trạng thái của retriever web (nếu có) sau lần search vừa rồi."""
         retrievers = getattr(self.retriever, "retrievers", [self.retriever])
-        web = [r for r in retrievers if type(r).__name__ == "WebRetriever"]
+        web = [r for r in retrievers if is_web_retriever(r)]
         if not web:
             return None
         errors = getattr(self.retriever, "last_errors", [])
-        if any(error.startswith("WebRetriever:") for error in errors):
+        if any(error.startswith(f"{type(web[0]).__name__}:") for error in errors):
             return "error"  # ngoại lệ ngoài dự kiến đã bị FusedRetriever nuốt
         return str(getattr(web[0], "last_status", "error"))
 

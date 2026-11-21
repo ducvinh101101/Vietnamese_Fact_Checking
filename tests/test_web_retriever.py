@@ -68,6 +68,46 @@ def test_usage_budget_is_persisted_without_claim_or_page_content(tmp_path):
     assert "claim" not in ledger and "key" not in ledger and "content" not in ledger
 
 
+def test_usage_budget_is_counted_per_api_key(tmp_path):
+    """Đổi TAVILY_API_KEY → hạn mức tính lại từ 0; key cũ vẫn bị chặn. Sổ không chứa key."""
+    import json
+
+    configured = config(tmp_path)
+    configured["limits"]["monthly_credit_budget"] = 1
+    cache = tmp_path / "cache"
+    cache.mkdir()
+    # Sổ định dạng cũ (không theo key) – coi như của key cũ, không chặn key mới.
+    month = __import__("datetime").datetime.now(__import__("datetime").timezone.utc).strftime("%Y-%m")
+    (cache / "usage.json").write_text(json.dumps({"month": month, "requests": 5, "recent": []}), encoding="utf-8")
+
+    def make(key):
+        return WebRetriever(configured, api_key=key, provider_request=lambda *args: {"results": []})
+
+    first = make("tvly-first-secret")
+    first.search("claim one")
+    assert first.last_status == "no_eligible_passages"
+    first.search("claim two")
+    assert first.last_status == "budget_exhausted"
+    second = make("tvly-second-secret")
+    second.search("claim three")
+    assert second.last_status == "no_eligible_passages"
+    ledger = (cache / "usage.json").read_text(encoding="utf-8")
+    assert "secret" not in ledger and "tvly" not in ledger
+
+
+def test_tls_context_trusts_certifi_roots_and_skips_weak_dhe():
+    """sggp.org.vn: root GlobalSign R6 không có trong kho Windows nhưng có trong certifi.
+    moh.gov.vn: khóa DH quá yếu → không đề nghị DHE (vẫn kiểm tra chứng chỉ + tên miền)."""
+    import ssl
+
+    from src.web_retriever import tls_context
+
+    context = tls_context()
+    assert context.verify_mode == ssl.CERT_REQUIRED and context.check_hostname
+    assert any("GlobalSign Root CA - R6" in str(ca.get("subject")) for ca in context.get_ca_certs())
+    assert not [c["name"] for c in context.get_ciphers() if c["name"].startswith("DHE-")]
+
+
 def test_url_dns_and_passage_guards():
     hosts = {"vnexpress.net"}
     assert allowed_url("https://vnexpress.net/path", hosts)

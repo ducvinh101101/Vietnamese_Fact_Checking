@@ -4,3 +4,6 @@
 *.safetensors filter=lfs diff=lfs merge=lfs -text
 *.pt filter=lfs diff=lfs merge=lfs -text
 *.xz filter=lfs diff=lfs merge=lfs -text
+# JSONL (evidence corpus is hashed in its manifest): keep LF on every machine, core.autocrlf=true broke the hash
+*.jsonl text eol=lf
+configs/evidence_source_policy.yaml text eol=lf

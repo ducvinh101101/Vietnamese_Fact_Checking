@@ -152,6 +152,7 @@ def test_main_saves_per_claim_details_and_miss_stages(tmp_path, monkeypatch):
                     f'a,recent_real,"{CLAIM}",SOURCE_FOUND,{SRC}\n', encoding="utf-8")
 
     class WebRetriever:
+        last_status = "ok"
         last_trace = _trace({"url": SRC, "outcome": "used", "max_relevance": 0.6})
 
     class Pipeline:
@@ -171,14 +172,53 @@ def test_main_saves_per_claim_details_and_miss_stages(tmp_path, monkeypatch):
     monkeypatch.setattr(module, "load_dotenv", lambda: None)
     monkeypatch.setenv("X_KEY", "k")
     out = tmp_path / "out.json"
-    monkeypatch.setattr(sys, "argv", ["x", str(path), "--output", str(out)])
+    snap = tmp_path / "snap.jsonl"
+    monkeypatch.setattr(sys, "argv", ["x", str(path), "--output", str(out), "--snapshot", str(snap)])
     module.main()
+    assert json.loads(snap.read_text(encoding="utf-8"))["claim_id"] == "a"
     saved = json.loads(out.read_text(encoding="utf-8"))
     row = saved["rows"][0]
     assert row["miss_stage"] == "below_threshold" and saved["report"]["miss_stage_counts"] == {"below_threshold": 1}
     assert row["source_diagnosis"]["assessed_max_relevance"] == 0.68
     assert row["web_trace"]["queries"] == ["q"] and row["best_relevance"] == 0.68
-    assert len(row["assessed"][0]["content"]) == 400 and row["last_errors"] == []
+    assert row["assessed"][0]["content"] == "x" * 900 and row["last_errors"] == []
+
+
+def test_web_snapshot_round_trip_replays_without_network(tmp_path):
+    """Bản ghi web của lần chạy thật → chấm lại (đổi facet/ngưỡng) không tốn lượt Tavily."""
+    from src.schemas import Evidence, RetrievedEvidence
+
+    module = _eval_module()
+    item = RetrievedEvidence(Evidence("web-1", "web-1-p01", "Nội dung đoạn báo.", url=SRC, domain="vnexpress.net"), 0.8)
+
+    class WebRetriever:
+        last_status, last_trace = "ok", {"queries": ["q"], "pages": []}
+
+        def search(self, claim, top_k=3):
+            return [item]
+
+    recorder = module.RecordingWeb(WebRetriever())
+    assert recorder.search("claim a", 20) == [item] and recorder.last_status == "ok"
+    path = tmp_path / "snap.jsonl"
+    module.append_snapshot(path, "rw1", recorder)
+    replay = module.ReplayWeb(module.load_snapshot(path))
+    assert replay.search("claim a", 20) == [item]
+    assert replay.last_status == "ok" and replay.last_trace == {"queries": ["q"], "pages": []}
+    replay.search("claim chưa ghi", 20)
+    assert replay.last_status == "not_in_snapshot"
+
+
+def test_web_status_detects_wrapped_web_retrievers():
+    from src.hybrid_retriever import FusedRetriever, HybridSourceRetriever
+    from src.source_attribution import SourceAttributionPipeline
+    from src.schemas import Evidence
+
+    module = _eval_module()
+    corpus = [Evidence("d", "d-p1", "Hà Nội có mưa lớn vào chiều nay theo trung tâm khí tượng.")]
+    replay = module.ReplayWeb({})
+    pipeline = SourceAttributionPipeline(FusedRetriever([HybridSourceRetriever(corpus, window=1), replay]))
+    assert pipeline.run_json("Hà Nội có mưa lớn chiều nay")["retrieval"]["web_status"] == "not_in_snapshot"
+    assert module.web_retriever_of(pipeline) is replay
 
 
 def test_run_with_retry_waits_on_rate_limit_and_retries_transient_once(monkeypatch):

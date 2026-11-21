@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import argparse
 from collections import Counter, defaultdict
+from dataclasses import asdict
 import json
 import os
 from pathlib import Path
@@ -33,7 +34,9 @@ import pandas as pd
 
 from src.env_loader import load_dotenv
 from src.realworld_labels import load_labeled_claims
-from src.source_attribution import SOURCE_LABELS
+from src.hybrid_retriever import FusedRetriever
+from src.schemas import Evidence, RetrievedEvidence
+from src.source_attribution import SOURCE_LABELS, is_web_retriever
 from src.source_attribution_factory import build_pipeline, load_config
 from src.web_retriever import WEB_RETRYABLE_STATUSES
 
@@ -93,13 +96,74 @@ def miss_stage(source_url: str, web_status: str | None, diagnosis: dict, relevan
 
 def web_retriever_of(pipeline) -> object | None:
     retrievers = getattr(pipeline.retriever, "retrievers", [pipeline.retriever])
-    return next((r for r in retrievers if type(r).__name__ == "WebRetriever"), None)
+    return next((r for r in retrievers if is_web_retriever(r)), None)
+
+
+class RecordingWeb:
+    """Bọc WebRetriever thật, giữ lại kết quả lần search gần nhất để ghi vào bản ghi web."""
+
+    is_web_retriever = True
+
+    def __init__(self, inner) -> None:
+        self.inner = inner
+        self.last_claim: str | None = None
+        self.last_results: list[RetrievedEvidence] = []
+
+    @property
+    def last_status(self) -> str:
+        return self.inner.last_status
+
+    @property
+    def last_trace(self) -> dict:
+        return self.inner.last_trace
+
+    def search(self, claim: str, top_k: int = 3) -> list[RetrievedEvidence]:
+        self.last_claim, self.last_results = claim, []
+        self.last_results = self.inner.search(claim, top_k)
+        return self.last_results
+
+
+class ReplayWeb:
+    """Phát lại kết quả web đã ghi (theo nội dung claim) – chấm lại không cần mạng, không tốn lượt."""
+
+    is_web_retriever = True
+
+    def __init__(self, snapshot: dict[str, dict]) -> None:
+        self.snapshot = snapshot
+        self.last_status, self.last_trace = "not_run", {}
+
+    def search(self, claim: str, top_k: int = 3) -> list[RetrievedEvidence]:
+        record = self.snapshot.get(claim)
+        if record is None:
+            self.last_status, self.last_trace = "not_in_snapshot", {}
+            return []
+        self.last_status, self.last_trace = record["status"], record["trace"]
+        return [RetrievedEvidence(Evidence(**item["evidence"]), float(item["score"])) for item in record["results"]][:top_k]
+
+
+def append_snapshot(path: Path, claim_id: str, recorder: RecordingWeb) -> None:
+    record = {"claim_id": claim_id, "claim": recorder.last_claim, "status": recorder.last_status,
+              "trace": recorder.last_trace,
+              "results": [{"evidence": asdict(item.evidence), "score": item.score} for item in recorder.last_results]}
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(record, ensure_ascii=False) + "\n")
+
+
+def load_snapshot(path: Path) -> dict[str, dict]:
+    """claim → bản ghi; claim chạy nhiều lần thì lấy lần sau cùng."""
+    records = {}
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if line.strip():
+            record = json.loads(line)
+            records[record["claim"]] = record
+    return records
 
 
 def compact_assessed(assessed: list[dict]) -> list[dict]:
     keys = ("url", "relevance", "status", "verifier_probabilities", "matched_details", "conflicting_details",
             "missing_details")
-    return [{**{k: a.get(k) for k in keys}, "content": str(a.get("content", ""))[:400]} for a in assessed]
+    return [{**{k: a.get(k) for k in keys}, "content": a.get("content", "")} for a in assessed]
 
 
 def run_with_retry(pipeline, claim: str, max_waits: int = 12) -> tuple[dict, str | None]:
@@ -153,6 +217,11 @@ def main() -> None:
     parser.add_argument("--no-web", action="store_true", help="chỉ kho cục bộ (để so sánh)")
     parser.add_argument("--no-verifier", action="store_true")
     parser.add_argument("--output", type=Path, default=None)
+    parser.add_argument("--groups", default="", help="chỉ chạy các nhóm này, vd. recent_real,paraphrase")
+    parser.add_argument("--snapshot", type=Path, default=ROOT / ".cache/realworld_web_snapshot.jsonl",
+                        help="nơi ghi kết quả web của từng claim khi chạy thật (.cache/ không commit)")
+    parser.add_argument("--replay", type=Path, default=None,
+                        help="chấm lại từ bản ghi web, không gọi Tavily (claim chưa ghi → không có web)")
     args = parser.parse_args()
 
     config = load_config()
@@ -164,12 +233,25 @@ def main() -> None:
         raise SystemExit("Không có claim hợp lệ nào (cột check phải là OK).")
     if not frame.expected_label.isin(SOURCE_LABELS).all():
         raise SystemExit(f"expected_label phải thuộc {SOURCE_LABELS}")
+    if args.groups:
+        frame = frame[frame.group.isin(args.groups.split(","))]
     print(f"{len(frame)} claim hợp lệ, bỏ qua {len(skipped)} dòng.")
     load_dotenv()
-    if not args.no_web and not os.environ.get(load_config()["web_retrieval"]["provider"]["api_key_env"]):
+    live_web = not args.no_web and args.replay is None
+    if live_web and not os.environ.get(load_config()["web_retrieval"]["provider"]["api_key_env"]):
         raise SystemExit("Chưa đặt TAVILY_API_KEY; dùng --no-web nếu chỉ muốn đo kho cục bộ.")
 
-    pipeline = build_pipeline(use_web=not args.no_web, use_verifier=not args.no_verifier)
+    pipeline = build_pipeline(use_web=live_web, use_verifier=not args.no_verifier)
+    recorder = None
+    if args.replay is not None:
+        replay = ReplayWeb(load_snapshot(args.replay))
+        print(f"Phát lại web từ {args.replay} ({len(replay.snapshot)} claim đã ghi).")
+        pipeline.retriever = FusedRetriever([pipeline.retriever, replay], [1.0, float(config["web"].get("weight", 1.0))],
+                                            candidates_per_retriever=pipeline.candidate_k)
+    elif live_web:
+        fused = pipeline.retriever
+        index = next(i for i, r in enumerate(fused.retrievers) if is_web_retriever(r))
+        recorder = fused.retrievers[index] = RecordingWeb(fused.retrievers[index])
     web = web_retriever_of(pipeline)
     threshold = float(pipeline.thresholds.relevance)
     rows = []
@@ -178,6 +260,8 @@ def main() -> None:
         if status == "budget_exhausted":
             print("Hết hạn mức web của tháng – dừng sớm, chỉ chấm các claim đã chạy.")
             break
+        if recorder is not None:
+            append_snapshot(args.snapshot, str(record.claim_id), recorder)
         cited = [c["url"] for c in output["citations"]]
         source_url = str(getattr(record, "source_url", "") or "")
         assessed = output["retrieval"]["assessed"]
@@ -205,7 +289,8 @@ def main() -> None:
         print(f"{record.claim_id}: {record.expected_label} → {output['verdict']['label']}{web_note}{stage_note}",
               flush=True)
 
-    report = {"web": not args.no_web, "verifier": not args.no_verifier, **summarise(rows),
+    report = {"web": not args.no_web, "web_replay": str(args.replay) if args.replay else None,
+              "groups": args.groups or "all", "verifier": not args.no_verifier, **summarise(rows),
               "web_status_counts": dict(Counter(str(r["web_status"]) for r in rows)),
               # Tin thật bị trượt: trượt ở tầng nào (tìm kiếm / tải trang / ngưỡng / facet / verifier).
               "miss_stage_counts": dict(Counter(r["miss_stage"] for r in rows if "miss_stage" in r))}
@@ -213,7 +298,8 @@ def main() -> None:
         # Chỉ các claim tra web thành công: tách lỗi mạng/hạn mức khỏi lỗi của mô hình.
         reached = [r for r in rows if r["web_status"] in REACHED]
         report["web_reached"] = summarise(reached)
-    output = args.output or ROOT / f"outputs/metrics/source_attribution_realworld_{'web' if not args.no_web else 'local'}.json"
+    mode = "local" if args.no_web else ("replay" if args.replay else "web")
+    output = args.output or ROOT / f"outputs/metrics/source_attribution_realworld_{mode}.json"
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps({"report": report, "rows": rows}, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps(report, ensure_ascii=False, indent=2))
