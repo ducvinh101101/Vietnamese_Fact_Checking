@@ -1,6 +1,8 @@
 """Chạy pipeline kiểm tra nguồn ĐẦY ĐỦ (kho cục bộ + web) trên tập claim thực tế do nhóm gán nhãn.
 
-File CSV theo mẫu ``data/evaluation/source_attribution_realworld_template.csv``:
+Đầu vào: phiếu Excel ``data/evaluation/PHIEU_GAN_NHAN_NGUON_V1.xlsx`` (tạo bằng
+``scripts/create_realworld_labeling_form.py``; nhãn tự suy ra từ nhóm, dòng lỗi bị bỏ qua) hoặc file CSV theo
+mẫu ``data/evaluation/source_attribution_realworld_template.csv``:
 
 * ``group``: ``recent_real`` (tin thật sau 2023, có URL nguồn) | ``paraphrase`` (diễn đạt
   lại tin thật) | ``fabricated`` (bịa hoàn toàn) | ``perturbed`` (tin thật bị sửa số/tên/ngày);
@@ -9,7 +11,7 @@ File CSV theo mẫu ``data/evaluation/source_attribution_realworld_template.csv`
 
 Cần ``TAVILY_API_KEY``; mỗi claim tốn tối đa ``requests_per_claim`` request.
 
-    python scripts/evaluate_source_attribution_realworld.py data/evaluation/source_attribution_realworld_v1.csv
+    python scripts/evaluate_source_attribution_realworld.py data/evaluation/PHIEU_GAN_NHAN_NGUON_V1.xlsx
 """
 
 from __future__ import annotations
@@ -28,24 +30,29 @@ if str(ROOT) not in sys.path:
 import pandas as pd
 
 from src.env_loader import load_dotenv
+from src.realworld_labels import load_labeled_claims
 from src.source_attribution import SOURCE_LABELS
 from src.source_attribution_factory import build_pipeline, load_config
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("csv", type=Path)
+    parser.add_argument("csv", type=Path, help="phiếu .xlsx (PHIEU_GAN_NHAN_NGUON_V1.xlsx) hoặc .csv")
     parser.add_argument("--no-web", action="store_true", help="chỉ kho cục bộ (để so sánh)")
     parser.add_argument("--no-verifier", action="store_true")
     parser.add_argument("--output", type=Path, default=None)
     args = parser.parse_args()
 
-    frame = pd.read_csv(args.csv)
-    missing = {"claim_id", "group", "claim", "expected_label"} - set(frame.columns)
-    if missing:
-        raise SystemExit(f"Thiếu cột: {sorted(missing)}")
+    config = load_config()
+    allowed_hosts = {str(item["host"]).lower() for item in config["web_retrieval"]["source_policy"]["allowlist"]}
+    frame, skipped = load_labeled_claims(args.csv, allowed_hosts)
+    for message in skipped:
+        print(f"Bỏ qua {message}")
+    if frame.empty:
+        raise SystemExit("Không có claim hợp lệ nào (cột check phải là OK).")
     if not frame.expected_label.isin(SOURCE_LABELS).all():
         raise SystemExit(f"expected_label phải thuộc {SOURCE_LABELS}")
+    print(f"{len(frame)} claim hợp lệ, bỏ qua {len(skipped)} dòng.")
     load_dotenv()
     if not args.no_web and not os.environ.get(load_config()["web_retrieval"]["provider"]["api_key_env"]):
         raise SystemExit("Chưa đặt TAVILY_API_KEY; dùng --no-web nếu chỉ muốn đo kho cục bộ.")
