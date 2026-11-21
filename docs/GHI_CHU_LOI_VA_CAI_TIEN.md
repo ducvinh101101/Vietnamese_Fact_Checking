@@ -10,7 +10,8 @@
 | Mục | Trạng thái |
 |---|---|
 | Commit `113a9c7` → `9bdcae7` (7 commit) | Đã push lên `feature/source-attribution-retrieval` |
-| Dev ViFactCheck (1.252 claim) | **83,64%** (trước 83,08%); báo nhầm "có nguồn" **4,91%** (trước 5,83%) |
+| Dev ViFactCheck (1.252 claim) | RT-V4: **84,29%** (RT-V3 83,64%, trước nữa 83,08%); báo nhầm "có nguồn" 5,06% (RT-V3 4,91%) |
+| Verifier | **RT-V4** `models/rt_v4_augmented` (mục 1b); ngưỡng relevance 0,7 → 0,75 (dò trên dev) |
 | Tập test ViFactCheck | 83,3% (chạy một lần, cấu hình cũ) – **chưa đo lại** với cấu hình mới |
 | Tập thực tế 300 claim | Web thật lần 2: **51,3%**; chấm lại cấu hình mới: **51,0%**; báo nhầm "có nguồn" 1/140 |
 | Credit Tavily (key mới, gói Researcher 1.000/tháng) | **614/900** (hạn mức tự đặt) – còn 286 |
@@ -40,6 +41,41 @@
 | Truy vấn web dùng `162400000000000`, `01/01/2028` | Dùng dạng chuẩn hóa | Dùng số/ngày như claim viết (**chưa đo trên web thật**) |
 | Xác nhận dù đoạn không nhắc số của claim | Chỉ dựa vào verifier | `decision.require_claim_numbers` (gom số theo bài) |
 
+## 1b. Verifier RT-V4 (21/11, tối)
+
+**Chẩn đoán** (34 tin thật bị verifier đánh REFUTED trên tập 300 claim): phần lớn là đoạn của sự việc **khác**
+(verifier đúng); ca sai thật là **cùng thông tin, khác cách viết** – rw020 "1-3-2027" ↔ "1.3.2027" (REFUTED 0,99),
+rw070 "2 năm" ↔ "hai năm", rw017 "21/11" ↔ "21.11". ViFactCheck chép nguyên định dạng nên RT-V3 chưa thấy.
+
+**Dữ liệu** `scripts/build_verifier_augmented_data.py` → `data/processed/verifier_windows_v4`: train RT-V3 (6.103)
++ 1.256 mẫu chỉ đổi claim – giữ nhãn (đổi định dạng ngày, "2" ↔ "hai", "700.000" → "700 nghìn", "430,5" → "hơn 430")
+và tương phản (đổi định dạng **và** giá trị → REFUTED). Không đọc dev/test/tập thực tế. Train từ RT-V3, 2 epoch,
+chọn checkpoint trên dev **gốc**.
+
+| | RT-V3 | RT-V4 |
+|---|---:|---:|
+| Dev cặp gốc, macro-F1 | 81,0% | **81,7%** |
+| Dev đổi định dạng, macro-F1 (chỉ đo) | 72,6% | **79,6%** |
+| – ngày đổi định dạng / "hai năm" / "700 nghìn" | 67,9 / 86,1 / 33,3% | 76,2 / 88,9 / 41,7% |
+| Dev ViFactCheck end-to-end, TB 5 nhóm (ngưỡng dò trên dev) | 83,64% | **84,29%** |
+| – nhóm A (có nguồn) / báo nhầm "có nguồn" | 76,7% / 4,91% | **80,0%** / 5,06% |
+| Tập thực tế 300 claim, phát lại (chỉ báo cáo) | 51,0% | 51,3% |
+| – tin thật recent_real / paraphrase / perturbed | 31 / 25 / 52,9% | 35 / 30 / 44,3% |
+
+* "Số gần đúng" (`hơn 430`) vẫn 0/4 trên dev đổi định dạng – chỉ 31 mẫu train; cần thêm mẫu.
+* Nhóm perturbed giảm vì **ngưỡng relevance 0,75**: đoạn web của các claim này ở 0,70–0,74 (verifier không đổi
+  quyết định). Đúng vấn đề "ngưỡng riêng cho web" ở mục 3 bước 4 – dò trên tập dev thực tế, không trên 300 claim.
+* Quay lại RT-V3: `verifier.model_path: models/rt_v3_windows/best_model`, `relevance: 0.7`.
+
+```powershell
+.venv\Scripts\python.exe scripts\build_verifier_augmented_data.py
+.venv\Scripts\python.exe kaggle\finetune_phobert_retrieval_v1.py --data-dir <abs>\data\processed\verifier_windows_v4 `
+  --model-dir <abs>\models\rt_v3_windows\best_model --output-dir <abs>\models\rt_v4_augmented `
+  --vncorenlp-dir <abs>\models\vncorenlp --experiment RT-V4 --epochs 2      # ~5 phút trên RTX 5060
+.venv\Scripts\python.exe scripts\evaluate_source_attribution.py --limit 1500 --verifier --sweep `
+  --save-assessments outputs\assessments\dev1500_rtv4.pkl
+```
+
 ---
 
 ## 2. Lỗi còn mở – recall tin thật thấp (~29%)
@@ -66,8 +102,8 @@ znews cùng nội dung) – tìm kiếm không hẳn trượt, mà bị chặn �
 3. **Tập dev thực tế riêng (~100 claim, cùng phiếu Excel)** – điều kiện để làm 4 và 5 mà không quá khớp tập 300 claim.
    Tốn ~200–400 credit (có chốt chặn hạn mức trong script).
 4. **Ngưỡng riêng cho tin web** (40 claim kẹt ở 0,4–0,7): dò `relevance` / `support` cho đường web trên tập dev ở bước 3.
-5. **Verifier cho văn bản báo** (36 claim REFUTED): fine-tune RT-V3 thêm cặp claim viết lại / số gần đúng
-   (mẫu tương phản, kế hoạch cũ mục 9) – train trên GPU máy nhóm.
+5. **Verifier cho văn bản báo:** RT-V4 đã làm (mục 1b). Còn: thêm mẫu số gần đúng (0/4), mẫu "claim thêm chi
+   tiết bài không có → NEI" (rw018/rw068 "34 giường" bị đánh REFUTED).
 6. **Tìm kiếm:** đo truy vấn từ khóa mới, thử `topic: news` + giới hạn thời gian của Tavily, `max_pages` 6 → 8–10 –
    so trên tập dev ở bước 3.
 

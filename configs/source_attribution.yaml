@@ -43,10 +43,12 @@ reranker:
   batch_size: 16
 
 verifier:
-  # RT-V3 = RT-V2 fine-tune tiếp trên CỬA SỔ CÂU (scripts/build_verifier_window_data.py) – khớp đầu vào
-  # thật của pipeline. SUPPORTED→xác nhận, REFUTED→mâu thuẫn. RT-V2 cũ: models/rt_v2_balanced/best_model.
+  # RT-V4 = RT-V3 fine-tune tiếp với mẫu "cùng thông tin, khác cách viết" (ngày 1-3-2027 ↔ 1.3.2027,
+  # "2 năm" ↔ "hai năm", "700.000" ↔ "700 nghìn", "hơn 430" ↔ 430,5) + mẫu tương phản
+  # (scripts/build_verifier_augmented_data.py). Dev ViFactCheck: TB 5 nhóm 83,6% (RT-V3) → 84,3%.
+  # RT-V3: models/rt_v3_windows/best_model (ngưỡng relevance 0.7). SUPPORTED→xác nhận, REFUTED→mâu thuẫn.
   enabled: true
-  model_path: models/rt_v3_windows/best_model
+  model_path: models/rt_v4_augmented/best_model
   vncorenlp_dir: models/vncorenlp
   max_length: 256
   temperature: 1.0
@@ -59,10 +61,12 @@ decision:
   # Dev 1.252 claim: TB 5 nhóm 83,2% → 83,6%, báo nhầm 5,8% → 4,9%, recall "có nguồn" 77,0% → 76,7%.
   require_claim_numbers: true
   # Chọn trên dev (1.252 claim) bằng scripts/evaluate_source_attribution.py --sweep cho reranker
-  # "verifier" blend 0.5 + verifier RT-V3. Đổi reranker/verifier phải dò lại. Gợi ý cho "lexical":
+  # "verifier" blend 0.5 + verifier RT-V4 (RT-V3: relevance 0.7). Đổi reranker/verifier phải dò lại.
+  # RT-V4 0.75/0.8: TB 84,3%, báo nhầm 5,1%, recall 80%. Sweep chọn support 0.7 (84,4%, báo nhầm 5,4%) –
+  # hơn ~2 claim, báo nhầm cao hơn → giữ 0.8. Gợi ý cho "lexical":
   # relevance 0.65, support 0.8, lexical_support 0.55 (candidate_k 40).
   thresholds:
-    relevance: 0.7
+    relevance: 0.75
     support: 0.8
     conflict: 0.5
     lexical_support: 0.55    # chỉ dùng khi tắt verifier
