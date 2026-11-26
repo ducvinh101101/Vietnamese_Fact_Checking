@@ -2,6 +2,7 @@ from copy import deepcopy
 import gzip
 from pathlib import Path
 
+import pytest
 import yaml
 
 from src.web_retriever import WebRetriever, allowed_url, assert_public_dns, decode_html_response, extract_passages
@@ -341,3 +342,29 @@ def test_robots_txt_is_fetched_once_per_host(tmp_path):
     )
     assert retriever.search("claim", 5)
     assert len(calls) == 1
+
+
+def test_fetch_page_wraps_incomplete_read(monkeypatch, tmp_path):
+    """Máy chủ ngắt giữa chừng (IncompleteRead) = trang lỗi, không làm hỏng cả lượt tìm web."""
+    from http.client import IncompleteRead
+
+    import src.web_retriever as wr
+
+    class _Response:
+        headers = type("H", (), {"get_content_type": lambda self: "text/html", "get": lambda self, k, d=None: None,
+                                 "get_content_charset": lambda self: "utf-8"})()
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *exc):
+            return False
+
+        def read(self, amount):
+            raise IncompleteRead(b"partial")
+
+    monkeypatch.setattr(wr, "_opener", lambda: type("O", (), {"open": lambda self, req, timeout: _Response()})())
+    monkeypatch.setattr(wr, "assert_public_dns", lambda host: None)
+    web = wr.WebRetriever(config(tmp_path), api_key="test")
+    with pytest.raises(wr.WebRetrievalError):
+        web._fetch_page("https://vnexpress.net/a-1.html", 1.0)

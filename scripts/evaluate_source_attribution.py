@@ -70,6 +70,13 @@ class ExcludingRetriever:
         results = self.base.search(claim, top_k + 80)
         return [item for item in results if item.evidence.url not in self.excluded_urls][:top_k]
 
+    def article_passages(self, document_id: str) -> list[str]:
+        """Đoạn cùng bài như kho đầy đủ, trừ bài bị loại."""
+        urls = {item.url for item in self.base.evidence_items if item.document_id == document_id}
+        if urls & self.excluded_urls:
+            return []
+        return self.base.article_passages(document_id)
+
 
 def coverage(gold: str, passage: str) -> float:
     gold_terms = set(content_syllables(gold))
@@ -300,6 +307,7 @@ def main() -> None:
             full_retriever, build_scorer(config, model), verifier, AttributionThresholds(**config["decision"]["thresholds"]),
             candidate_k=int(config["decision"]["candidate_k"]), assess_k=int(config["decision"]["assess_k"]),
             require_claim_numbers=bool(config["decision"].get("require_claim_numbers")),
+            article_digest=config["decision"].get("article_digest"),
         )
         legacy_bm25 = BM25Retriever(load_evidence_jsonl(ROOT / config["local"]["corpus"]))
 

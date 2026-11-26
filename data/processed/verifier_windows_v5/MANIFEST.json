@@ -1,0 +1,49 @@
+{
+  "experiment": "RT-V4 verifier: RT-V3 windows + format-invariance and contrast augmentation + added-detail NEI (0.35)",
+  "source": "data\\processed\\verifier_windows_v3",
+  "seed": 42,
+  "train": {
+    "original": 6103,
+    "augmented": 1913,
+    "kinds": {
+      "format_count": 227,
+      "contrast_count": 85,
+      "format_date": 428,
+      "contrast_round": 23,
+      "format_round": 79,
+      "contrast_approximate": 152,
+      "contrast_date": 231,
+      "format_approximate": 31,
+      "added_detail": 657
+    },
+    "labels": {
+      "0": 2191,
+      "1": 2381,
+      "2": 3444
+    }
+  },
+  "dev": {
+    "rows": 1196,
+    "note": "dev.parquet = dev RT-V3 nguyên vẹn (chọn checkpoint)"
+  },
+  "dev_augmented": {
+    "rows": 357,
+    "kinds": {
+      "format_count": 36,
+      "format_date": 84,
+      "format_round": 12,
+      "contrast_round": 4,
+      "contrast_date": 49,
+      "contrast_count": 18,
+      "contrast_approximate": 24,
+      "format_approximate": 4,
+      "added_detail": 126
+    },
+    "note": "chỉ để đo, không chọn checkpoint"
+  },
+  "files": {
+    "train.parquet": "e669afa4c856f6bcaa8c65da265bb76fc7b1c56a8d344a879aadffd065ec5a80",
+    "dev.parquet": "3be55adadb296c07a644759d5652dba4b56dcba8f5e502bc587bf8634cd5a13b",
+    "dev_augmented.parquet": "7d6ca56d35e11f17d2873e2295dab99879dbb9f83509ad85e1ec761dcc2a1da8"
+  }
+}

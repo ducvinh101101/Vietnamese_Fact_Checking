@@ -198,7 +198,7 @@ def test_main_saves_per_claim_details_and_miss_stages(tmp_path, monkeypatch):
                     "retrieval": {"web_status": "ok", "assessed": [
                         {**_assessed(0.68, "unrelated"), "content": "x" * 900, "verifier_probabilities": None}]}}
 
-    monkeypatch.setattr(module, "build_pipeline", lambda **_: Pipeline())
+    monkeypatch.setattr(module, "build_pipeline", lambda *_, **__: Pipeline())
     monkeypatch.setattr(module, "load_config", lambda: {"web_retrieval": {
         "source_policy": {"allowlist": [{"host": "vov.vn"}, {"host": "vnexpress.net"}]},
         "provider": {"api_key_env": "X_KEY"},
@@ -258,11 +258,16 @@ def test_web_status_detects_wrapped_web_retrievers():
 
 def test_credit_guard_refuses_runs_that_could_exceed_budget():
     module = _eval_module()
-    # 50 claim × 2 request × 2 (thử lại một lần) = 200 lượt tối đa
+    # 50 claim × 2 request + 10% = 110 lượt dự kiến
+    assert module.planned_credits(50, 2) == 110
     assert module.credit_shortfall(50, 2, budget=900, used_local=600, used_provider=0) == 0
-    assert module.credit_shortfall(50, 2, budget=900, used_local=750, used_provider=0) == 50
+    assert module.credit_shortfall(50, 2, budget=900, used_local=800, used_provider=0) == 10
+    # chừa 100 credit cho demo
+    assert module.credit_shortfall(50, 2, budget=900, used_local=700, used_provider=0, reserve=100) == 10
     # Tavily thấy nhiều hơn sổ máy (key dùng ở máy khác) → lấy số lớn hơn
-    assert module.credit_shortfall(50, 2, budget=900, used_local=100, used_provider=800) == 100
+    assert module.credit_shortfall(50, 2, budget=900, used_local=100, used_provider=850) == 60
+    # 370 claim (dev + 300) vừa một tháng mới, vẫn chừa 100 cho demo
+    assert module.credit_shortfall(370, 2, budget=900, used_local=0, used_provider=0, reserve=100) == 14
 
 
 def test_run_with_retry_waits_on_rate_limit_and_retries_transient_once(monkeypatch):

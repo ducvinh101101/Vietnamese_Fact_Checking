@@ -12,6 +12,7 @@ from datetime import datetime, timezone
 import gzip
 from hashlib import sha256
 from html.parser import HTMLParser
+from http.client import HTTPException
 from ipaddress import ip_address
 import json
 import os
@@ -370,6 +371,11 @@ class WebRetriever:
         self.last_trace: dict[str, object] = self._new_trace()
         # robots.txt theo host, chỉ lưu khi tải THÀNH CÔNG (lỗi tạm thời được thử lại lần sau).
         self._robots_cache: dict[str, str] = {}
+        self.last_documents: dict[str, list[str]] = {}
+
+    def article_passages(self, document_id: str) -> list[str]:
+        """Mọi đoạn của bài (lần search gần nhất), theo thứ tự trong trang."""
+        return list(self.last_documents.get(document_id, []))
 
     def _fetch_robots(self, page_url: str, timeout: float) -> str:
         """Tải robots.txt của host được duyệt. Đi theo tối đa 5 lần chuyển hướng như RFC 9309 (vd. qdnd.vn →
@@ -396,7 +402,7 @@ class WebRetriever:
                     current = canonical_url(urljoin(current, error.headers["Location"]))
                     continue
                 raise WebRetrievalError("Không tải được robots.txt") from error
-            except (URLError, TimeoutError, UnicodeDecodeError, LookupError) as error:
+            except (URLError, TimeoutError, OSError, HTTPException, UnicodeDecodeError, LookupError) as error:
                 raise WebRetrievalError("Không tải hoặc giải mã được robots.txt") from error
         raise WebRetrievalError("robots.txt chuyển hướng quá nhiều lần")
 
@@ -451,7 +457,7 @@ class WebRetriever:
                 if error.code not in {301, 302, 303, 307, 308} or not error.headers.get("Location"):
                     raise WebRetrievalError("Không tải được trang nguồn web") from error
                 current = canonical_url(urljoin(current, error.headers["Location"]))
-            except (URLError, TimeoutError) as error:
+            except (URLError, TimeoutError, OSError, HTTPException) as error:  # vd. IncompleteRead, ConnectionReset
                 raise WebRetrievalError("Hết thời gian hoặc không tải được trang nguồn web") from error
         raise WebRetrievalError("Trang web chuyển hướng quá nhiều lần")
 
@@ -523,6 +529,16 @@ class WebRetriever:
         if provider_failed and not results:
             self.last_status = limit_status or "local_only"
             return []
+        return self.read_pages(claim, results, top_k)
+
+    def read_pages(self, claim: str, results: list[object], top_k: int) -> list[RetrievedEvidence]:
+        """Tải và cắt các trang provider trả (không gọi provider – không tốn credit).
+
+        Ghi ``last_documents``: document_id → mọi đoạn của bài theo thứ tự trong trang (cho bản tóm tắt cả bài);
+        kết quả trả về chỉ gồm ``top_k`` đoạn liên quan nhất.
+        """
+        trace = self.last_trace
+        self.last_documents = {}
         # Lấy passage từ NHIỀU trang (trước đây dừng ngay sau trang đầu vì
         # top_k = số passage/trang), rồi xếp hạng toàn cục theo độ liên quan.
         max_pages = int(self.extraction.get("max_pages", len(results) or 1))  # type: ignore[union-attr]
@@ -564,6 +580,10 @@ class WebRetriever:
                     query=claim,
                     main_content=main_content,
                 )
+                _, article = extract_passages(
+                    html, int(self.extraction["minimum_passage_chars"]), int(self.extraction["maximum_passage_chars"]),
+                    int(self.extraction.get("max_article_passages", 60)), main_content=main_content,
+                )
             except WebRetrievalError as error:
                 pages_failed += 1
                 page.update(outcome="fetch_failed", error=self._error_text(error))
@@ -579,6 +599,7 @@ class WebRetriever:
             from src.source_reranker import LexicalSourceScorer
 
             relevance = LexicalSourceScorer().score(claim, passages)
+            self.last_documents[document_id] = article or passages
             page.update(outcome="used", title=title or result.get("title"), passages=len(passages),
                         max_relevance=round(max(relevance), 4))
             for passage_index, passage in enumerate(passages):

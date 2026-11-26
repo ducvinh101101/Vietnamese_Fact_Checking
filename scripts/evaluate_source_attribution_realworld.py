@@ -118,6 +118,13 @@ class RecordingWeb:
     def last_trace(self) -> dict:
         return self.inner.last_trace
 
+    @property
+    def last_documents(self) -> dict:
+        return getattr(self.inner, "last_documents", {})
+
+    def article_passages(self, document_id: str) -> list[str]:
+        return list(self.last_documents.get(document_id, []))
+
     def search(self, claim: str, top_k: int = 3) -> list[RetrievedEvidence]:
         self.last_claim, self.last_results = claim, []
         self.last_results = self.inner.search(claim, top_k)
@@ -132,20 +139,27 @@ class ReplayWeb:
     def __init__(self, snapshot: dict[str, dict]) -> None:
         self.snapshot = snapshot
         self.last_status, self.last_trace = "not_run", {}
+        self.last_documents: dict[str, list[str]] = {}
+
+    def article_passages(self, document_id: str) -> list[str]:
+        """Đoạn của cả bài nếu bản ghi có (bản ghi cũ không có → pipeline dùng các đoạn đã lấy)."""
+        return list(self.last_documents.get(document_id, []))
 
     def search(self, claim: str, top_k: int = 3) -> list[RetrievedEvidence]:
         record = self.snapshot.get(claim)
         if record is None:
-            self.last_status, self.last_trace = "not_in_snapshot", {}
+            self.last_status, self.last_trace, self.last_documents = "not_in_snapshot", {}, {}
             return []
         self.last_status, self.last_trace = record["status"], record["trace"]
+        self.last_documents = record.get("documents", {})
         return [RetrievedEvidence(Evidence(**item["evidence"]), float(item["score"])) for item in record["results"]][:top_k]
 
 
 def append_snapshot(path: Path, claim_id: str, recorder: RecordingWeb) -> None:
     record = {"claim_id": claim_id, "claim": recorder.last_claim, "status": recorder.last_status,
               "trace": recorder.last_trace,
-              "results": [{"evidence": asdict(item.evidence), "score": item.score} for item in recorder.last_results]}
+              "results": [{"evidence": asdict(item.evidence), "score": item.score} for item in recorder.last_results],
+              "documents": recorder.last_documents}
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("a", encoding="utf-8") as handle:
         handle.write(json.dumps(record, ensure_ascii=False) + "\n")
@@ -177,10 +191,19 @@ def compact_assessed(assessed: list[dict]) -> list[dict]:
     return [{**{k: a.get(k) for k in keys}, "content": a.get("content", "")} for a in assessed]
 
 
-def credit_shortfall(n_claims: int, requests_per_claim: int, budget: int, used_local: int, used_provider: int) -> int:
-    """Số lượt có thể thiếu nếu chạy hết: mỗi claim tối đa requests_per_claim × 2 (run_with_retry thử lại một lần)."""
-    worst_case = n_claims * requests_per_claim * 2
-    return max(0, worst_case - (budget - max(used_local, used_provider)))
+def planned_credits(n_claims: int, requests_per_claim: int) -> int:
+    """Lượt dự kiến: requests_per_claim/claim + 10% cho lần thử lại khi lỗi tạm thời (thực tế 0/370 claim lỗi)."""
+    return -(-n_claims * requests_per_claim * 11 // 10)
+
+
+def credit_shortfall(n_claims: int, requests_per_claim: int, budget: int, used_local: int, used_provider: int,
+                     reserve: int = 0) -> int:
+    """Số lượt có thể thiếu so với ngân sách sau khi chừa ``reserve`` lượt (vd. cho buổi demo).
+
+    Chốt chặn cứng vẫn là sổ đếm (UsageLedger): mọi request được ghi sổ TRƯỚC khi gọi Tavily và dừng hẳn khi
+    chạm monthly_credit_budget – claim đang dở không được ghi vào bản ghi, chạy tiếp bằng --skip-recorded.
+    """
+    return max(0, planned_credits(n_claims, requests_per_claim) - (budget - reserve - max(used_local, used_provider)))
 
 
 def credits_used(web_config: dict, api_key: str) -> tuple[int, int]:
@@ -297,6 +320,9 @@ def main() -> None:
     parser.add_argument("--skip-recorded", action="store_true",
                         help="web thật: bỏ claim đã có trong --snapshot (chạy nối tiếp, không tốn lượt lần nữa)")
     parser.add_argument("--limit", type=int, default=0, help="chỉ chạy N claim đầu (sau các bộ lọc)")
+    parser.add_argument("--config", type=Path, default=None, help="file config khác (mặc định configs/source_attribution.yaml)")
+    parser.add_argument("--reserve", type=int, default=100,
+                        help="web thật: chừa lại N credit (mặc định 100, cho buổi demo)")
     parser.add_argument("--replay", type=Path, default=None,
                         help="chấm lại từ bản ghi web, không gọi Tavily (claim chưa ghi → không có web)")
     parser.add_argument("--sweep", action="store_true",
@@ -305,7 +331,7 @@ def main() -> None:
     if args.sweep and args.replay is None:
         raise SystemExit("--sweep chỉ chạy với --replay (dò ngưỡng không tốn credit, không bỏ qua cơ chế thử lại).")
 
-    config = load_config()
+    config = load_config(args.config) if args.config else load_config()
     allowed_hosts = {str(item["host"]).lower() for item in config["web_retrieval"]["source_policy"]["allowlist"]}
     frame, skipped = load_labeled_claims(args.csv, allowed_hosts)
     for message in skipped:
@@ -329,20 +355,21 @@ def main() -> None:
     print(f"{len(frame)} claim hợp lệ, bỏ qua {len(skipped)} dòng.")
     load_dotenv()
     live_web = not args.no_web and args.replay is None
-    if live_web and not os.environ.get(load_config()["web_retrieval"]["provider"]["api_key_env"]):
+    if live_web and not os.environ.get(config["web_retrieval"]["provider"]["api_key_env"]):
         raise SystemExit("Chưa đặt TAVILY_API_KEY; dùng --no-web nếu chỉ muốn đo kho cục bộ.")
     if live_web:
         web_config = config["web_retrieval"]
         limits = web_config["limits"]
         budget, per_claim = int(limits["monthly_credit_budget"]), int(limits["requests_per_claim"])
         used_local, used_provider = credits_used(web_config, os.environ[web_config["provider"]["api_key_env"]])
-        shortfall = credit_shortfall(len(frame), per_claim, budget, used_local, used_provider)
-        print(f"Credit: đã dùng {max(used_local, used_provider)}/{budget}; lần này tối đa {len(frame) * per_claim * 2}.")
+        shortfall = credit_shortfall(len(frame), per_claim, budget, used_local, used_provider, args.reserve)
+        print(f"Credit: đã dùng {max(used_local, used_provider)}/{budget}; lần này dự kiến "
+              f"{planned_credits(len(frame), per_claim)}; chừa {args.reserve} cho demo.")
         if shortfall:
-            raise SystemExit(f"Có thể vượt hạn mức {budget} credit (thiếu tới {shortfall}). Chạy ít claim hơn "
-                             "(--groups) hoặc dùng --replay để chấm lại từ bản ghi.")
+            raise SystemExit(f"Có thể lấn vào {args.reserve} credit chừa cho demo / vượt hạn mức {budget} "
+                             f"(thiếu {shortfall}). Chạy ít claim hơn (--limit/--groups) hoặc dùng --replay.")
 
-    pipeline = build_pipeline(use_web=live_web, use_verifier=not args.no_verifier)
+    pipeline = build_pipeline(config, use_web=live_web, use_verifier=not args.no_verifier)
     recorder = None
     if args.replay is not None:
         replay = ReplayWeb(load_snapshot(args.replay))

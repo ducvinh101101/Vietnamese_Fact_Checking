@@ -136,4 +136,5 @@ def build_pipeline(config: dict[str, Any] | None = None, *, use_web: bool | None
         max_citations=int(decision["max_citations"]),
         require_claim_numbers=bool(decision.get("require_claim_numbers", False)),
         web_thresholds=web_thresholds,
+        article_digest=decision.get("article_digest"),
     )

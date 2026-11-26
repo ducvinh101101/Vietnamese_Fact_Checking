@@ -34,9 +34,10 @@ if str(ROOT) not in sys.path:
 
 import pandas as pd
 
-from src.vi_text import DATE_DMY, _valid_dmy
+from src.article_digest import claim_units
+from src.vi_text import DATE_DMY, _valid_dmy, content_syllables, extract_numbers
 
-SUPPORTED, REFUTED = 0, 1
+SUPPORTED, REFUTED, NEI = 0, 1, 2
 DIGIT_WORDS = {2: "hai", 3: "ba", 4: "bốn", 5: "năm", 6: "sáu", 7: "bảy", 8: "tám", 9: "chín", 10: "mười"}
 WORD_DIGITS = {word: n for n, word in DIGIT_WORDS.items() if word != "năm"}  # "năm" (5) trùng "năm" (year)
 COUNT_UNITS = ("năm", "tháng", "ngày", "tuần", "giờ", "phút", "người", "lần", "tỉnh", "xã", "huyện", "dự án",
@@ -196,6 +197,32 @@ def augment(frame: pd.DataFrame, seed: int) -> tuple[pd.DataFrame, dict[str, int
     return pd.DataFrame(rows, columns=list(frame.columns)), stats
 
 
+def added_detail(frame: pd.DataFrame, seed: int, fraction: float) -> tuple[pd.DataFrame, dict[str, int]]:
+    """SUPPORTED → NEI: ghép thêm vào claim một ý (có số) lấy từ claim của bài KHÁC mà đoạn không nhắc tới.
+
+    Dạy verifier "claim có chi tiết bài không có" = thiếu thông tin, không phải mâu thuẫn (tin thật bị gán
+    SOURCE_CONFLICT; rw018 "100 ôtô… loại 34 giường"). RNG riêng → fraction 0 giữ nguyên dữ liệu RT-V4.
+    """
+    rng = random.Random(seed + 7)
+    pool = [(str(r.Url), unit.strip().rstrip(".")) for r in frame.itertuples() for unit in claim_units(str(r.Statement))
+            if len(content_syllables(unit)) >= 5 and extract_numbers(unit)]
+    rows = []
+    for record in frame.itertuples():
+        if int(record.labels) != SUPPORTED or rng.random() >= fraction or not pool:
+            continue
+        evidence_terms = set(content_syllables(str(record.Evidence)))
+        for _ in range(20):
+            url, unit = rng.choice(pool)
+            terms = set(content_syllables(unit))
+            if url != str(record.Url) and len(terms & evidence_terms) / len(terms) < 0.25                     and not extract_numbers(unit) & extract_numbers(str(record.Evidence)):
+                claim = str(record.Statement).rstrip().rstrip(".")
+                rows.append({"Statement": f"{claim}, {unit[0].lower() + unit[1:]}.", "Evidence": record.Evidence,
+                             "Url": record.Url, "labels": NEI, "label_origin": "augmented", "sample_weight": 1.0,
+                             "kind": "added_detail"})
+                break
+    return pd.DataFrame(rows, columns=list(frame.columns)), {"added_detail": len(rows)}
+
+
 def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
@@ -205,18 +232,26 @@ def main() -> None:
     parser.add_argument("--source", type=Path, default=ROOT / "data/processed/verifier_windows_v3")
     parser.add_argument("--output", type=Path, default=ROOT / "data/processed/verifier_windows_v4")
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--added-detail-fraction", type=float, default=0.0,
+                        help="tỷ lệ cặp SUPPORTED sinh thêm mẫu NEI 'claim có chi tiết bài không có' (RT-V5: 0.35)")
     args = parser.parse_args()
 
     train, dev = pd.read_parquet(args.source / "train.parquet"), pd.read_parquet(args.source / "dev.parquet")
     train_aug, train_stats = augment(train, args.seed)
     dev_aug, dev_stats = augment(dev, args.seed + 1)
+    if args.added_detail_fraction > 0:
+        extra, extra_stats = added_detail(train, args.seed, args.added_detail_fraction)
+        dev_extra, dev_extra_stats = added_detail(dev, args.seed + 1, args.added_detail_fraction)
+        train_aug, dev_aug = pd.concat([train_aug, extra], ignore_index=True), pd.concat([dev_aug, dev_extra], ignore_index=True)
+        train_stats, dev_stats = {**train_stats, **extra_stats}, {**dev_stats, **dev_extra_stats}
     combined = pd.concat([train, train_aug], ignore_index=True).sample(frac=1.0, random_state=args.seed)
     args.output.mkdir(parents=True, exist_ok=True)
     combined.to_parquet(args.output / "train.parquet", index=False)
     dev.to_parquet(args.output / "dev.parquet", index=False)          # chọn checkpoint trên dev GỐC
     dev_aug.to_parquet(args.output / "dev_augmented.parquet", index=False)
     manifest = {
-        "experiment": "RT-V4 verifier: RT-V3 windows + format-invariance and contrast augmentation",
+        "experiment": "RT-V4 verifier: RT-V3 windows + format-invariance and contrast augmentation"
+                      + (f" + added-detail NEI ({args.added_detail_fraction})" if args.added_detail_fraction else ""),
         "source": str(args.source.relative_to(ROOT)), "seed": args.seed,
         "train": {"original": len(train), "augmented": len(train_aug), "kinds": train_stats,
                   "labels": {str(k): int(v) for k, v in combined.labels.value_counts().sort_index().items()}},

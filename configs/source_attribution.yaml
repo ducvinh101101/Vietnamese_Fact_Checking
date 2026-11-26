@@ -75,6 +75,16 @@ decision:
   web_thresholds:
     relevance: 0.55
     support: 0.6
+  # Bản tóm tắt cả bài (src/article_digest.py): với 3 bài liên quan nhất, ghép các câu khớp từng ý của claim
+  # thành một đoạn rồi chấm như đoạn thường. Sửa lỗi claim gộp nhiều câu của cùng bài. null = tắt.
+  # Dev thực tế 70 claim: TB nhóm 63,7% (6 trang, chấm từng đoạn) → 81,3% (6 trang + tóm tắt) → 84,7% (10 trang
+  # + tóm tắt), báo nhầm 0%. Tối đa 2 câu: 73,3%; 3 hoặc 5 câu, 5 bài: lệch ±1 claim.
+  article_digest:
+    scope: all               # all | web
+    max_articles: 3
+    max_sentences: 4
+    max_chars: 700
+    min_unit_coverage: 0.4
 
 web_retrieval:
   version: 1
@@ -148,7 +158,8 @@ web_retrieval:
     minimum_passage_chars: 80
     maximum_passage_chars: 600
     max_passages_per_page: 4     # chọn 4 đoạn LIÊN QUAN NHẤT của mỗi trang
-    max_pages: 6                 # đọc tối đa 6 trang thay vì 1
+    max_pages: 10                # dev thực tế (tóm tắt cả bài): 6 trang 81,3% → 10 trang 84,7%; không tốn thêm credit
+    max_article_passages: 60     # số đoạn tối đa giữ cho bản tóm tắt cả bài
     main_content_extractor: trafilatura
   secrets:
     log_key: false

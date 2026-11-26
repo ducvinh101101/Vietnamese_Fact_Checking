@@ -22,7 +22,7 @@ from typing import Protocol, Sequence
 from urllib.parse import urlparse
 
 from src.preprocessing import normalize_text
-from src.schemas import RetrievedEvidence
+from src.schemas import Evidence, RetrievedEvidence
 from src.source_reranker import LexicalSourceScorer, RelevanceScorer, dates_compatible, entity_present, rerank
 from src.vi_text import ClaimFacets, approximate_numbers, extract_dates, extract_numbers, fold, number_matches
 
@@ -173,6 +173,7 @@ class SourceAttributionPipeline:
         max_citations: int = 3,
         require_claim_numbers: bool = False,
         web_thresholds: AttributionThresholds | None = None,
+        article_digest: dict | None = None,
     ) -> None:
         if candidate_k < 1 or assess_k < 1 or max_citations < 1:
             raise ValueError("candidate_k, assess_k, max_citations phải lớn hơn 0")
@@ -181,6 +182,9 @@ class SourceAttributionPipeline:
         self.verifier = verifier
         self.thresholds = thresholds or AttributionThresholds()
         self.web_thresholds = web_thresholds
+        # Bản tóm tắt cả bài (src/article_digest.py): None = tắt. Khóa: max_articles, max_sentences, max_chars,
+        # min_unit_coverage, scope ("all" | "web").
+        self.article_digest = dict(article_digest) if article_digest else None
         self.candidate_k = candidate_k
         self.assess_k = assess_k
         self.max_citations = max_citations
@@ -243,6 +247,7 @@ class SourceAttributionPipeline:
         candidates = self.retriever.search(text, self.candidate_k)  # type: ignore[attr-defined]
         candidates = [item for item in candidates if isfinite(item.score) and item.evidence.content.strip()]
         reranked = rerank(self.scorer, text, candidates, self.assess_k)
+        reranked = self._with_article_digests(text, candidates, reranked)
         # Chỉ chạy verifier trên các đoạn đạt ngưỡng liên quan của nguồn tương ứng (local hoặc web).
         relevant_indices = [
             index for index, item in enumerate(reranked)
@@ -261,6 +266,40 @@ class SourceAttributionPipeline:
         ])
         result = self._decide(text, assessed, queries, len(candidates))
         return replace(result, web_status=self._web_status())
+
+    def _with_article_digests(self, claim: str, candidates: list[RetrievedEvidence],
+                              reranked: list[RetrievedEvidence]) -> list[RetrievedEvidence]:
+        """Thêm cho mỗi bài liên quan nhất một đoạn "tóm tắt cả bài" (câu khớp từng ý của claim)."""
+        settings = self.article_digest
+        if not settings:
+            return reranked
+        from src.article_digest import build_digest
+
+        web_only = settings.get("scope", "all") == "web"
+        lookup = getattr(self.retriever, "article_passages", None)
+        first: dict[str, Evidence] = {}
+        for item in [*reranked, *candidates]:
+            evidence = item.evidence
+            key = evidence.document_id or evidence.url
+            if key and key not in first and (not web_only or is_web_evidence(evidence)):
+                first[key] = evidence
+        existing = {" ".join(item.evidence.content.casefold().split()) for item in reranked}
+        digests: list[Evidence] = []
+        for key, evidence in list(first.items())[: int(settings.get("max_articles", 3))]:
+            passages = (lookup(evidence.document_id) if callable(lookup) else None) or [
+                item.evidence.content for item in candidates if (item.evidence.document_id or item.evidence.url) == key]
+            digest = build_digest(claim, passages, int(settings.get("max_sentences", 4)),
+                                  int(settings.get("max_chars", 700)), float(settings.get("min_unit_coverage", 0.4)))
+            if digest and " ".join(digest.casefold().split()) not in existing:
+                existing.add(" ".join(digest.casefold().split()))
+                digests.append(replace(evidence, passage_id=f"{evidence.passage_id.split('-w')[0]}-digest",
+                                       content=digest))
+        if not digests:
+            return reranked
+        scores = self.scorer.score(claim, [evidence.content for evidence in digests])
+        merged = [*reranked, *(RetrievedEvidence(e, float(score)) for e, score in zip(digests, scores))]
+        merged.sort(key=lambda item: (-item.score, item.evidence.passage_id))
+        return merged
 
     def _web_status(self) -> str | None:
         """Đọc trạng thái của retriever web (nếu có) sau lần search vừa rồi."""

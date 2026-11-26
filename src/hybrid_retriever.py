@@ -132,6 +132,9 @@ class HybridSourceRetriever:
         if not evidence_items:
             raise ValueError("Cần ít nhất một evidence để tạo index")
         self.evidence_items = build_windows(evidence_items, window, stride, max_chars, window_scope)
+        self._article_windows: dict[str, list[str]] = {}
+        for item in self.evidence_items:
+            self._article_windows.setdefault(item.document_id, []).append(item.content)
         self.segmenter = segmenter
         self.index = SparseBM25([tokenize_bm25(item.content, segmenter) for item in self.evidence_items])
         self.candidates_per_query = candidates_per_query
@@ -175,6 +178,10 @@ class HybridSourceRetriever:
             weights.append(self.dense_weight)
         return rankings, weights
 
+    def article_passages(self, document_id: str) -> list[str]:
+        """Các cửa sổ câu của cùng bài, theo thứ tự trong bài."""
+        return list(self._article_windows.get(document_id, []))
+
     def search(self, claim: str, top_k: int = 3) -> list[RetrievedEvidence]:
         if top_k < 1:
             raise ValueError("top_k phải lớn hơn 0")
@@ -197,6 +204,15 @@ class FusedRetriever:
         self.candidates_per_retriever = candidates_per_retriever
         self.rrf_k = rrf_k
         self.last_errors: list[str] = []
+
+    def article_passages(self, document_id: str) -> list[str]:
+        """Mọi đoạn của bài từ nguồn đầu tiên có bài này (kho cục bộ hoặc web)."""
+        for retriever in self.retrievers:
+            lookup = getattr(retriever, "article_passages", None)
+            passages = lookup(document_id) if callable(lookup) else None
+            if passages:
+                return list(passages)
+        return []
 
     def search(self, claim: str, top_k: int = 3) -> list[RetrievedEvidence]:
         if top_k < 1:
