@@ -1,0 +1,98 @@
+{
+  "experiment": "RT-V5",
+  "train_file": "train.parquet",
+  "smoke_only": false,
+  "train_rows": 8016,
+  "dev_rows": 1196,
+  "before_dev": {
+    "before_dev_loss": 0.6751533150672913,
+    "before_dev_model_preparation_time": 0.0031,
+    "before_dev_accuracy": 0.8160535117056856,
+    "before_dev_macro_f1": 0.8101631865781979,
+    "before_dev_runtime": 3.0325,
+    "before_dev_samples_per_second": 394.39,
+    "before_dev_steps_per_second": 24.732
+  },
+  "after_dev": {
+    "dev_loss": 0.7925766706466675,
+    "dev_model_preparation_time": 0.0031,
+    "dev_accuracy": 0.8210702341137124,
+    "dev_macro_f1": 0.814401569021484,
+    "dev_runtime": 2.4022,
+    "dev_samples_per_second": 497.87,
+    "dev_steps_per_second": 31.221
+  },
+  "dev_per_label": {
+    "SUPPORTED": {
+      "precision": 0.8351351351351352,
+      "recall": 0.8262032085561497,
+      "f1-score": 0.8306451612903226,
+      "support": 374.0
+    },
+    "REFUTED": {
+      "precision": 0.774390243902439,
+      "recall": 0.7195467422096318,
+      "f1-score": 0.7459618208516887,
+      "support": 353.0
+    },
+    "NOT_ENOUGH_INFO": {
+      "precision": 0.8413654618473896,
+      "recall": 0.8933901918976546,
+      "f1-score": 0.8665977249224406,
+      "support": 469.0
+    },
+    "accuracy": 0.8210702341137124,
+    "macro avg": {
+      "precision": 0.8169636136283213,
+      "recall": 0.8130467142211453,
+      "f1-score": 0.814401569021484,
+      "support": 1196.0
+    },
+    "weighted avg": {
+      "precision": 0.8196494132479325,
+      "recall": 0.8210702341137124,
+      "f1-score": 0.8197492860132537,
+      "support": 1196.0
+    }
+  },
+  "truncated_pairs": {
+    "train": 4,
+    "dev": 0
+  },
+  "selection": "gold-evidence DEV Macro-F1; end-to-end promotion NOT evaluated",
+  "training": {
+    "lr": 1e-05,
+    "epochs_max": 2,
+    "batch": 8,
+    "gradient_accumulation": 2,
+    "max_length": 256,
+    "seed": 42,
+    "ai_weight": 0.5
+  },
+  "versions": {
+    "torch": "2.14.0+cu130",
+    "transformers": "4.46.3"
+  },
+  "bundle_manifest_sha256": "44288465b827ef8582013401cf08ce9f205524db5f9ec9ad4f7dc1383fe8150b",
+  "initial_model_files": {
+    "added_tokens.json": "6887f87ac991379ea91aedb4dd5e1af4f6ee38693ec0ca1c2b6209559ce283d8",
+    "bpe.codes": "952d890231f68a19a40aa0896559a2d449cf8e7a0253aae903549486d6e0eb3c",
+    "config.json": "617a6ff9880ccb157794d0d7d59d8b321bf0d4712fbd3e7f95d8760c1f435adf",
+    "model.safetensors": "edd6dbddda43a2bdc8815f142026a0c86ae448fbf45c8dc2f0b13b4acfe13c30",
+    "special_tokens_map.json": "edd71739099fe63dc2f70815facad5253c70ded0e0d4df49ef883ce4511af365",
+    "tokenizer_config.json": "1831a4ad4d2026800aad7814fcf48e65c74f71a2ebaac7dadda330e66d8a4d40",
+    "training_args.bin": "4715473409b858aff67d0b7ac5b4d4011e4b7ba2754d9c39f0a14f9433e24538",
+    "vocab.txt": "88f702cb8597e9510c6e414014242762368263be2cf8ea094619d969f64a99b9"
+  },
+  "best_model_files": {
+    "added_tokens.json": "6887f87ac991379ea91aedb4dd5e1af4f6ee38693ec0ca1c2b6209559ce283d8",
+    "bpe.codes": "952d890231f68a19a40aa0896559a2d449cf8e7a0253aae903549486d6e0eb3c",
+    "config.json": "2eff03bf6c0a90b3519980cd6d5beda5b3ef318f9fb21d6db059d18ef0324522",
+    "model.safetensors": "84316a457594fd3311d1db0bf89a222450e851716a3a60ffb6dcd4989cff17d8",
+    "special_tokens_map.json": "edd71739099fe63dc2f70815facad5253c70ded0e0d4df49ef883ce4511af365",
+    "tokenizer_config.json": "1831a4ad4d2026800aad7814fcf48e65c74f71a2ebaac7dadda330e66d8a4d40",
+    "training_args.bin": "f535630e1f563ae1de6066c8f78da13d0af5d1455e28bc35bd1f7c787ac1e59e",
+    "vocab.txt": "88f702cb8597e9510c6e414014242762368263be2cf8ea094619d969f64a99b9"
+  },
+  "warning": "AI silver is not human gold; no test read, no claim of real-world 80%; recalibrate and rebuild aggregator for new logits"
+}
