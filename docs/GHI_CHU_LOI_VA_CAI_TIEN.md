@@ -14,11 +14,11 @@
 | Verifier | **RT-V4** `models/rt_v4_augmented` (mục 1b); ngưỡng relevance 0,7 → 0,75 (dò trên dev) |
 | Ngưỡng riêng cho web | `decision.web_thresholds` relevance 0,55 / support 0,6 – dò trên tập dev thực tế (mục 1c) |
 | Tập dev thực tế | `PHIEU_DEV_THUC_TE.xlsx` 70 claim, bản ghi `.cache/realdev_web_snapshot.jsonl` (144 credit) |
-| Tập thực tế 300 claim (kiểm tra độc lập cho ngưỡng web) | **60,7%** (trước 51,3%); báo nhầm "có nguồn" **4/140** (trước 1/140) |
+| Tập thực tế 300 claim (kiểm tra độc lập, không chỉnh theo) | **84,0%** (đầu ngày 21/11: 49,3%); tìm được nguồn cho tin thật **81,9%**; báo nhầm "có nguồn" **5/140** (3,6%) |
 | Tập test ViFactCheck | 83,3% (chạy một lần, cấu hình cũ) – **chưa đo lại** với cấu hình mới |
 | Tập thực tế 300 claim | Web thật lần 2: **51,3%**; chấm lại cấu hình mới: **51,0%**; báo nhầm "có nguồn" 1/140 |
-| Credit Tavily (key mới, gói Researcher 1.000/tháng) | **614/900** (hạn mức tự đặt) – còn 286 |
-| Bản ghi web 300 claim | `.cache/realworld_web_snapshot.jsonl` (không commit) – chấm lại bằng `--replay`, 0 credit |
+| Credit Tavily (key mới từ 26/11, gói Researcher 1.000/tháng) | **743/900** (hạn mức tự đặt) – còn **157 cho demo** (~2 credit/claim) |
+| Bản ghi web (không commit) | `.cache/realworld_web_snapshot_v2.jsonl`, `.cache/realdev_web_snapshot_v2.jsonl` – tìm kiếm mới; chấm lại bằng `--replay`, 0 credit |
 | Pull Request vào `main` | Chưa – đợi thầy/nhóm xem |
 
 **Quy tắc:** tập thực tế 300 claim chỉ dùng để **chẩn đoán** (soi lỗi), không dò ngưỡng / chọn cấu hình. Mọi thay
@@ -100,6 +100,38 @@ quy tắc kiểu "relevance < 0,7 thì cần support cao hơn".
 
 ```powershell
 .venv\Scripts\python.exe scripts\evaluate_source_attribution_realworld.py data\evaluation\PHIEU_DEV_THUC_TE.xlsx --replay .cache\realdev_web_snapshot.jsonl --sweep --output outputs\metrics\source_attribution_realdev_replay.json
+```
+
+---
+
+## 1d. Tóm tắt cả bài + tìm kiếm mới (26/11)
+
+Chẩn đoán trên tập dev thực tế: (a) claim gộp nhiều câu của **cùng bài**, cửa sổ nào cũng thiếu một phần → verifier
+"thiếu"/"mâu thuẫn"; (b) Tavily trả **bài cũ cùng chủ đề** (Bitcoin giảm đợt khác, vụ ngộ độc năm 2025…).
+
+| Thay đổi | Credit | Ghi chú |
+|---|---:|---|
+| `src/article_digest.py`: với 3 bài liên quan nhất, ghép câu khớp từng ý của claim (≤ 4 câu) thành 1 đoạn, chấm như đoạn thường | 0 | `decision.article_digest`, **chỉ cho web** (ViFactCheck: "all" làm 84,29% → 83,69%) |
+| `scripts/reread_web_snapshot.py`: đọc lại trang từ URL đã lưu, giữ cả bài | 0 | Không gọi Tavily; đọc 10 trang thay vì 6 |
+| Sửa `IncompleteRead` (máy chủ ngắt giữa chừng làm mất CẢ kết quả web của claim) | 0 | `src/web_retriever.py` |
+| Tìm kiếm: `max_results` 20, truy vấn từ khóa lọc `time_range: month` | 2/claim như cũ | Tavily trả bài gốc: 21/26 → 25/26 claim dev |
+| RT-V5 (thêm mẫu NEI "claim có chi tiết bài không có") | 0 | **Không dùng** – không hơn RT-V4 (dev 70: 83,0% vs 84,7%) |
+
+| | Trước (25/11) | Sau |
+|---|---:|---:|
+| Dev thực tế 70 claim (chỉnh trên tập này) | 63,7% TB nhóm | **92,7%** TB nhóm, 91,4% đúng, báo nhầm 0/30 |
+| **300 claim (kiểm tra độc lập)** | 60,7% | **84,0%** đúng, TB nhóm 84,3% |
+| – tin thật / viết lại / sửa chi tiết / tin bịa | 42 / 41,7 / 85,7 / 78,6% | **81 / 83,3 / 91,4 / 81,4%** |
+| – tìm được nguồn cho tin thật · trích đúng bài gốc | 41,9% · 53,7% | **81,9% · 67,9%** |
+| – báo nhầm "có nguồn" | 4/140 | 5/140 |
+| ViFactCheck dev 1.252 (kho cục bộ) | 84,29% | 84,29% (không đổi) |
+
+**Còn mở:** 27 tin thật ra "mâu thuẫn" (bài khác cùng chủ đề lấn bài gốc), 12 tin bịa ra "mâu thuẫn" thay vì "không có
+nguồn", 5 báo nhầm (rw112, rw148, rw232, rw251, rw257). Lần web thật: 743 credit cho 370 claim (dừng/chạy tiếp được
+bằng `--skip-recorded`).
+
+```powershell
+.venv\Scripts\python.exe scripts\evaluate_source_attribution_realworld.py data\evaluation\PHIEU_GAN_NHAN_NGUON_V1.xlsx --replay .cache\realworld_web_snapshot_v2.jsonl --output outputs\metrics\source_attribution_realworld_final.json
 ```
 
 ---
