@@ -368,3 +368,21 @@ def test_fetch_page_wraps_incomplete_read(monkeypatch, tmp_path):
     web = wr.WebRetriever(config(tmp_path), api_key="test")
     with pytest.raises(wr.WebRetrievalError):
         web._fetch_page("https://vnexpress.net/a-1.html", 1.0)
+
+
+def test_query_overrides_apply_per_query_and_only_safe_keys(tmp_path):
+    payloads = []
+
+    def provider(payload, key, timeout):
+        payloads.append(dict(payload))
+        return {"results": []}
+
+    cfg = config(tmp_path)
+    cfg["limits"]["requests_per_claim"] = 2
+    cfg["provider"]["query_overrides"] = [{}, {"time_range": "month", "search_depth": "advanced"}]
+    WebRetriever(cfg, api_key="k", provider_request=provider, page_fetcher=lambda *a: ("", ""),
+                 robots_fetcher=lambda *_: "").search("Ngày 20/11, Ba Lan theo dõi 11 mục tiêu xâm nhập không phận", 3)
+    assert len(payloads) == 2
+    assert "time_range" not in payloads[0]
+    assert payloads[1]["time_range"] == "month"
+    assert payloads[1]["search_depth"] == cfg["provider"]["search_depth"]  # không cho đổi sang advanced (2 credit)

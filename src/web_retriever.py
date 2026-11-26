@@ -340,6 +340,10 @@ class UsageLedger:
             temporary.replace(self.path)
 
 
+# Chỉ các tham số không đổi giá (basic search = 1 credit) – không cho đổi search_depth/include_domains.
+ALLOWED_QUERY_OVERRIDES = frozenset({"time_range", "topic", "days"})
+
+
 class WebRetriever:
     """Tavily search + guarded page fetch + passage extraction for approved hosts."""
 
@@ -490,7 +494,9 @@ class WebRetriever:
         batches: list[list[object]] = []
         provider_failed = False
         limit_status: str | None = None
-        for query in queries:
+        # Tham số Tavily riêng cho từng truy vấn (vd. truy vấn từ khóa chỉ lấy tin gần đây: time_range=month).
+        overrides = list(self.provider.get("query_overrides") or [])  # type: ignore[union-attr]
+        for query_index, query in enumerate(queries):
             payload = {
                 "query": query[:400],
                 "search_depth": self.provider["search_depth"],
@@ -501,6 +507,9 @@ class WebRetriever:
                 "include_raw_content": False,
                 "auto_parameters": False,
             }
+            extra = overrides[query_index] if query_index < len(overrides) else None
+            if isinstance(extra, dict):
+                payload.update({key: value for key, value in extra.items() if key in ALLOWED_QUERY_OVERRIDES})
             try:
                 self.ledger.reserve()
                 response = self.provider_request(payload, self.api_key, float(self.limits["timeout_seconds"]))

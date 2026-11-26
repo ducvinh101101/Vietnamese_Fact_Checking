@@ -80,7 +80,9 @@ decision:
   # Dev thực tế 70 claim: TB nhóm 63,7% (6 trang, chấm từng đoạn) → 81,3% (6 trang + tóm tắt) → 84,7% (10 trang
   # + tóm tắt), báo nhầm 0%. Tối đa 2 câu: 73,3%; 3 hoặc 5 câu, 5 bài: lệch ±1 claim.
   article_digest:
-    scope: all               # all | web
+    # web: chỉ đoạn web. ViFactCheck (claim 1 câu, kho cục bộ): "all" làm TB 84,29% → 83,69%, báo nhầm 5,1% → 6,4%;
+    # dev thực tế như nhau (91,4%).
+    scope: web
     max_articles: 3
     max_sentences: 4
     max_chars: 700
@@ -99,7 +101,12 @@ web_retrieval:
     auto_parameters: false
     include_answer: false
     include_raw_content: false
-    max_results: 10
+    # 20 kết quả/truy vấn: basic search vẫn 1 credit. Truy vấn 1 (claim) không lọc thời gian; truy vấn 2 (từ khóa)
+    # chỉ lấy tin trong tháng – dev thực tế: 9/13 lỗi còn lại là Tavily trả bài CŨ cùng chủ đề.
+    max_results: 20
+    query_overrides:
+      - {}
+      - {time_range: month}
   limits:
     requests_per_claim: 2      # claim gốc + truy vấn từ khóa/thực thể
     requests_per_minute: 60    # Tavily cho key dev 100/phút; trước là 10 (~5 claim/phút)
